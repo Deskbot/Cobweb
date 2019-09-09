@@ -24,7 +24,7 @@ export class ServerBuilder {
         const listeners = [...this.listeners];
 
         const responseHandlerBuilder = new ResponseHandlerBuilder(endpoints, listeners, this.noEndpointHandler);
-        return responseHandlerBuilder.build();
+        return responseHandlerBuilder.run;
     }
 
     setNoEndpointHandler(handler: ResponseHandler) {
@@ -43,11 +43,9 @@ class ResponseHandlerBuilder {
         this.noEndpointHandler = noEndpointHandler;
     }
 
-    build(): ResponseHandler {
-        return (req, res) => {
-            this.callListeners(req);
-            this.callEndpoint(req, res);
-        };
+    run(req: Request, res: Response): void {
+        this.callListeners(req);
+        this.callEndpoint(req, res);
     }
 
     private callEndpoint(req: Request, res: Response) {
