@@ -1,12 +1,23 @@
 import { ServerBuilder } from "./ServerBuilder";
-import { ResponseHandler } from "./types";
+import { ResponseHandler, RequestPredicate } from "./types";
 
 export function addEndpoint(
     builder: ServerBuilder,
-    condition: (req: Request) => boolean,
+    condition: RequestPredicate,
     handler: ResponseHandler
 ) {
     builder.addEndpoint({ condition, handler });
+}
+
+export function addEndpointForUrl(
+    builder: ServerBuilder,
+    url: string,
+    handler: ResponseHandler
+) {
+    builder.addEndpoint({
+        condition: req => req.url === url,
+        handler,
+    });
 }
 
 export function isMethod(req: Request, method: string): boolean {
