@@ -1,4 +1,4 @@
-import { Endpoint, Listener, ResponseHandler, RequestPredicate } from "./types";
+import { Endpoint, Listener, ResponseHandler } from "./types";
 
 export class ServerBuilder {
     private endpoints: Endpoint[];
@@ -19,6 +19,7 @@ export class ServerBuilder {
     }
 
     build(): ResponseHandler {
+        // ensure that if build gets called again that the build handler isn't changed
         const endpoints = [...this.endpoints];
         const listeners = [...this.listeners];
 
@@ -35,8 +36,18 @@ export class ServerBuilder {
                 endpointToCall(req, res);
             }
 
-            listeners.filter(listener => listener.condition(req))
-                .forEach(listener => listener.handler(req));
+            // call listeners as soon as the predicate result is available
+
+            for (const listener of listeners) {
+                const condition = listener.condition(req);
+                if (condition instanceof Promise) {
+                    condition.then(() => {
+                        listener.handler(req);
+                    });
+                } else {
+                    listener.handler(req);
+                }
+            }
         }
     }
 

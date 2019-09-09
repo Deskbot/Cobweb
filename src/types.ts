@@ -1,5 +1,5 @@
 export interface RequestHandler {
-    (req: Request): void;
+    (req: Request): void | Promise<void>;
 }
 
 export interface RequestPredicate {
@@ -11,11 +11,11 @@ export interface ResponseHandler {
 }
 
 export interface Endpoint {
-    condition(req: Request): boolean;
+    condition(req: Request): boolean | Promise<boolean>;
     handler: ResponseHandler;
 }
 
 export interface Listener {
-    condition(req: Request): boolean;
+    condition(req: Request): boolean | Promise<boolean>;
     handler: RequestHandler;
 }
