@@ -23,35 +23,57 @@ export class ServerBuilder {
         const endpoints = [...this.endpoints];
         const listeners = [...this.listeners];
 
-        return (req, res) => {
-            const endpointFound = endpoints.find(endpoint => endpoint.condition(req));
-
-            let endpointToCall = this.noEndpointHandler;
-
-            if (endpointFound !== undefined) {
-                endpointToCall = endpointFound.handler;
-            }
-
-            if (endpointToCall !== undefined) {
-                endpointToCall(req, res);
-            }
-
-            // call listeners as soon as the predicate result is available
-
-            for (const listener of listeners) {
-                const condition = listener.condition(req);
-                if (condition instanceof Promise) {
-                    condition.then(() => {
-                        listener.handler(req);
-                    });
-                } else {
-                    listener.handler(req);
-                }
-            }
-        }
+        const responseHandlerBuilder = new ResponseHandlerBuilder(endpoints, listeners, this.noEndpointHandler);
+        return responseHandlerBuilder.build();
     }
 
     setNoEndpointHandler(handler: ResponseHandler) {
         this.noEndpointHandler = handler;
+    }
+}
+
+class ResponseHandlerBuilder {
+    private endpoints: Endpoint[];
+    private listeners: Listener[];
+    private noEndpointHandler: ResponseHandler | undefined;
+
+    constructor(endpoints: Endpoint[], listeners: Listener[], noEndpointHandler?: ResponseHandler) {
+        this.endpoints = endpoints;
+        this.listeners = listeners;
+        this.noEndpointHandler = noEndpointHandler;
+    }
+
+    build(): ResponseHandler {
+        return (req, res) => {
+            this.callListeners(req);
+            this.callEndpoint(req, res);
+        };
+    }
+
+    private callEndpoint(req: Request, res: Response) {
+        const endpointFound = this.endpoints.find(endpoint => endpoint.condition(req));
+
+        let endpointToCall = this.noEndpointHandler;
+
+        if (endpointFound !== undefined) {
+            endpointToCall = endpointFound.handler;
+        }
+
+        if (endpointToCall !== undefined) {
+            endpointToCall(req, res);
+        }
+    }
+
+    private callListeners(req: Request) {
+        for (const listener of this.listeners) {
+            const condition = listener.condition(req);
+            if (condition instanceof Promise) {
+                condition.then(() => {
+                    listener.handler(req);
+                });
+            } else {
+                listener.handler(req);
+            }
+        }
     }
 }
