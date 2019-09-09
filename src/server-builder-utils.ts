@@ -1,0 +1,50 @@
+import { ServerBuilder } from "./ServerBuilder";
+import { ResponseHandler } from "./types";
+
+export function addEndpoint(
+    builder: ServerBuilder,
+    condition: (req: Request) => boolean,
+    handler: ResponseHandler
+) {
+    builder.addEndpoint({ condition, handler });
+}
+
+export function isMethod(req: Request, method: string): boolean {
+    return req.method === method;
+}
+
+export function isHead(req: Request): boolean {
+    return isMethod(req, "HEAD");
+}
+
+export function isPut(req: Request): boolean {
+    return isMethod(req, "PUT");
+}
+
+export function isDelete(req: Request): boolean {
+    return isMethod(req, "DELETE");
+}
+
+export function isConnect(req: Request): boolean {
+    return isMethod(req, "CONNECT");
+}
+
+export function isOptions(req: Request): boolean {
+    return isMethod(req, "OPTIONS");
+}
+
+export function isTrace(req: Request): boolean {
+    return isMethod(req, "TRACE");
+}
+
+export function isPatch(req: Request): boolean {
+    return isMethod(req, "PATCH");
+}
+
+export function isGet(req: Request): boolean {
+    return isMethod(req, "GET");
+}
+
+export function isPost(req: Request): boolean {
+    return isMethod(req, "POST");
+}
