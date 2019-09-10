@@ -1,6 +1,28 @@
 import { ServerBuilder } from "./ServerBuilder";
 import { ResponseHandler, RequestPredicate } from "./types";
 
+export function addEndpointForUrlPattern(
+    builder: ServerBuilder,
+    pattern: RegExp,
+    handler: (matches: RegExpMatchArray | null, req: Request, res: Response) => void
+) {
+    let patternMatches: RegExpMatchArray | null = null;
+
+    builder.addEndpoint({
+        condition: req => {
+            patternMatches = req.url.match(pattern);
+            return !!patternMatches;
+        },
+        handler: (req, res) => {
+            return handler(
+                patternMatches,
+                req,
+                res
+            );
+        },
+    });
+}
+
 export function addEndpoint(
     builder: ServerBuilder,
     condition: RequestPredicate,
