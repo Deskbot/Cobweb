@@ -1,24 +1,28 @@
 import { ServerBuilder } from "./ServerBuilder";
 import { ResponseHandler, RequestPredicate, Endpoint } from "./types";
 
-export function urlPatternEndpoint(
-    pattern: RegExp,
-    handler: (matches: RegExpMatchArray | null, req: Request, res: Response) => void
-): Endpoint {
-    let patternMatches: RegExpMatchArray | null = null;
+export class UrlPatternEndpoint implements Endpoint {
+    private patternMatches: RegExpMatchArray | null;
+    private pattern: RegExp;
+    private urlHandler: (matches: RegExpMatchArray | null, req: Request, res: Response) => void;
 
-    return {
-        condition: req => {
-            patternMatches = req.url.match(pattern);
-            return !!patternMatches;
-        },
-        handler: (req, res) => {
-            return handler(
-                patternMatches,
-                req,
-                res
-            );
-        },
+    constructor(pattern: RegExp, handler: (matches: RegExpMatchArray | null, req: Request, res: Response) => void) {
+        this.pattern = pattern;
+        this.patternMatches = null;
+        this.urlHandler = handler;
+    }
+
+    condition(req: Request) {
+        this.patternMatches = req.url.match(this.pattern);
+        return !!this.patternMatches;
+    }
+
+    handler(req: Request, res: Response) {
+        return this.urlHandler(
+            this.patternMatches,
+            req,
+            res
+        );
     };
 }
 
