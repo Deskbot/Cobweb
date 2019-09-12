@@ -84,3 +84,7 @@ export function isGet(req: Request): boolean {
 export function isPost(req: Request): boolean {
     return isMethod(req, "POST");
 }
+
+export function isUrl(req: Request, url: string): boolean {
+    return req.url === url;
+}
