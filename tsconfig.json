@@ -1,25 +1,7 @@
 {
-    "compilerOptions": {
-        "alwaysStrict": true,
-        "declaration": true,
-        "module": "commonjs",
-        "noImplicitAny": true,
-        "noImplicitThis": true,
-        "noImplicitReturns": true,
-        "outDir": "./build",
-        "sourceMap": true,
-        "sourceRoot": "./src",
-        "strictFunctionTypes": true,
-        "strictNullChecks": true,
-        "strictPropertyInitialization": true,
-        "target": "ES2017"
-    },
+    "extends": "./base.tsconfig.json",
 
     "include": [
         "src"
-    ],
-    "exclude": [
-        "node_modules",
-        "test"
     ]
 }

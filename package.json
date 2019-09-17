@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "description": "A web server framework",
   "scripts": {
-    "build": "./node_modules/.bin/tsc"
+    "build": "./node_modules/.bin/tsc",
+    "build-tests": "./node_modules/.bin/tsc -p ./test",
+    "test": "node test/build/test.sh"
   },
   "author": "",
   "license": "UNLICENSED",
