@@ -1,20 +1,16 @@
 import { ServerBuilder } from "../../src";
-import { promisify } from "util";
 
-interface TestWatcher {
-    pass(message?: string): void;
-    fail(message?: string): void;
-}
+main();
 
 interface Test {
     name: string;
-    run(watcher: TestWatcher): void;
+    run(): Promise<void>;
 }
 
 const tests: Test[] = [
     {
         name: "A server should be able to listen to things.",
-        run({pass}) {
+        async run() {
             const builder = new ServerBuilder();
             builder.addListener({
                 condition: req => true,
@@ -25,7 +21,7 @@ const tests: Test[] = [
 
     {
         name: "A server should end at the correct endpoint.",
-        run({pass, fail}) {
+        async run() {
             const builder = new ServerBuilder();
             fail();
         }
@@ -33,7 +29,7 @@ const tests: Test[] = [
 
     {
         name: "A server should not fall over when no listeners or endpoints are defined.",
-        run({pass, fail}) {
+        async run() {
             const builder = new ServerBuilder();
             pass("pass3");
         }
@@ -41,46 +37,51 @@ const tests: Test[] = [
 
     {
         name: "A server should use the default endpoint if one is set.",
-        run({fail}) {
+        async run() {
             const builder = new ServerBuilder();
             fail("fail 4");
         }
     }
 ];
 
-let passes = 0;
-let fails = 0;
+async function eventuallyReject(afterMilliseconds: number): Promise<void> {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            reject();
+        }, afterMilliseconds);
+    });
+}
 
-tests.forEach(async (test) => {
-    console.log("------");
-    console.log(test.name);
+async function main() {
+    let passes = 0;
+    let fails = 0;
+    let incomplete = 0;
 
-    const fail = (errorMessage?: any) => {
-        if (errorMessage) {
-            console.log(errorMessage);
-        }
-        fails += 1;
-    };
+    const allTests = tests.map(async (test) => {
+        console.log("------");
+        console.log(test.name);
 
-    const watcher = {
-        pass: (passMessage: any) => {
-            if (passMessage) {
-                console.log(passMessage);
-            }
+        incomplete += 1;
 
+        try {
+            await test.run();
             passes += 1;
-        },
-        fail,
-    };
 
-    try {
-        test.run(watcher);
+        } catch (e) {
+            console.log(e);
+            fails += 1;
+        }
 
-    } catch (e) {
-        fail(e);
-    }
-});
+        incomplete -= 1;
+    });
 
-console.log("------");
-console.log("Passes: ", passes);
-console.log("Fails:  ", fails);
+    await Promise.race([
+        Promise.all(allTests),
+        eventuallyReject(allTests.length * 10000)
+    ]);
+
+    console.log("------");
+    console.log("Passes:     ", passes);
+    console.log("Fails:      ", fails);
+    console.log("Incomplete: ", incomplete);
+}
