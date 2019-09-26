@@ -1,20 +1,21 @@
 import { ServerBuilder } from "../../src";
+import { Defer, defer } from "./defer";
 
 main();
 
 interface Test {
     name: string;
-    run(): Promise<void>;
+    run(defer: Defer<void>): Promise<void>;
 }
 
 const tests: Test[] = [
     {
         name: "A server should be able to listen to things.",
-        async run() {
+        async run(defer) {
             const builder = new ServerBuilder();
             builder.addListener({
                 condition: req => true,
-                handler: () => pass()
+                handler: () => ()
             })
         }
     },
@@ -64,7 +65,7 @@ async function main() {
         incomplete += 1;
 
         try {
-            await test.run();
+            await run(test);
             passes += 1;
 
         } catch (e) {
@@ -73,15 +74,17 @@ async function main() {
         }
 
         incomplete -= 1;
-    });
-
-    await Promise.race([
-        Promise.all(allTests),
-        eventuallyReject(allTests.length * 10000)
-    ]);
+    })
+        .map(test => Promise.race([test, eventuallyReject(allTests.length * 10000)]));
 
     console.log("------");
     console.log("Passes:     ", passes);
     console.log("Fails:      ", fails);
     console.log("Incomplete: ", incomplete);
+}
+
+function run(test: Test): Promise<void> {
+    const doTest = defer<void>();
+    test.run(doTest);
+    return doTest.promise;
 }
