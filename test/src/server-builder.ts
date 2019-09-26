@@ -1,6 +1,8 @@
 import { ServerBuilder } from "../../src";
 import { Defer, defer } from "./defer";
 
+const TEN_SECONDS = 10000;
+
 main();
 
 interface Test {
@@ -8,7 +10,7 @@ interface Test {
     run(defer: Defer<void>): Promise<void>;
 }
 
-const tests: Test[] = [
+const allTests: Test[] = [
     {
         name: "A server should be able to listen to things.",
         async run(defer) {
@@ -45,10 +47,10 @@ const tests: Test[] = [
     }
 ];
 
-async function eventuallyReject(afterMilliseconds: number): Promise<void> {
+async function rejectAfter(afterMilliseconds: number): Promise<void> {
     return new Promise((resolve, reject) => {
         setTimeout(() => {
-            reject();
+            reject(`Test timed out after ${afterMilliseconds / 1000} seconds.`);
         }, afterMilliseconds);
     });
 }
@@ -56,31 +58,24 @@ async function eventuallyReject(afterMilliseconds: number): Promise<void> {
 async function main() {
     let passes = 0;
     let fails = 0;
-    let incomplete = 0;
 
-    const allTests = tests.map(async (test) => {
+    for (const test of allTests) {
         console.log("------");
         console.log(test.name);
 
-        incomplete += 1;
-
         try {
-            await run(test);
+            await Promise.race([run(test), rejectAfter(TEN_SECONDS)]);
             passes += 1;
 
         } catch (e) {
             console.log(e);
             fails += 1;
         }
-
-        incomplete -= 1;
-    })
-        .map(test => Promise.race([test, eventuallyReject(allTests.length * 10000)]));
+    }
 
     console.log("------");
-    console.log("Passes:     ", passes);
-    console.log("Fails:      ", fails);
-    console.log("Incomplete: ", incomplete);
+    console.log("Passes: ", passes);
+    console.log("Fails:  ", fails);
 }
 
 function run(test: Test): Promise<void> {
