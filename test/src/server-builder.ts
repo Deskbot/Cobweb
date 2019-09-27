@@ -85,23 +85,27 @@ const allTests: Test[] = [
         name: "A server should not fall over when no listeners or endpoints are defined.",
         async run() {
             const builder = new ServerBuilder();
-            pass("pass3");
+            builder.build();
         }
     },
 
     {
         name: "A server should use the default endpoint if one is set.",
-        async run() {
+        async run({ resolve }) {
             const builder = new ServerBuilder();
-            fail("fail 4");
+            builder.setNoEndpointHandler(() => {
+                resolve();
+            });
         }
     },
 
     {
         name: "A server should not use the default endpoint if another one matches.",
-        async run() {
+        async run({ reject }) {
             const builder = new ServerBuilder();
-            fail("fail 4");
+            builder.setNoEndpointHandler(() => {
+                reject();
+            });
         }
     }
 ];
