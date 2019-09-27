@@ -6,7 +6,6 @@
         "noImplicitAny": true,
         "noImplicitThis": true,
         "noImplicitReturns": true,
-        "outDir": "./build",
         "sourceMap": true,
         "sourceRoot": "./src",
         "strictFunctionTypes": true,

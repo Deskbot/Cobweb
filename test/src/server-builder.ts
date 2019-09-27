@@ -3,9 +3,9 @@ import * as http from "http";
 import { ServerBuilder } from "../../src";
 import { Defer, defer } from "./defer";
 
-const TEN_SECONDS = 10000;
+const TEST_PORT = 9999;
 
-main();
+const TEN_SECONDS = 10000;
 
 interface Test {
     name: string;
@@ -25,6 +25,8 @@ const allTests: Test[] = [
             });
 
             http.createServer(builder.build());
+
+            sendRequest();
         }
     },
 
@@ -38,6 +40,10 @@ const allTests: Test[] = [
                     resolve();
                 },
             });
+
+            http.createServer(builder.build());
+
+            sendRequest();
         }
     },
 
@@ -63,6 +69,10 @@ const allTests: Test[] = [
                     reject();
                 },
             });
+
+            http.createServer(builder.build());
+
+            sendRequest();
         }
     },
 
@@ -82,6 +92,10 @@ const allTests: Test[] = [
                     reject();
                 },
             });
+
+            http.createServer(builder.build());
+
+            sendRequest();
         }
     },
 
@@ -90,6 +104,10 @@ const allTests: Test[] = [
         async run() {
             const builder = new ServerBuilder();
             builder.build();
+
+            http.createServer(builder.build());
+
+            sendRequest();
         }
     },
 
@@ -100,6 +118,10 @@ const allTests: Test[] = [
             builder.setNoEndpointHandler(() => {
                 resolve();
             });
+
+            http.createServer(builder.build());
+
+            sendRequest();
         }
     },
 
@@ -110,9 +132,21 @@ const allTests: Test[] = [
             builder.setNoEndpointHandler(() => {
                 reject();
             });
+
+            http.createServer(builder.build());
+
+            sendRequest();
         }
     }
 ];
+
+function sendRequest(path?: string) {
+    http.request({
+        hostname: "localhost",
+        path,
+        port: TEST_PORT,
+    })
+}
 
 async function rejectAfter(afterMilliseconds: number): Promise<void> {
     return new Promise((resolve, reject) => {
@@ -150,3 +184,5 @@ function run(test: Test): Promise<void> {
     test.run(doTest);
     return doTest.promise;
 }
+
+main();

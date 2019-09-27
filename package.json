@@ -4,8 +4,7 @@
   "description": "A web server framework",
   "scripts": {
     "build": "./node_modules/.bin/tsc",
-    "build-tests": "./node_modules/.bin/tsc -p ./test",
-    "test": "node test/build/test.sh"
+    "build-tests": "./node_modules/.bin/tsc -p ./test"
   },
   "author": "",
   "license": "UNLICENSED",
