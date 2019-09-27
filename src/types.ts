@@ -1,21 +1,19 @@
-export interface RequestHandler {
-    (req: Request): void | Promise<void>;
+import { RequestListener, IncomingMessage } from "http";
+
+export interface RequestOnlyListener {
+    (req: IncomingMessage): void | Promise<void>;
 }
 
 export interface RequestPredicate {
-    (req: Request): boolean;
-}
-
-export interface ResponseHandler {
-    (req: Request, res: Response): void;
+    (req: IncomingMessage): boolean;
 }
 
 export interface Endpoint {
-    condition(req: Request): boolean | Promise<boolean>;
-    handler: ResponseHandler;
+    condition(req: IncomingMessage): boolean | Promise<boolean>;
+    handler: RequestListener;
 }
 
 export interface Listener {
-    condition(req: Request): boolean | Promise<boolean>;
-    handler: RequestHandler;
+    condition(req: IncomingMessage): boolean | Promise<boolean>;
+    handler: RequestOnlyListener;
 }

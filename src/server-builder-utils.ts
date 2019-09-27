@@ -1,24 +1,25 @@
 import { ServerBuilder } from "./ServerBuilder";
-import { ResponseHandler, RequestPredicate, Endpoint } from "./types";
+import { RequestPredicate, Endpoint } from "./types";
+import { RequestListener, IncomingMessage, ServerResponse } from "http";
 
 export class UrlPatternEndpoint implements Endpoint {
     private patternMatches: RegExpMatchArray | null;
     private pattern: RegExp;
-    private urlHandler: (matches: RegExpMatchArray | null, req: Request, res: Response) => void;
+    private urlHandler: (matches: RegExpMatchArray | null, req: IncomingMessage, res: ServerResponse) => void;
 
-    constructor(pattern: RegExp, handler: (matches: RegExpMatchArray | null, req: Request, res: Response) => void) {
+    constructor(pattern: RegExp, handler: (matches: RegExpMatchArray | null, req: IncomingMessage, res: ServerResponse) => void) {
         this.pattern = pattern;
         this.patternMatches = null;
         this.urlHandler = handler;
     }
 
-    condition(req: Request) {
-        this.patternMatches = req.url.match(this.pattern);
+    condition(req: IncomingMessage) {
+        this.patternMatches = req.url!.match(this.pattern);
         return !!this.patternMatches;
     }
 
-    handler(req: Request, res: Response) {
-        return this.urlHandler(
+    handler(req: IncomingMessage, res: ServerResponse) {
+        this.urlHandler(
             this.patternMatches,
             req,
             res
@@ -29,7 +30,7 @@ export class UrlPatternEndpoint implements Endpoint {
 export function addEndpoint(
     builder: ServerBuilder,
     condition: RequestPredicate,
-    handler: ResponseHandler
+    handler: RequestListener
 ) {
     builder.addEndpoint({ condition, handler });
 }
@@ -37,7 +38,7 @@ export function addEndpoint(
 export function addEndpointForUrl(
     builder: ServerBuilder,
     url: string,
-    handler: ResponseHandler
+    handler: RequestListener
 ) {
     builder.addEndpoint({
         condition: req => req.url === url,
@@ -45,46 +46,46 @@ export function addEndpointForUrl(
     });
 }
 
-export function isMethod(req: Request, method: string): boolean {
+export function isMethod(req: IncomingMessage, method: string): boolean {
     return req.method === method;
 }
 
-export function isHead(req: Request): boolean {
+export function isHead(req: IncomingMessage): boolean {
     return isMethod(req, "HEAD");
 }
 
-export function isPut(req: Request): boolean {
+export function isPut(req: IncomingMessage): boolean {
     return isMethod(req, "PUT");
 }
 
-export function isDelete(req: Request): boolean {
+export function isDelete(req: IncomingMessage): boolean {
     return isMethod(req, "DELETE");
 }
 
-export function isConnect(req: Request): boolean {
+export function isConnect(req: IncomingMessage): boolean {
     return isMethod(req, "CONNECT");
 }
 
-export function isOptions(req: Request): boolean {
+export function isOptions(req: IncomingMessage): boolean {
     return isMethod(req, "OPTIONS");
 }
 
-export function isTrace(req: Request): boolean {
+export function isTrace(req: IncomingMessage): boolean {
     return isMethod(req, "TRACE");
 }
 
-export function isPatch(req: Request): boolean {
+export function isPatch(req: IncomingMessage): boolean {
     return isMethod(req, "PATCH");
 }
 
-export function isGet(req: Request): boolean {
+export function isGet(req: IncomingMessage): boolean {
     return isMethod(req, "GET");
 }
 
-export function isPost(req: Request): boolean {
+export function isPost(req: IncomingMessage): boolean {
     return isMethod(req, "POST");
 }
 
-export function isUrl(req: Request, url: string): boolean {
+export function isUrl(req: IncomingMessage, url: string): boolean {
     return req.url === url;
 }

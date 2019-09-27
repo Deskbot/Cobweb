@@ -1,9 +1,10 @@
-import { Endpoint, Listener, ResponseHandler } from "./types";
+import { Endpoint, Listener } from "./types";
+import { RequestListener, IncomingMessage, ServerResponse } from "http";
 
 export class ServerBuilder {
     private endpoints: Endpoint[];
     private listeners: Listener[];
-    private noEndpointHandler: ResponseHandler | undefined;
+    private noEndpointHandler: RequestListener | undefined;
 
     constructor() {
         this.endpoints = [];
@@ -18,37 +19,37 @@ export class ServerBuilder {
         this.listeners.push(handler);
     }
 
-    build(): ResponseHandler {
+    build(): RequestListener {
         // ensure that if build gets called again that the build handler isn't changed
         const endpoints = [...this.endpoints];
         const listeners = [...this.listeners];
 
-        const responseHandlerBuilder = new ResponseHandlerBuilder(endpoints, listeners, this.noEndpointHandler);
-        return responseHandlerBuilder.run;
+        const requestListenerBuilder = new RequestListenerBuilder(endpoints, listeners, this.noEndpointHandler);
+        return requestListenerBuilder.run;
     }
 
-    setNoEndpointHandler(handler: ResponseHandler) {
+    setNoEndpointHandler(handler: RequestListener) {
         this.noEndpointHandler = handler;
     }
 }
 
-class ResponseHandlerBuilder {
+class RequestListenerBuilder {
     private endpoints: Endpoint[];
     private listeners: Listener[];
-    private noEndpointHandler: ResponseHandler | undefined;
+    private noEndpointHandler: RequestListener | undefined;
 
-    constructor(endpoints: Endpoint[], listeners: Listener[], noEndpointHandler?: ResponseHandler) {
+    constructor(endpoints: Endpoint[], listeners: Listener[], noEndpointHandler?: RequestListener) {
         this.endpoints = endpoints;
         this.listeners = listeners;
         this.noEndpointHandler = noEndpointHandler;
     }
 
-    run(req: Request, res: Response): void {
+    run(req: IncomingMessage, res: ServerResponse): void {
         this.callListeners(req);
         this.callEndpoint(req, res);
     }
 
-    private callEndpoint(req: Request, res: Response) {
+    private callEndpoint(req: IncomingMessage, res: ServerResponse) {
         const endpointFound = this.endpoints.find(endpoint => endpoint.condition(req));
 
         let endpointToCall = this.noEndpointHandler;
@@ -62,7 +63,7 @@ class ResponseHandlerBuilder {
         }
     }
 
-    private callListeners(req: Request) {
+    private callListeners(req: IncomingMessage) {
         for (const listener of this.listeners) {
             const condition = listener.condition(req);
             if (condition instanceof Promise) {

@@ -1,3 +1,5 @@
+import * as http from "http";
+
 import { ServerBuilder } from "../../src";
 import { Defer, defer } from "./defer";
 
@@ -21,6 +23,8 @@ const allTests: Test[] = [
                     resolve();
                 },
             });
+
+            http.createServer(builder.build());
         }
     },
 
