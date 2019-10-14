@@ -1,2 +1,2 @@
 # temporary file to make testing easier
-node test/build/test/src/server-builder.js
+node -r source-map-support/register test/build/test/src/server-builder

@@ -4,12 +4,16 @@
   "description": "A web server framework",
   "scripts": {
     "build": "./node_modules/.bin/tsc",
-    "build-tests": "./node_modules/.bin/tsc -p ./test"
+    "build-tests": "./node_modules/.bin/tsc -p ./test",
+    "test": "./test.sh"
   },
   "author": "",
   "license": "UNLICENSED",
   "devDependencies": {
-    "@types/node": "^11.13.20",
+    "@types/node": "^10.0.0",
     "typescript": "^3.6.2"
+  },
+  "dependencies": {
+    "source-map-support": "^0.5.13"
   }
 }
