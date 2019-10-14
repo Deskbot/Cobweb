@@ -24,9 +24,7 @@ const allTests: Test[] = [
                 },
             });
 
-            http.createServer(builder.build());
-
-            sendRequest();
+            callEndpoint(builder);
         }
     },
 
@@ -41,9 +39,7 @@ const allTests: Test[] = [
                 },
             });
 
-            http.createServer(builder.build());
-
-            sendRequest();
+            callEndpoint(builder);
         }
     },
 
@@ -70,9 +66,7 @@ const allTests: Test[] = [
                 },
             });
 
-            http.createServer(builder.build());
-
-            sendRequest();
+            callEndpoint(builder);
         }
     },
 
@@ -93,9 +87,7 @@ const allTests: Test[] = [
                 },
             });
 
-            http.createServer(builder.build());
-
-            sendRequest();
+            callEndpoint(builder);
         }
     },
 
@@ -105,9 +97,7 @@ const allTests: Test[] = [
             const builder = new ServerBuilder();
             builder.build();
 
-            http.createServer(builder.build());
-
-            sendRequest();
+            callEndpoint(builder);
         }
     },
 
@@ -119,9 +109,7 @@ const allTests: Test[] = [
                 resolve();
             });
 
-            http.createServer(builder.build());
-
-            sendRequest();
+            callEndpoint(builder);
         }
     },
 
@@ -133,19 +121,23 @@ const allTests: Test[] = [
                 reject();
             });
 
-            http.createServer(builder.build());
-
-            sendRequest();
+            callEndpoint(builder);
         }
     }
 ];
 
-function sendRequest(path?: string) {
+function callEndpoint(builder: ServerBuilder, path?: string) {
+    const server = http.createServer(builder.build());
+
+    server.listen(TEST_PORT);
+
     http.request({
         hostname: "localhost",
         path,
         port: TEST_PORT,
-    })
+    });
+
+    server.close();
 }
 
 async function rejectAfter(afterMilliseconds: number): Promise<void> {
