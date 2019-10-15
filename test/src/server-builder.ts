@@ -1,4 +1,5 @@
 import * as http from "http";
+import * as util from "util";
 
 import { ServerBuilder } from "../../src";
 import { Defer, defer } from "./defer";
@@ -24,7 +25,7 @@ const allTests: Test[] = [
                 },
             });
 
-            callEndpoint(builder);
+            await callEndpoint(builder);
         }
     },
 
@@ -39,7 +40,7 @@ const allTests: Test[] = [
                 },
             });
 
-            callEndpoint(builder);
+            await callEndpoint(builder);
         }
     },
 
@@ -66,7 +67,7 @@ const allTests: Test[] = [
                 },
             });
 
-            callEndpoint(builder);
+            await callEndpoint(builder);
         }
     },
 
@@ -87,7 +88,7 @@ const allTests: Test[] = [
                 },
             });
 
-            callEndpoint(builder);
+            await callEndpoint(builder);
         }
     },
 
@@ -97,7 +98,7 @@ const allTests: Test[] = [
             const builder = new ServerBuilder();
             builder.build();
 
-            callEndpoint(builder);
+            await callEndpoint(builder);
         }
     },
 
@@ -109,7 +110,7 @@ const allTests: Test[] = [
                 resolve();
             });
 
-            callEndpoint(builder);
+            await callEndpoint(builder);
         }
     },
 
@@ -121,23 +122,24 @@ const allTests: Test[] = [
                 reject();
             });
 
-            callEndpoint(builder);
+            await callEndpoint(builder);
         }
     }
 ];
 
-function callEndpoint(builder: ServerBuilder, path?: string) {
+async function callEndpoint(builder: ServerBuilder, path?: string): Promise<void> {
     const server = http.createServer(builder.build());
 
-    server.listen(TEST_PORT);
+    await util.promisify(cb => server.listen(TEST_PORT, cb))();
 
-    http.request({
-        hostname: "localhost",
+    const req = http.request({
         path,
         port: TEST_PORT,
     });
 
-    server.close();
+    req.end();
+
+    // server.close();
 }
 
 async function rejectAfter(afterMilliseconds: number): Promise<void> {
