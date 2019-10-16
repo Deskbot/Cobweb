@@ -137,9 +137,9 @@ async function callEndpoint(builder: ServerBuilder, path?: string): Promise<void
         port: TEST_PORT,
     });
 
-    req.end();
-
-    // server.close();
+    req.end(() => {
+        server.close();
+    });
 }
 
 async function rejectAfter(afterMilliseconds: number): Promise<void> {

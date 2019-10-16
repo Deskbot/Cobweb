@@ -25,7 +25,7 @@ export class ServerBuilder {
         const listeners = [...this.listeners];
 
         const requestListenerBuilder = new RequestListenerBuilder(endpoints, listeners, this.noEndpointHandler);
-        return requestListenerBuilder.run;
+        return (req, res) => requestListenerBuilder.run(req, res);
     }
 
     setNoEndpointHandler(handler: RequestListener) {
