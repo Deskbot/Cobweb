@@ -158,15 +158,13 @@ async function main() {
     let fails = 0;
 
     for (const test of allTests) {
-        console.log("------");
-        console.log(test.name);
+        console.log("------", test.name, "------");
 
         try {
             await Promise.race([run(test), rejectAfter(TEST_FAILS_AFTER)]);
             passes += 1;
 
         } catch (e) {
-            console.log("FAIL");
             console.log(e);
             fails += 1;
         }
