@@ -6,7 +6,7 @@ import { Defer, defer } from "./defer";
 
 const TEST_PORT = 9999;
 
-const TEN_SECONDS = 10000;
+const TEST_FAILS_AFTER = 10000;
 
 interface Test {
     name: string;
@@ -159,7 +159,7 @@ async function main() {
         console.log(test.name);
 
         try {
-            await Promise.race([run(test), rejectAfter(TEN_SECONDS)]);
+            await Promise.race([run(test), rejectAfter(TEST_FAILS_AFTER)]);
             passes += 1;
 
         } catch (e) {
