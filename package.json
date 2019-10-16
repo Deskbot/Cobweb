@@ -3,8 +3,12 @@
   "version": "1.0.0",
   "description": "A web server framework",
   "scripts": {
-    "build": "./node_modules/.bin/tsc",
-    "build-tests": "./node_modules/.bin/tsc -p ./test",
+    "build": "./node_modules/.bin/tsc --incremental",
+    "build-watch": "./node_modules/.bin/tsc -w --incremental",
+    "build-tests": "./node_modules/.bin/tsc --incremental -p ./test",
+    "build-tests-watch": "./node_modules/.bin/tsc -w --incremental -p ./test",
+    "rebuild": "./node_modules/.bin/tsc",
+    "rebuild-tests": "./node_modules/.bin/tsc -p ./test",
     "test": "./test.sh"
   },
   "author": "",
