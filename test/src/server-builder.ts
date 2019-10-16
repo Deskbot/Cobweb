@@ -2,26 +2,29 @@ import * as http from "http";
 import * as util from "util";
 
 import { ServerBuilder } from "../../src";
-import { Defer, defer } from "./defer";
 
 const TEST_PORT = 9999;
-
-const TEST_FAILS_AFTER = 10000;
+const TEST_FAILS_AFTER = 3000;
 
 interface Test {
-    name: string;
-    run(defer: Defer<void>): Promise<void>;
+    readonly name: string;
+    readonly run: (examiner: Examiner) => Promise<void>;
+}
+
+interface Examiner {
+    readonly pass: () => void;
+    readonly fail: (reason?: any) => void;
 }
 
 const allTests: Test[] = [
     {
         name: "A server should be able to listen to things.",
-        async run({ resolve }) {
+        async run({ pass }) {
             const builder = new ServerBuilder();
             builder.addListener({
                 condition: () => true,
                 handler: () => {
-                    resolve();
+                    pass();
                 },
             });
 
@@ -31,12 +34,12 @@ const allTests: Test[] = [
 
     {
         name: "A server should be able to use custom endpoints.",
-        async run({ resolve }) {
+        async run({ pass }) {
             const builder = new ServerBuilder();
             builder.addEndpoint({
                 condition: () => true,
                 handler: () => {
-                    resolve();
+                    pass();
                 },
             });
 
@@ -46,24 +49,24 @@ const allTests: Test[] = [
 
     {
         name: "A server should end at the only valid endpoint.",
-        async run({ resolve, reject }) {
+        async run({ pass, fail }) {
             const builder = new ServerBuilder();
             builder.addEndpoint({
                 condition: () => false,
                 handler: () => {
-                    reject();
+                    fail();
                 },
             });
             builder.addEndpoint({
                 condition: () => true,
                 handler: () => {
-                    resolve();
+                    pass();
                 },
             });
             builder.addEndpoint({
                 condition: () => false,
                 handler: () => {
-                    reject();
+                    fail();
                 },
             });
 
@@ -73,18 +76,18 @@ const allTests: Test[] = [
 
     {
         name: "A server should use the first valid endpoint provided.",
-        async run({ resolve, reject }) {
+        async run({ pass, fail }) {
             const builder = new ServerBuilder();
             builder.addEndpoint({
                 condition: () => true,
                 handler: () => {
-                    resolve();
+                    pass();
                 },
             });
             builder.addEndpoint({
                 condition: () => true,
                 handler: () => {
-                    reject();
+                    fail();
                 },
             });
 
@@ -104,10 +107,10 @@ const allTests: Test[] = [
 
     {
         name: "A server should use the default endpoint if one is set.",
-        async run({ resolve }) {
+        async run({ pass }) {
             const builder = new ServerBuilder();
             builder.setNoEndpointHandler(() => {
-                resolve();
+                pass();
             });
 
             await callEndpoint(builder);
@@ -116,10 +119,10 @@ const allTests: Test[] = [
 
     {
         name: "A server should not use the default endpoint if another one matches.",
-        async run({ reject }) {
+        async run({ fail }) {
             const builder = new ServerBuilder();
             builder.setNoEndpointHandler(() => {
-                reject();
+                fail();
             });
 
             await callEndpoint(builder);
@@ -163,6 +166,7 @@ async function main() {
             passes += 1;
 
         } catch (e) {
+            console.log("FAIL");
             console.log(e);
             fails += 1;
         }
@@ -174,9 +178,15 @@ async function main() {
 }
 
 function run(test: Test): Promise<void> {
-    const doTest = defer<void>();
-    test.run(doTest);
-    return doTest.promise;
+    return new Promise((resolve, reject) => {
+        test.run({
+            fail: (val) => {
+                console.trace();
+                reject(val);
+            },
+            pass: () => resolve(),
+        });
+    });
 }
 
 main();

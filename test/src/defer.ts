@@ -1,7 +1,7 @@
 export interface Defer<T> {
     readonly promise: Promise<T>;
-    readonly resolve: (value?: T | PromiseLike<T>) => void,
-    readonly reject: (reason?: any) => void,
+    readonly resolve: (value?: T | PromiseLike<T>) => void;
+    readonly reject: (reason?: any) => void;
 }
 
 export function defer<T>(): Defer<T> {
