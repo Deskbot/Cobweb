@@ -14,8 +14,8 @@
   "author": "",
   "license": "UNLICENSED",
   "devDependencies": {
-    "@types/node": "^10.0.0",
-    "typescript": "^3.6.2"
+    "@types/node": "^10.14.22",
+    "typescript": "^3.6.4"
   },
   "dependencies": {
     "source-map-support": "^0.5.13"
