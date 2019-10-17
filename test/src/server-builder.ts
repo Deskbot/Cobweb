@@ -138,9 +138,25 @@ async function callEndpoint(builder: ServerBuilder, path?: string): Promise<void
     const req = http.request({
         path,
         port: TEST_PORT,
+        timeout: 10000,
     });
 
-    req.end(() => {
+    return new Promise<void>((resolve, reject) => {
+        req.once("error", (err) => {
+            reject(err);
+        });
+
+        req.on("timeout", () => {
+            // adding this handler prevents a timeout error from being thrown
+            // we are not testing that the requests get closed, only that they are handled
+        });
+
+        req.end(() => {
+            resolve();
+        });
+
+    }).finally(() => {
+        // ensure that only one server is alive at a time beacuse they always use the same port
         server.close();
     });
 }
