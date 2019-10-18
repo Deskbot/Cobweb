@@ -2,6 +2,7 @@
   "name": "web-server",
   "version": "1.0.0",
   "description": "A web server framework",
+  "main": "./build/src/index.js",
   "scripts": {
     "build": "./node_modules/.bin/tsc --incremental",
     "build-watch": "./node_modules/.bin/tsc -w --incremental",
