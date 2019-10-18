@@ -8,7 +8,7 @@ const TEST_FAILS_AFTER = 3000;
 
 interface Test {
     readonly name: string;
-    readonly run: (examiner: Examiner) => Promise<void>;
+    readonly run: (examiner: Examiner) => void;
 }
 
 interface Examiner {
@@ -19,7 +19,7 @@ interface Examiner {
 const allTests: Test[] = [
     {
         name: "A server should be able to listen to things.",
-        async run({ pass }) {
+        run({ pass }) {
             const builder = new ServerBuilder();
             builder.addObserver({
                 when: () => true,
@@ -28,13 +28,13 @@ const allTests: Test[] = [
                 },
             });
 
-            await callEndpoint(builder);
+            callEndpoint(builder);
         }
     },
 
     {
         name: "A server should be able to use custom endpoints.",
-        async run({ pass }) {
+        run({ pass }) {
             const builder = new ServerBuilder();
             builder.addEndpoint({
                 when: () => true,
@@ -43,13 +43,13 @@ const allTests: Test[] = [
                 },
             });
 
-            await callEndpoint(builder);
+            callEndpoint(builder);
         }
     },
 
     {
         name: "A server should end at the only valid endpoint.",
-        async run({ pass, fail }) {
+        run({ pass, fail }) {
             const builder = new ServerBuilder();
             builder.addEndpoint({
                 when: () => false,
@@ -70,13 +70,13 @@ const allTests: Test[] = [
                 },
             });
 
-            await callEndpoint(builder);
+            callEndpoint(builder);
         }
     },
 
     {
         name: "A server should use the first valid endpoint provided.",
-        async run({ pass, fail }) {
+        run({ pass, fail }) {
             const builder = new ServerBuilder();
             builder.addEndpoint({
                 when: () => true,
@@ -91,41 +91,41 @@ const allTests: Test[] = [
                 },
             });
 
-            await callEndpoint(builder);
+            callEndpoint(builder);
         }
     },
 
     {
         name: "A server should not fall over when no listeners or endpoints are defined.",
-        async run() {
+        run() {
             const builder = new ServerBuilder();
             builder.build();
 
-            await callEndpoint(builder);
+            callEndpoint(builder);
         }
     },
 
     {
         name: "A server should use the default endpoint if one is set.",
-        async run({ pass }) {
+        run({ pass }) {
             const builder = new ServerBuilder();
             builder.setNoEndpointHandler(() => {
                 pass();
             });
 
-            await callEndpoint(builder);
+            callEndpoint(builder);
         }
     },
 
     {
         name: "A server should not use the default endpoint if another one matches.",
-        async run({ fail }) {
+        run({ fail }) {
             const builder = new ServerBuilder();
             builder.setNoEndpointHandler(() => {
                 fail();
             });
 
-            await callEndpoint(builder);
+            callEndpoint(builder);
         }
     }
 ];
@@ -138,7 +138,6 @@ async function callEndpoint(builder: ServerBuilder, path?: string): Promise<void
     const req = http.request({
         path,
         port: TEST_PORT,
-        timeout: 10000,
     });
 
     return new Promise<void>((resolve, reject) => {
@@ -204,3 +203,5 @@ function run(test: Test): Promise<void> {
 }
 
 main();
+
+// the tests seem not to end? Is this just because of the async changse I just made?
