@@ -1,19 +1,19 @@
 import { RequestListener, IncomingMessage } from "http";
 
-export interface RequestOnlyListener {
-    (req: IncomingMessage): void | Promise<void>;
+export interface RequestSideEffect {
+    (req: IncomingMessage): void;
 }
 
 export interface RequestPredicate {
-    (req: IncomingMessage): boolean;
+    (req: IncomingMessage): boolean | Promise<boolean>;
 }
 
 export interface Endpoint {
-    condition(req: IncomingMessage): boolean | Promise<boolean>;
-    handler: RequestListener;
+    when: RequestPredicate;
+    do: RequestListener;
 }
 
-export interface Listener {
-    condition(req: IncomingMessage): boolean | Promise<boolean>;
-    handler: RequestOnlyListener;
+export interface Observer {
+    when: RequestPredicate;
+    do: RequestSideEffect;
 }

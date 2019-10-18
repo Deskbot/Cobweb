@@ -21,9 +21,9 @@ const allTests: Test[] = [
         name: "A server should be able to listen to things.",
         async run({ pass }) {
             const builder = new ServerBuilder();
-            builder.addListener({
-                condition: () => true,
-                handler: () => {
+            builder.addObserver({
+                when: () => true,
+                do: () => {
                     pass();
                 },
             });
@@ -37,8 +37,8 @@ const allTests: Test[] = [
         async run({ pass }) {
             const builder = new ServerBuilder();
             builder.addEndpoint({
-                condition: () => true,
-                handler: () => {
+                when: () => true,
+                do: () => {
                     pass();
                 },
             });
@@ -52,20 +52,20 @@ const allTests: Test[] = [
         async run({ pass, fail }) {
             const builder = new ServerBuilder();
             builder.addEndpoint({
-                condition: () => false,
-                handler: () => {
+                when: () => false,
+                do: () => {
                     fail();
                 },
             });
             builder.addEndpoint({
-                condition: () => true,
-                handler: () => {
+                when: () => true,
+                do: () => {
                     pass();
                 },
             });
             builder.addEndpoint({
-                condition: () => false,
-                handler: () => {
+                when: () => false,
+                do: () => {
                     fail();
                 },
             });
@@ -79,14 +79,14 @@ const allTests: Test[] = [
         async run({ pass, fail }) {
             const builder = new ServerBuilder();
             builder.addEndpoint({
-                condition: () => true,
-                handler: () => {
+                when: () => true,
+                do: () => {
                     pass();
                 },
             });
             builder.addEndpoint({
-                condition: () => true,
-                handler: () => {
+                when: () => true,
+                do: () => {
                     fail();
                 },
             });

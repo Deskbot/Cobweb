@@ -13,12 +13,12 @@ export class UrlPatternEndpoint implements Endpoint {
         this.urlHandler = handler;
     }
 
-    condition(req: IncomingMessage) {
+    when(req: IncomingMessage) {
         this.patternMatches = req.url!.match(this.pattern);
         return !!this.patternMatches;
     }
 
-    handler(req: IncomingMessage, res: ServerResponse) {
+    do(req: IncomingMessage, res: ServerResponse) {
         this.urlHandler(
             this.patternMatches,
             req,
@@ -32,7 +32,7 @@ export function addEndpoint(
     condition: RequestPredicate,
     handler: RequestListener
 ) {
-    builder.addEndpoint({ condition, handler });
+    builder.addEndpoint({ when: condition, do: handler });
 }
 
 export function addEndpointForUrl(
@@ -41,8 +41,8 @@ export function addEndpointForUrl(
     handler: RequestListener
 ) {
     builder.addEndpoint({
-        condition: req => req.url === url,
-        handler,
+        when: req => req.url === url,
+        do: handler,
     });
 }
 
