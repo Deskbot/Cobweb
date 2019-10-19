@@ -1,7 +1,11 @@
-import { RequestListener, IncomingMessage } from "http";
+import { IncomingMessage, ServerResponse } from "http";
+
+export interface RequestHandler {
+    (req: IncomingMessage, res: ServerResponse, middlewares: MiddlewareInventory): void
+}
 
 export interface RequestSideEffect {
-    (req: IncomingMessage): void;
+    (req: IncomingMessage, middlewares: MiddlewareInventory): void;
 }
 
 export interface RequestPredicate {
@@ -10,7 +14,7 @@ export interface RequestPredicate {
 
 export interface Endpoint {
     when: RequestPredicate;
-    do: RequestListener;
+    do: RequestHandler;
 }
 
 export interface Observer {

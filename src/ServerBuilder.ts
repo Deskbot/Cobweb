@@ -1,11 +1,11 @@
-import { Endpoint, Observer, MiddlewareInventory } from "./types";
+import { Endpoint, Observer, MiddlewareInventory, RequestHandler } from "./types";
 import { RequestListener, IncomingMessage, ServerResponse } from "http";
 
 export class ServerBuilder<M extends MiddlewareInventory> {
     private endpoints: Endpoint[];
     private readonly middleware: M;
     private observers: Observer[];
-    private noEndpointHandler: RequestListener | undefined;
+    private noEndpointHandler: RequestHandler | undefined;
 
     constructor(middleware: M) {
         this.endpoints = [];
@@ -26,22 +26,34 @@ export class ServerBuilder<M extends MiddlewareInventory> {
         const endpoints = [...this.endpoints];
         const observers = [...this.observers];
 
-        const requestListenerBuilder = new RequestListenerBuilder(endpoints, observers, this.noEndpointHandler);
+        const requestListenerBuilder = new RequestListenerBuilder(
+            endpoints,
+            observers,
+            this.middleware,
+            this.noEndpointHandler
+        );
         return (req, res) => requestListenerBuilder.run(req, res);
     }
 
-    setNoEndpointHandler(handler: RequestListener) {
+    setNoEndpointHandler(handler: RequestHandler) {
         this.noEndpointHandler = handler;
     }
 }
 
 class RequestListenerBuilder {
     private endpoints: Endpoint[];
+    private middlewares: MiddlewareInventory;
     private observers: Observer[];
-    private noEndpointHandler: RequestListener | undefined;
+    private noEndpointHandler: RequestHandler | undefined;
 
-    constructor(endpoints: Endpoint[], observers: Observer[], noEndpointHandler?: RequestListener) {
+    constructor(
+        endpoints: Endpoint[],
+        observers: Observer[],
+        middlewares: MiddlewareInventory,
+        noEndpointHandler?: RequestHandler
+    ) {
         this.endpoints = endpoints;
+        this.middlewares = middlewares;
         this.observers = observers;
         this.noEndpointHandler = noEndpointHandler;
     }
@@ -61,7 +73,7 @@ class RequestListenerBuilder {
         }
 
         if (endpointToCall !== undefined) {
-            endpointToCall(req, res);
+            endpointToCall(req, res, this.middlewares);
         }
     }
 
@@ -70,10 +82,10 @@ class RequestListenerBuilder {
             const condition = observer.when(req);
             if (condition instanceof Promise) {
                 condition.then(() => {
-                    observer.do(req);
+                    observer.do(req, this.middlewares);
                 });
             } else {
-                observer.do(req);
+                observer.do(req, this.middlewares);
             }
         }
     }

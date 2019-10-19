@@ -13,11 +13,25 @@ interface Test {
 }
 
 interface Examiner {
-    readonly pass: () => void;
     readonly fail: (reason?: any) => void;
+    readonly pass: () => void;
+    readonly test: (result: boolean, message?: string) => void;
 }
 
-const allTests: Test[] = [];
+const allTests: Test[] = [{
+    name: "Middleware can be called from a request listener.",
+    run: ({ test }) => {
+        const builder = new ServerBuilder({
+            helloWorld: () => "hello world"
+        });
+
+        builder.setNoEndpointHandler((req, res, middleware) => {
+            test(middleware.helloWorld(req) === "hello world");
+        });
+
+        callEndpoint(builder);
+    },
+}];
 
 async function callEndpoint(builder: ServerBuilder<MiddlewareInventory>, path?: string): Promise<void> {
     const server = http.createServer(builder.build());
@@ -81,12 +95,25 @@ async function main() {
 
 function run(test: Test): Promise<void> {
     return new Promise((resolve, reject) => {
+        const fail = (val) => {
+            console.trace();
+            reject(val);
+        };
+
+        const pass = () => {
+            resolve();
+        };
+
         test.run({
-            fail: (val) => {
-                console.trace();
-                reject(val);
+            test(result, message) {
+                if (result) {
+                    return pass();
+                }
+
+                return fail(message);
             },
-            pass: () => resolve(),
+            fail,
+            pass,
         });
     });
 }
