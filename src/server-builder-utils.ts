@@ -1,5 +1,5 @@
 import { ServerBuilder } from "./ServerBuilder";
-import { RequestPredicate, Endpoint } from "./types";
+import { RequestPredicate, Endpoint, MiddlewareInventory } from "./types";
 import { RequestListener, IncomingMessage, ServerResponse } from "http";
 
 export class UrlPatternEndpoint implements Endpoint {
@@ -28,7 +28,7 @@ export class UrlPatternEndpoint implements Endpoint {
 }
 
 export function addEndpoint(
-    builder: ServerBuilder,
+    builder: ServerBuilder<MiddlewareInventory>,
     condition: RequestPredicate,
     handler: RequestListener
 ) {
@@ -36,7 +36,7 @@ export function addEndpoint(
 }
 
 export function addEndpointForUrl(
-    builder: ServerBuilder,
+    builder: ServerBuilder<MiddlewareInventory>,
     url: string,
     handler: RequestListener
 ) {

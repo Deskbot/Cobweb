@@ -1,13 +1,15 @@
-import { Endpoint, Observer } from "./types";
+import { Endpoint, Observer, MiddlewareInventory } from "./types";
 import { RequestListener, IncomingMessage, ServerResponse } from "http";
 
-export class ServerBuilder {
+export class ServerBuilder<M extends MiddlewareInventory> {
     private endpoints: Endpoint[];
+    private readonly middleware: M;
     private observers: Observer[];
     private noEndpointHandler: RequestListener | undefined;
 
-    constructor() {
+    constructor(middleware: M) {
         this.endpoints = [];
+        this.middleware = middleware;
         this.observers = [];
     }
 

@@ -17,3 +17,11 @@ export interface Observer {
     when: RequestPredicate;
     do: RequestSideEffect;
 }
+
+export interface Middleware<T> {
+    (req: IncomingMessage): T;
+}
+
+export interface MiddlewareInventory {
+    [name: string]: Middleware<any>;
+}
