@@ -183,7 +183,7 @@ async function main() {
     let fails = 0;
 
     for (const test of allTests) {
-        console.log("------", test.name, "------");
+        console.log(">", test.name);
 
         try {
             await Promise.race([run(test), rejectAfter(TEST_FAILS_AFTER)]);
@@ -195,7 +195,7 @@ async function main() {
         }
     }
 
-    console.log("------");
+    console.log("----------------");
     console.log("Passes: ", passes);
     console.log("Fails:  ", fails);
 }
