@@ -119,8 +119,14 @@ const allTests: Test[] = [
 
     {
         name: "A server should not use the default endpoint if another one matches.",
-        run({ fail }) {
+        run({ pass, fail }) {
             const builder = new ServerBuilder();
+            builder.addEndpoint({
+                when: () => true,
+                do: () => {
+                    pass();
+                }
+            });
             builder.setNoEndpointHandler(() => {
                 fail();
             });
