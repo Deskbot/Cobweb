@@ -97,11 +97,15 @@ const allTests: Test[] = [
 
     {
         name: "A server should not fall over when no listeners or endpoints are defined.",
-        run() {
+        run({ pass, fail }) {
             const builder = new ServerBuilder();
             builder.build();
 
-            callEndpoint(builder);
+            callEndpoint(builder).then(() => {
+                pass();
+            }, () => {
+                fail();
+            });
         }
     },
 
