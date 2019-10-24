@@ -36,7 +36,9 @@ const allTests: Test[] = [{
     },
 }];
 
-async function callEndpoint(builder: ServerBuilder<MiddlewareSpecification<string>, MiddlewareInventory>, path?: string): Promise<void> {
+async function callEndpoint<M extends MiddlewareSpecification<string>, B extends MiddlewareInventory<M>>
+    (builder: ServerBuilder<M,B>, path?: string): Promise<void>
+{
     const server = http.createServer(builder.build());
 
     await util.promisify(cb => server.listen(TEST_PORT, cb))();
