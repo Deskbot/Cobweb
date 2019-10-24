@@ -1,11 +1,11 @@
 import { Endpoint, Observer, MiddlewareInventory, RequestHandler } from "./types";
 import { RequestListener, IncomingMessage, ServerResponse } from "http";
 
-export class ServerBuilder<M extends MiddlewareInventory> {
-    private endpoints: Endpoint[];
+export class ServerBuilder<M extends MiddlewareInventory<string>> {
+    private endpoints: Endpoint<M>[];
     private readonly middleware: M;
-    private observers: Observer[];
-    private noEndpointHandler: RequestHandler | undefined;
+    private observers: Observer<M>[];
+    private noEndpointHandler: RequestHandler<M> | undefined;
 
     constructor(middleware: M) {
         this.endpoints = [];
@@ -13,11 +13,11 @@ export class ServerBuilder<M extends MiddlewareInventory> {
         this.observers = [];
     }
 
-    addEndpoint(handler: Endpoint) {
+    addEndpoint(handler: Endpoint<M>) {
         this.endpoints.push(handler);
     }
 
-    addObserver(handler: Observer) {
+    addObserver(handler: Observer<M>) {
         this.observers.push(handler);
     }
 
@@ -35,22 +35,22 @@ export class ServerBuilder<M extends MiddlewareInventory> {
         return (req, res) => requestListenerBuilder.run(req, res);
     }
 
-    setNoEndpointHandler(handler: RequestHandler) {
+    setNoEndpointHandler(handler: RequestHandler<M>) {
         this.noEndpointHandler = handler;
     }
 }
 
-class RequestListenerBuilder {
-    private endpoints: Endpoint[];
-    private middlewares: MiddlewareInventory;
-    private observers: Observer[];
-    private noEndpointHandler: RequestHandler | undefined;
+class RequestListenerBuilder<M extends MiddlewareInventory<string>> {
+    private endpoints: Endpoint<M>[];
+    private middlewares: M;
+    private observers: Observer<M>[];
+    private noEndpointHandler: RequestHandler<M> | undefined;
 
     constructor(
-        endpoints: Endpoint[],
-        observers: Observer[],
-        middlewares: MiddlewareInventory,
-        noEndpointHandler?: RequestHandler
+        endpoints: Endpoint<M>[],
+        observers: Observer<M>[],
+        middlewares: M,
+        noEndpointHandler?: RequestHandler<M>
     ) {
         this.endpoints = endpoints;
         this.middlewares = middlewares;

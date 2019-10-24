@@ -22,18 +22,21 @@ const allTests: Test[] = [{
     name: "Middleware can be called from a request listener.",
     run: ({ test }) => {
         const builder = new ServerBuilder({
-            helloWorld: () => "hello world"
+            helloWorld: (req) => "hello world",
+            welloHurld: () => "wello hurld",
         });
 
         builder.setNoEndpointHandler((req, res, middleware) => {
-            test(middleware.helloWorld(req) === "hello world");
+            test(middleware.helloWorld(req) === "hello world"); // compile
+            test(middleware.welloHurld(req) === "hello world"); // compile
+            test(middleware.poop(req) === "hello world")        // no compile
         });
 
         callEndpoint(builder);
     },
 }];
 
-async function callEndpoint(builder: ServerBuilder<MiddlewareInventory>, path?: string): Promise<void> {
+async function callEndpoint(builder: ServerBuilder<MiddlewareInventory<string>>, path?: string): Promise<void> {
     const server = http.createServer(builder.build());
 
     await util.promisify(cb => server.listen(TEST_PORT, cb))();
