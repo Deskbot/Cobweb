@@ -27,16 +27,16 @@ const allTests: Test[] = [{
         });
 
         builder.setNoEndpointHandler((req, res, middleware) => {
-            test(middleware.helloWorld(req) === "hello world"); // compile
-            test(middleware.welloHurld(req) === "hello world"); // compile
-            test(middleware.poop(req) === "hello world")        // no compile
+            test(middleware.helloWorld() === "hello world"); // compile
+            test(middleware.welloHurld() === "hello world"); // compile
+            // test(middleware.poop() === "hello world") // no compile
         });
 
         callEndpoint(builder);
     },
 }];
 
-async function callEndpoint(builder: ServerBuilder<MiddlewareSpecification<string>, MiddlewareInventory<string>>, path?: string): Promise<void> {
+async function callEndpoint(builder: ServerBuilder<MiddlewareSpecification<string>, MiddlewareInventory>, path?: string): Promise<void> {
     const server = http.createServer(builder.build());
 
     await util.promisify(cb => server.listen(TEST_PORT, cb))();
