@@ -2,7 +2,7 @@ import * as http from "http";
 import * as util from "util";
 
 import { ServerBuilder } from "../../src";
-import { MiddlewareInventory } from "../../src/types";
+import { MiddlewareInventory, MiddlewareSpecification } from "../../src/types";
 
 const TEST_PORT = 9999;
 const TEST_FAILS_AFTER = 3000;
@@ -36,7 +36,7 @@ const allTests: Test[] = [{
     },
 }];
 
-async function callEndpoint(builder: ServerBuilder<MiddlewareInventory<string>>, path?: string): Promise<void> {
+async function callEndpoint(builder: ServerBuilder<MiddlewareSpecification<string>, MiddlewareInventory<string>>, path?: string): Promise<void> {
     const server = http.createServer(builder.build());
 
     await util.promisify(cb => server.listen(TEST_PORT, cb))();

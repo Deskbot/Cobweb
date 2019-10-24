@@ -1,25 +1,25 @@
 import { IncomingMessage, ServerResponse } from "http";
 
-export interface RequestHandler<M extends MiddlewareInventory<string>> {
-    (req: IncomingMessage, res: ServerResponse, middlewares: M): void
+export interface RequestHandler<I extends MiddlewareInventory<string>> {
+    (req: IncomingMessage, res: ServerResponse, middlewares: I): void
 }
 
-export interface RequestSideEffect<M extends MiddlewareInventory<string>> {
-    (req: IncomingMessage, middlewares: M): void;
+export interface RequestSideEffect<I extends MiddlewareInventory<string>> {
+    (req: IncomingMessage, middlewares: I): void;
 }
 
 export interface RequestPredicate {
     (req: IncomingMessage): boolean | Promise<boolean>;
 }
 
-export interface Endpoint<M extends MiddlewareInventory<string>> {
+export interface Endpoint<I extends MiddlewareInventory<string>> {
     when: RequestPredicate;
-    do: RequestHandler<M>;
+    do: RequestHandler<I>;
 }
 
-export interface Observer<M extends MiddlewareInventory<string>> {
+export interface Observer<I extends MiddlewareInventory<string>> {
     when: RequestPredicate;
-    do: RequestSideEffect<M>;
+    do: RequestSideEffect<I>;
 }
 
 export interface Middleware<T> {
@@ -27,3 +27,4 @@ export interface Middleware<T> {
 }
 
 export type MiddlewareInventory<S extends string> = Record<S, Middleware<any>>;
+export type MiddlewareSpecification<S extends string> = Record<S, Middleware<any>>;
