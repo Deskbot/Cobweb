@@ -22,8 +22,12 @@ export interface Observer<I extends MiddlewareInventory<string>> {
     do: RequestSideEffect<I>;
 }
 
-export interface Middleware<T> {
+export interface MiddlewareSpec<T> {
     (req: IncomingMessage): T;
+}
+
+export interface Middleware<T> {
+    (): T;
 }
 
 export type MiddlewareInventory<S extends string> = Record<S, Middleware<any>>;
