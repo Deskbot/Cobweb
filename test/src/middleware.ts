@@ -45,9 +45,41 @@ const allTests: Test[] = [{
         });
 
         builder.setNoEndpointHandler((req, res, middleware) => {
-            test(middleware.getExternalData() !== "one change");
+            test(middleware.getExternalData() === "one change");
             test(middleware.getExternalData() === "one change");
             pass();
+        });
+
+        callEndpoint(builder);
+    },
+}, {
+    name: "Middleware calls are memoised across listeners.",
+    run: ({ pass, test }) => {
+        let externalData = "one";
+
+        const builder = new ServerBuilder({
+            getExternalData: (req) => {
+                externalData += " change"
+                return externalData;
+            },
+        });
+
+        builder.addObserver({
+            when: () => true,
+            do: (req, middleware) => {
+                test(middleware.getExternalData() === "one change");
+                test(middleware.getExternalData() === "one change");
+                pass();
+            }
+        });
+
+        builder.addObserver({
+            when: () => true,
+            do: (req, middleware) => {
+                test(middleware.getExternalData() === "one change");
+                test(middleware.getExternalData() === "one change");
+                pass();
+            }
         });
 
         callEndpoint(builder);
