@@ -1,8 +1,7 @@
 import { run, rejectAfter, Test } from "./framework";
 import { TEST_FAILS_AFTER } from "./config";
-
-import middlewareTests from "./cases/middleware";
-import serverBuilderTests from "./cases/middleware";
+import { middlewareTests } from "./cases/middleware";
+import { serverBuilderTests } from "./cases/server-builder";
 
 main();
 

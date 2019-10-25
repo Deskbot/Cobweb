@@ -1,7 +1,7 @@
 import { ServerBuilder } from "../../../src";
 import { callEndpoint } from "../framework";
 
-export default [{
+export const middlewareTests = [{
     name: "Middleware can be called from a request listener.",
     run: ({ pass, test }) => {
         const builder = new ServerBuilder({

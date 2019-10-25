@@ -1,7 +1,7 @@
 import { ServerBuilder } from "../../../src";
 import { callEndpoint } from "../framework";
 
-export default [{
+export const serverBuilderTests = [{
     name: "A server should be able to listen to things.",
     run({ pass }) {
         const builder = new ServerBuilder({});
