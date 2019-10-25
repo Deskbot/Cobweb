@@ -13,8 +13,9 @@ interface Test {
 }
 
 interface Examiner {
-    readonly pass: () => void;
     readonly fail: (reason?: any) => void;
+    readonly pass: () => void;
+    readonly test: (result: boolean, message?: string) => void;
 }
 
 const allTests: Test[] = [
@@ -203,12 +204,25 @@ async function main() {
 
 function run(test: Test): Promise<void> {
     return new Promise((resolve, reject) => {
+        const fail = (val) => {
+            console.trace();
+            reject(val);
+        };
+
+        const pass = () => {
+            resolve();
+        };
+
         test.run({
-            fail: (val) => {
-                console.trace();
-                reject(val);
+            test(result, message) {
+                if (result) {
+                    return;
+                }
+
+                return fail(message);
             },
-            pass: () => resolve(),
+            fail,
+            pass,
         });
     });
 }
