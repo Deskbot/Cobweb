@@ -2,7 +2,7 @@ import { ServerBuilder } from "./ServerBuilder";
 import { RequestPredicate, Endpoint, MiddlewareInventory } from "./types";
 import { RequestListener, IncomingMessage, ServerResponse } from "http";
 
-export class UrlPatternEndpoint<M extends MiddlewareInventory<string>> implements Endpoint<M> {
+export class UrlPatternEndpoint<M extends MiddlewareInventory> implements Endpoint<M> {
     private patternMatches: RegExpMatchArray | null;
     private pattern: RegExp;
     private urlHandler: (matches: RegExpMatchArray | null, req: IncomingMessage, res: ServerResponse) => void;
@@ -27,7 +27,7 @@ export class UrlPatternEndpoint<M extends MiddlewareInventory<string>> implement
     };
 }
 
-export function addEndpoint<M extends MiddlewareInventory<string>>(
+export function addEndpoint<M extends MiddlewareInventory>(
     builder: ServerBuilder<M>,
     condition: RequestPredicate,
     handler: RequestListener
@@ -35,7 +35,7 @@ export function addEndpoint<M extends MiddlewareInventory<string>>(
     builder.addEndpoint({ when: condition, do: handler });
 }
 
-export function addEndpointForUrl<M extends MiddlewareInventory<string>>(
+export function addEndpointForUrl<M extends MiddlewareInventory>(
     builder: ServerBuilder<M>,
     url: string,
     handler: RequestListener
