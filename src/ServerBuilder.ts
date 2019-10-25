@@ -1,21 +1,23 @@
-import { Endpoint, Observer } from "./types";
+import { Endpoint, Observer, MiddlewareInventory, RequestHandler, MiddlewareSpecification } from "./types";
 import { RequestListener, IncomingMessage, ServerResponse } from "http";
 
-export class ServerBuilder {
-    private endpoints: Endpoint[];
-    private observers: Observer[];
-    private noEndpointHandler: RequestListener | undefined;
+export class ServerBuilder<M extends MiddlewareSpecification, I extends MiddlewareInventory<M> = MiddlewareInventory<M>> {
+    private endpoints: Endpoint<I>[];
+    private readonly middleware: M;
+    private observers: Observer<I>[];
+    private noEndpointHandler: RequestHandler<I> | undefined;
 
-    constructor() {
+    constructor(middleware: M) {
         this.endpoints = [];
+        this.middleware = middleware;
         this.observers = [];
     }
 
-    addEndpoint(handler: Endpoint) {
+    addEndpoint(handler: Endpoint<I>) {
         this.endpoints.push(handler);
     }
 
-    addObserver(handler: Observer) {
+    addObserver(handler: Observer<I>) {
         this.observers.push(handler);
     }
 
@@ -24,22 +26,34 @@ export class ServerBuilder {
         const endpoints = [...this.endpoints];
         const observers = [...this.observers];
 
-        const requestListenerBuilder = new RequestListenerBuilder(endpoints, observers, this.noEndpointHandler);
+        const requestListenerBuilder = new RequestListenerBuilder<M,I>(
+            endpoints,
+            observers,
+            this.middleware,
+            this.noEndpointHandler
+        );
         return (req, res) => requestListenerBuilder.run(req, res);
     }
 
-    setNoEndpointHandler(handler: RequestListener) {
+    setNoEndpointHandler(handler: RequestHandler<I>) {
         this.noEndpointHandler = handler;
     }
 }
 
-class RequestListenerBuilder {
-    private endpoints: Endpoint[];
-    private observers: Observer[];
-    private noEndpointHandler: RequestListener | undefined;
+class RequestListenerBuilder<M extends MiddlewareSpecification, I extends MiddlewareInventory<M>> {
+    private endpoints: Endpoint<I>[];
+    private middlewares: I;
+    private observers: Observer<I>[];
+    private noEndpointHandler: RequestHandler<I> | undefined;
 
-    constructor(endpoints: Endpoint[], observers: Observer[], noEndpointHandler?: RequestListener) {
+    constructor(
+        endpoints: Endpoint<I>[],
+        observers: Observer<I>[],
+        middlewares: M,
+        noEndpointHandler?: RequestHandler<I>
+    ) {
         this.endpoints = endpoints;
+        this.middlewares = middlewares as any; // todo properly type and transform
         this.observers = observers;
         this.noEndpointHandler = noEndpointHandler;
     }
@@ -59,7 +73,7 @@ class RequestListenerBuilder {
         }
 
         if (endpointToCall !== undefined) {
-            endpointToCall(req, res);
+            endpointToCall(req, res, this.middlewares);
         }
     }
 
@@ -68,10 +82,10 @@ class RequestListenerBuilder {
             const condition = observer.when(req);
             if (condition instanceof Promise) {
                 condition.then(() => {
-                    observer.do(req);
+                    observer.do(req, this.middlewares);
                 });
             } else {
-                observer.do(req);
+                observer.do(req, this.middlewares);
             }
         }
     }

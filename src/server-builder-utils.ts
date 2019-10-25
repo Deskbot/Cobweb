@@ -1,8 +1,8 @@
 import { ServerBuilder } from "./ServerBuilder";
-import { RequestPredicate, Endpoint } from "./types";
+import { RequestPredicate, Endpoint, MiddlewareInventory } from "./types";
 import { RequestListener, IncomingMessage, ServerResponse } from "http";
 
-export class UrlPatternEndpoint implements Endpoint {
+export class UrlPatternEndpoint<M extends MiddlewareInventory> implements Endpoint<M> {
     private patternMatches: RegExpMatchArray | null;
     private pattern: RegExp;
     private urlHandler: (matches: RegExpMatchArray | null, req: IncomingMessage, res: ServerResponse) => void;
@@ -27,16 +27,16 @@ export class UrlPatternEndpoint implements Endpoint {
     };
 }
 
-export function addEndpoint(
-    builder: ServerBuilder,
+export function addEndpoint<M extends MiddlewareInventory>(
+    builder: ServerBuilder<M>,
     condition: RequestPredicate,
     handler: RequestListener
 ) {
     builder.addEndpoint({ when: condition, do: handler });
 }
 
-export function addEndpointForUrl(
-    builder: ServerBuilder,
+export function addEndpointForUrl<M extends MiddlewareInventory>(
+    builder: ServerBuilder<M>,
     url: string,
     handler: RequestListener
 ) {

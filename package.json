@@ -10,9 +10,9 @@
     "build-tests-watch": "./node_modules/.bin/tsc -w --incremental -p ./test",
     "rebuild": "./node_modules/.bin/tsc",
     "rebuild-tests": "./node_modules/.bin/tsc -p ./test",
-    "test": "./test.sh"
+    "test": "node -r source-map-support/register ./build/test/src/main"
   },
-  "author": "",
+  "author": "Deskbot",
   "license": "UNLICENSED",
   "devDependencies": {
     "@types/node": "^10.14.22",
