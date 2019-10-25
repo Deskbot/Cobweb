@@ -23,15 +23,10 @@ const allTests: Test[] = [{
     run: ({ test }) => {
         const builder = new ServerBuilder({
             helloWorld: (req) => "hello world",
-            welloHurld: () => "wello hurld",
-            makeNumber: () => 1,
         });
 
         builder.setNoEndpointHandler((req, res, middleware) => {
-            test(middleware.helloWorld() === "hello world"); // compile
-            test(middleware.welloHurld() === "hello world"); // compile
-            test(middleware.makeNumber() === "hello world"); // no compile
-            test(middleware.poop() === "hello world") // no compile
+            test(middleware.helloWorld() === "hello world");
         });
 
         callEndpoint(builder);
