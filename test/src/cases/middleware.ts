@@ -1,8 +1,8 @@
 import * as http from "http";
 import * as util from "util";
 
-import { ServerBuilder } from "../../src";
-import { MiddlewareInventory, MiddlewareSpecification } from "../../src/types";
+import { ServerBuilder } from "../../../src";
+import { MiddlewareInventory, MiddlewareSpecification } from "../../../src/types";
 
 const TEST_PORT = 9999;
 const TEST_FAILS_AFTER = 3000;
