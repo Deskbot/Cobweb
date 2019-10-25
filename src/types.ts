@@ -30,8 +30,8 @@ export interface Middleware<T> {
     (): T;
 }
 
-export type MiddlewareSpecification<S extends string> = Record<S, MiddlewareSpec<any>>;
+export type MiddlewareSpecification<S extends string = string> = Record<S, MiddlewareSpec<any>>;
 
-export type MiddlewareInventory<M = MiddlewareSpecification<string>> = {
-    [N in keyof M]: M[N] extends MiddlewareSpec<infer T> ? () => T : never
+export type MiddlewareInventory<M extends MiddlewareSpecification = MiddlewareSpecification> = {
+    [N in keyof M]: Middleware<ReturnType<M[N]>>
 };
