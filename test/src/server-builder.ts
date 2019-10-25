@@ -141,7 +141,7 @@ const allTests: Test[] = [
     }
 ];
 
-async function callEndpoint(builder: ServerBuilder<MiddlewareInventory<string>>, path?: string): Promise<void> {
+async function callEndpoint(builder: ServerBuilder<MiddlewareInventory>, path?: string): Promise<void> {
     const server = http.createServer(builder.build());
 
     await util.promisify(cb => server.listen(TEST_PORT, cb))();

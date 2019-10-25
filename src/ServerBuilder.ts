@@ -1,7 +1,7 @@
 import { Endpoint, Observer, MiddlewareInventory, RequestHandler, MiddlewareSpecification } from "./types";
 import { RequestListener, IncomingMessage, ServerResponse } from "http";
 
-export class ServerBuilder<M extends MiddlewareSpecification<string>, I extends MiddlewareInventory<M>> {
+export class ServerBuilder<M extends MiddlewareSpecification, I extends MiddlewareInventory<M> = MiddlewareInventory<M>> {
     private endpoints: Endpoint<I>[];
     private readonly middleware: M;
     private observers: Observer<I>[];
@@ -40,7 +40,7 @@ export class ServerBuilder<M extends MiddlewareSpecification<string>, I extends 
     }
 }
 
-class RequestListenerBuilder<M extends MiddlewareSpecification<string>, I extends MiddlewareInventory<M>> {
+class RequestListenerBuilder<M extends MiddlewareSpecification, I extends MiddlewareInventory<M>> {
     private endpoints: Endpoint<I>[];
     private middlewares: I;
     private observers: Observer<I>[];

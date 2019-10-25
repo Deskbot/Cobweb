@@ -30,7 +30,7 @@ export interface Middleware<T> {
     (): T;
 }
 
-export type MiddlewareSpecification<S extends string = string> = Record<S, MiddlewareSpec<any>>;
+export type MiddlewareSpecification = Record<string | number | symbol, MiddlewareSpec<any>>;
 
 export type MiddlewareInventory<M extends MiddlewareSpecification = MiddlewareSpecification> = {
     [N in keyof M]: Middleware<ReturnType<M[N]>>

@@ -38,7 +38,7 @@ const allTests: Test[] = [{
     },
 }];
 
-async function callEndpoint<M extends MiddlewareSpecification<string>, B extends MiddlewareInventory<M>>
+async function callEndpoint<M extends MiddlewareSpecification, B extends MiddlewareInventory<M>>
     (builder: ServerBuilder<M,B>, path?: string): Promise<void>
 {
     const server = http.createServer(builder.build());
