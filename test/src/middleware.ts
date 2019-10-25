@@ -20,13 +20,34 @@ interface Examiner {
 
 const allTests: Test[] = [{
     name: "Middleware can be called from a request listener.",
-    run: ({ test }) => {
+    run: ({ pass, test }) => {
         const builder = new ServerBuilder({
             helloWorld: (req) => "hello world",
         });
 
         builder.setNoEndpointHandler((req, res, middleware) => {
             test(middleware.helloWorld() === "hello world");
+            pass();
+        });
+
+        callEndpoint(builder);
+    },
+}, {
+    name: "Middleware calls are memoised.",
+    run: ({ pass, test }) => {
+        let externalData = "one";
+
+        const builder = new ServerBuilder({
+            getExternalData: (req) => {
+                externalData += " change"
+                return externalData;
+            },
+        });
+
+        builder.setNoEndpointHandler((req, res, middleware) => {
+            test(middleware.getExternalData() !== "one change");
+            test(middleware.getExternalData() === "one change");
+            pass();
         });
 
         callEndpoint(builder);
@@ -109,7 +130,7 @@ function run(test: Test): Promise<void> {
         test.run({
             test(result, message) {
                 if (result) {
-                    return pass();
+                    return;
                 }
 
                 return fail(message);
