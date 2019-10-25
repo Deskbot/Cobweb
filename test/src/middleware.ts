@@ -89,26 +89,34 @@ const allTests: Test[] = [{
 async function callEndpoint<M extends MiddlewareSpecification, B extends MiddlewareInventory<M>>
     (builder: ServerBuilder<M,B>, path?: string): Promise<void>
 {
-    const server = http.createServer(builder.build());
+    const server = http.createServer((req, res) => {
+        // call the created request listener
+        // and put the return value in a promise
+        // if the return value is a promise, it will wait for that to resolve instead
+        Promise.resolve(builder.build()(req, res))
+        .then(() => {
+            res.end();
+        })
+    });
 
     await util.promisify(cb => server.listen(TEST_PORT, cb))();
 
-    const req = http.request({
+    const reqToServer = http.request({
         path,
         port: TEST_PORT,
     });
 
     return new Promise<void>((resolve, reject) => {
-        req.once("error", (err) => {
+        reqToServer.once("error", (err) => {
             reject(err);
         });
 
-        req.on("timeout", () => {
+        reqToServer.on("timeout", () => {
             // adding this handler prevents a timeout error from being thrown
             // we are not testing that the requests get closed, only that they are handled
         });
 
-        req.end(() => {
+        reqToServer.end(() => {
             resolve();
         });
 
