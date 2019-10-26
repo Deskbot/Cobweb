@@ -59,24 +59,32 @@ class RequestListenerBuilder<M extends MiddlewareSpecification, I extends Middle
     }
 
     run(req: IncomingMessage, res: ServerResponse): void {
-        const middlewares = {} as any;
+        const middlewareInventory = {} as any;
 
         for (const name in this.middlewares) {
-            middlewares[name] = () => this.middlewares[name](req);
+            middlewareInventory[name] = () => {
+                const result = this.middlewares[name](req);
+                middlewareInventory[name] = () => result;
+                return result;
+            }
         }
 
-        middlewares as I;
+        middlewareInventory as I;
+
+        // call observers
 
         for (const observer of this.observers) {
             const condition = observer.when(req);
             if (condition instanceof Promise) {
                 condition.then(() => {
-                    observer.do(req, middlewares);
+                    observer.do(req, middlewareInventory);
                 });
             } else {
-                observer.do(req, middlewares);
+                observer.do(req, middlewareInventory);
             }
         }
+
+        // call endpoints
 
         const endpointFound = this.endpoints.find(endpoint => endpoint.when(req));
 
@@ -87,7 +95,7 @@ class RequestListenerBuilder<M extends MiddlewareSpecification, I extends Middle
         }
 
         if (endpointToCall !== undefined) {
-            endpointToCall(req, res, middlewares);
+            endpointToCall(req, res, middlewareInventory);
         }
     }
 }

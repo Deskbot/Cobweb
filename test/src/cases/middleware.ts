@@ -30,8 +30,8 @@ export const middlewareTests = [{
         });
 
         builder.setNoEndpointHandler((req, res, middleware) => {
-            test(middleware.getExternalData() === "one change");
-            test(middleware.getExternalData() === "one change");
+            test(middleware.getExternalData() === "one change", middleware.getExternalData());
+            test(middleware.getExternalData() === "one change", middleware.getExternalData());
             pass();
         });
 
