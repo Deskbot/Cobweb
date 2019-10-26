@@ -22,7 +22,7 @@ export async function callEndpoint<M extends MiddlewareSpecification, B extends 
         // call the created request listener
         // and put the return value in a promise
         // if the return value is a promise, it will wait for that to resolve instead
-        Promise.resolve(builder.build()(req, res))
+        Promise.resolve(builder.handle(req, res))
             .then(() => {
                 res.end();
             });

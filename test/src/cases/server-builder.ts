@@ -83,7 +83,6 @@ export const serverBuilderTests = [{
     name: "A server should not fall over when no listeners or endpoints are defined.",
     run({ pass, fail }) {
         const builder = new ServerBuilder({});
-        builder.build();
 
         callEndpoint(builder).then(() => {
             pass();
