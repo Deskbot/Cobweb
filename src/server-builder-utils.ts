@@ -1,4 +1,4 @@
-import { CobwebServer } from "./ServerBuilder";
+import { CobwebServer } from "./Server";
 import { RequestPredicate, Endpoint, MiddlewareInventory } from "./types";
 import { RequestListener, IncomingMessage, ServerResponse } from "http";
 
