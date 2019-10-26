@@ -70,19 +70,4 @@ export class CobwebServer<M extends MiddlewareSpecification, I extends Middlewar
     setNoEndpointHandler(handler: RequestHandler<I>) {
         this.noEndpointHandler = handler;
     }
-
-    private specToInventory<M extends MiddlewareSpecification>(spec: M, req: IncomingMessage): I {
-        const middlewareInventory = {} as any;
-
-        for (const name in spec) {
-            middlewareInventory[name] = () => {
-                const result = spec[name](req);
-                // overwrite this function for any future uses
-                middlewareInventory[name] = () => result;
-                return result;
-            }
-        }
-
-        return middlewareInventory as I;
-    }
 }
