@@ -64,6 +64,7 @@ class RequestListenerBuilder<M extends MiddlewareSpecification, I extends Middle
         for (const name in this.middlewares) {
             middlewareInventory[name] = () => {
                 const result = this.middlewares[name](req);
+                // overwrite this function for any future uses
                 middlewareInventory[name] = () => result;
                 return result;
             }
