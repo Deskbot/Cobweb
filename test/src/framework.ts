@@ -2,7 +2,7 @@ import * as http from "http";
 import * as util from "util";
 
 import { MiddlewareSpecification, MiddlewareInventory } from "../../src/types";
-import { ServerBuilder } from "../../src";
+import { CobwebServer } from "../../src";
 import { TEST_PORT } from "./config";
 
 export interface Test {
@@ -17,7 +17,7 @@ export interface Examiner {
 }
 
 export async function callEndpoint<M extends MiddlewareSpecification, B extends MiddlewareInventory<M>>
-    (builder: ServerBuilder<M, B>, path?: string): Promise<void> {
+    (builder: CobwebServer<M, B>, path?: string): Promise<void> {
     const server = http.createServer((req, res) => {
         // call the created request listener
         // and put the return value in a promise

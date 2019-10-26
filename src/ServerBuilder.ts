@@ -1,7 +1,7 @@
 import { Endpoint, Observer, MiddlewareInventory, RequestHandler, MiddlewareSpecification } from "./types";
 import { IncomingMessage, ServerResponse } from "http";
 
-export class ServerBuilder<M extends MiddlewareSpecification, I extends MiddlewareInventory<M> = MiddlewareInventory<M>> {
+export class CobwebServer<M extends MiddlewareSpecification, I extends MiddlewareInventory<M> = MiddlewareInventory<M>> {
     private endpoints: Endpoint<I>[];
     private middlewares: M;
     private observers: Observer<I>[];
