@@ -42,7 +42,7 @@ export class ServerBuilder<M extends MiddlewareSpecification, I extends Middlewa
 
 class RequestListenerBuilder<M extends MiddlewareSpecification, I extends MiddlewareInventory<M>> {
     private endpoints: Endpoint<I>[];
-    private middlewares: I;
+    private middlewares: M;
     private observers: Observer<I>[];
     private noEndpointHandler: RequestHandler<I> | undefined;
 
@@ -53,17 +53,31 @@ class RequestListenerBuilder<M extends MiddlewareSpecification, I extends Middle
         noEndpointHandler?: RequestHandler<I>
     ) {
         this.endpoints = endpoints;
-        this.middlewares = middlewares as any; // todo properly type and transform
+        this.middlewares = middlewares;
         this.observers = observers;
         this.noEndpointHandler = noEndpointHandler;
     }
 
     run(req: IncomingMessage, res: ServerResponse): void {
-        this.callObservers(req);
-        this.callEndpoint(req, res);
-    }
+        const middlewares = {} as any;
 
-    private callEndpoint(req: IncomingMessage, res: ServerResponse) {
+        for (const name in this.middlewares) {
+            middlewares[name] = () => this.middlewares[name](req);
+        }
+
+        middlewares as I;
+
+        for (const observer of this.observers) {
+            const condition = observer.when(req);
+            if (condition instanceof Promise) {
+                condition.then(() => {
+                    observer.do(req, middlewares);
+                });
+            } else {
+                observer.do(req, middlewares);
+            }
+        }
+
         const endpointFound = this.endpoints.find(endpoint => endpoint.when(req));
 
         let endpointToCall = this.noEndpointHandler;
@@ -73,20 +87,7 @@ class RequestListenerBuilder<M extends MiddlewareSpecification, I extends Middle
         }
 
         if (endpointToCall !== undefined) {
-            endpointToCall(req, res, this.middlewares);
-        }
-    }
-
-    private callObservers(req: IncomingMessage) {
-        for (const observer of this.observers) {
-            const condition = observer.when(req);
-            if (condition instanceof Promise) {
-                condition.then(() => {
-                    observer.do(req, this.middlewares);
-                });
-            } else {
-                observer.do(req, this.middlewares);
-            }
+            endpointToCall(req, res, middlewares);
         }
     }
 }
