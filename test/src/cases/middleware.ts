@@ -71,4 +71,35 @@ export const middlewareTests = [{
 
         callEndpoint(builder);
     },
+},
+
+{
+    name: "Middleware calls are not memoised across handles.",
+    run: async ({ pass, test }) => {
+        let expected = 0;
+        let actual = 0;
+
+        const builder = new CobwebServer({
+            increment: () => {
+                actual += 1;
+                return actual;
+            },
+        });
+
+        builder.addEndpoint({
+            when: () => true,
+            do: (req, res, middleware) => {
+
+                // we expect that the actual is incremented by the middleware call
+                expected += 1;
+                test(middleware.increment() === expected, `Expected ${expected}, received ${actual}.`);
+            }
+        });
+
+        await callEndpoint(builder);
+        await callEndpoint(builder);
+        await callEndpoint(builder);
+
+        pass();
+    },
 }];

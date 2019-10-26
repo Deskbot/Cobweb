@@ -19,7 +19,7 @@ export class CobwebServer<M extends MiddlewareSpecification, I extends Middlewar
             middlewareInventoryProto[name] = function() {
                 const result = middlewareSpec[name](this.req);
                 // overwrite this function for any future uses
-                middlewareInventoryProto[name] = () => result;
+                this[name] = () => result;
                 return result;
             }
         }
