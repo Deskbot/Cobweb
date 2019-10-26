@@ -3,7 +3,7 @@ import { IncomingMessage, ServerResponse } from "http";
 
 export class CobwebServer<M extends MiddlewareSpecification, I extends MiddlewareInventory<M> = MiddlewareInventory<M>> {
     private endpoints: Endpoint<I>[];
-    private middlewareInventoryProto: I & { req: IncomingMessage };
+    private middlewareInventoryProto: I & { req: undefined };
     private observers: Observer<I>[];
     private noEndpointHandler: RequestHandler<I> | undefined;
 
@@ -36,8 +36,9 @@ export class CobwebServer<M extends MiddlewareSpecification, I extends Middlewar
     }
 
     handle(req: IncomingMessage, res: ServerResponse): void {
-        const middlewareInventory = Object.create(this.middlewareInventoryProto) as I & { req: IncomingMessage };
+        const middlewareInventory = Object.create(this.middlewareInventoryProto);
         middlewareInventory.req = req;
+        middlewareInventory as I & { req: IncomingMessage };
 
         // call observers
 
