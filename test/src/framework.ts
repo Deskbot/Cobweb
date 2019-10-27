@@ -59,27 +59,23 @@ export async function rejectAfter(afterMilliseconds: number): Promise<void> {
     });
 }
 
-export function run(test: Test): Promise<void> {
+export function run(testcase: Test): Promise<void> {
     return new Promise((resolve, reject) => {
-        const fail = (val) => {
-            console.trace();
-            reject(val);
-        };
+        testcase.run({
+            fail(val) {
+                console.trace();
+                reject(val);
+            },
 
-        const pass = () => {
-            resolve();
-        };
+            pass: resolve,
 
-        test.run({
             test(result, message) {
                 if (result) {
                     return;
                 }
 
-                return fail(message);
+                return this.fail(message);
             },
-            fail,
-            pass,
         });
     });
 }

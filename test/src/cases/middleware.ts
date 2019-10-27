@@ -1,7 +1,7 @@
 import { Cobweb } from "../../../src";
-import { makeRequest } from "../framework";
+import { makeRequest, Test } from "../framework";
 
-export const middlewareTests = [{
+export const middlewareTests: Test[] = [{
     name: "Middleware can be called from a request listener.",
     run: async ({ pass, test }) => {
         const handler = new Cobweb({
@@ -104,7 +104,7 @@ export const middlewareTests = [{
 
 {
     name: "Middleware can call each other.",
-    run: async ({ pass, test }) => {
+    run: ({ pass, test }) => {
         const handler = new Cobweb({
             number(req) {
                 return 100;
@@ -122,10 +122,10 @@ export const middlewareTests = [{
             do: (req, res, middleware) => {
                 test(middleware.isEven() === true);
                 test(middleware.isOdd() === false);
+                pass();
             }
         });
 
-        await makeRequest(handler);
-        pass();
+        makeRequest(handler);
     },
 }];
