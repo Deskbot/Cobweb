@@ -39,5 +39,4 @@ export type MiddlewareInventory<M extends MiddlewareSpecification = MiddlewareSp
 export interface MiddlewareInventoryConstructor<I extends MiddlewareInventory> {
     new(req: IncomingMessage): I;
     prototype?: Partial<I>;
-    __req: IncomingMessage;
 }
