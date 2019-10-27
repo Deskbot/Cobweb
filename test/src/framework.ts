@@ -1,7 +1,7 @@
 import * as http from "http";
 import * as util from "util";
 
-import { MiddlewareSpecification, MiddlewareInventory } from "../../src/types";
+import { MiddlewareSpec, Middleware } from "../../src/types";
 import { Cobweb } from "../../src";
 import { TEST_PORT } from "./config";
 
@@ -17,7 +17,7 @@ export interface Examiner {
     readonly test: (result: boolean, message?: string) => void;
 }
 
-export async function makeRequest<M extends MiddlewareSpecification, I extends MiddlewareInventory<M>>
+export async function makeRequest<M extends MiddlewareSpec, I extends Middleware<M>>
     (handler: Cobweb<M, I>, path?: string): Promise<void>
 {
     const server = http.createServer((req, res) => {

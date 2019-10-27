@@ -1,10 +1,10 @@
 import { IncomingMessage, ServerResponse } from "http";
 
-export interface RequestHandler<I extends MiddlewareInventory> {
+export interface RequestHandler<I extends Middleware> {
     (req: IncomingMessage, res: ServerResponse, middlewares: I): void
 }
 
-export interface RequestSideEffect<I extends MiddlewareInventory> {
+export interface RequestSideEffect<I extends Middleware> {
     (req: IncomingMessage, middlewares: I): void;
 }
 
@@ -12,31 +12,23 @@ export interface RequestPredicate {
     (req: IncomingMessage): boolean | Promise<boolean>;
 }
 
-export interface Endpoint<I extends MiddlewareInventory> {
+export interface Endpoint<I extends Middleware> {
     when: RequestPredicate;
     do: RequestHandler<I>;
 }
 
-export interface Observer<I extends MiddlewareInventory> {
+export interface Observer<I extends Middleware> {
     when: RequestPredicate;
     do: RequestSideEffect<I>;
 }
 
-export interface MiddlewareSpec<T> {
-    (req: IncomingMessage): T;
-}
+export type MiddlewareSpec = Record<string | number | symbol, (req: IncomingMessage) => any>;
 
-export interface Middleware<T> {
-    (): T;
-}
-
-export type MiddlewareSpecification = Record<string | number | symbol, MiddlewareSpec<any>>;
-
-export type MiddlewareInventory<M extends MiddlewareSpecification = MiddlewareSpecification> = {
-    [N in keyof M]: Middleware<ReturnType<M[N]>>
+export type Middleware<M extends MiddlewareSpec = MiddlewareSpec> = {
+    [N in keyof M]: () => ReturnType<M[N]>
 };
 
-export interface MiddlewareInventoryConstructor<I extends MiddlewareInventory> {
+export interface MiddlewareConstructor<I extends Middleware> {
     new(req: IncomingMessage): I;
     prototype?: Partial<I>;
 }
