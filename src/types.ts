@@ -35,3 +35,8 @@ export type MiddlewareSpecification = Record<string | number | symbol, Middlewar
 export type MiddlewareInventory<M extends MiddlewareSpecification = MiddlewareSpecification> = {
     [N in keyof M]: Middleware<ReturnType<M[N]>>
 };
+
+export interface Constructor<T> {
+    new(): T;
+    prototype?: Partial<T>;
+}

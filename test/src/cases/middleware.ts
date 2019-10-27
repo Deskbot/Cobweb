@@ -1,10 +1,10 @@
-import { ServerBuilder } from "../../../src";
+import { Cobweb } from "../../../src";
 import { callEndpoint } from "../framework";
 
 export const middlewareTests = [{
     name: "Middleware can be called from a request listener.",
     run: ({ pass, test }) => {
-        const builder = new ServerBuilder({
+        const builder = new Cobweb({
             helloWorld: (req) => "hello world",
         });
 
@@ -22,7 +22,7 @@ export const middlewareTests = [{
     run: ({ pass, test }) => {
         let externalData = "one";
 
-        const builder = new ServerBuilder({
+        const builder = new Cobweb({
             getExternalData: (req) => {
                 externalData += " change"
                 return externalData;
@@ -44,7 +44,7 @@ export const middlewareTests = [{
     run: ({ pass, test }) => {
         let externalData = "one";
 
-        const builder = new ServerBuilder({
+        const builder = new Cobweb({
             getExternalData: (req) => {
                 externalData += " change"
                 return externalData;
@@ -70,5 +70,36 @@ export const middlewareTests = [{
         });
 
         callEndpoint(builder);
+    },
+},
+
+{
+    name: "Middleware calls are not memoised across handles.",
+    run: async ({ pass, test }) => {
+        let expected = 0;
+        let actual = 0;
+
+        const builder = new Cobweb({
+            increment: () => {
+                actual += 1;
+                return actual;
+            },
+        });
+
+        builder.addEndpoint({
+            when: () => true,
+            do: (req, res, middleware) => {
+
+                // we expect that the actual is incremented by the middleware call
+                expected += 1;
+                test(middleware.increment() === expected, `Expected ${expected}, received ${actual}.`);
+            }
+        });
+
+        await callEndpoint(builder);
+        await callEndpoint(builder);
+        await callEndpoint(builder);
+
+        pass();
     },
 }];

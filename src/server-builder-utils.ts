@@ -1,4 +1,4 @@
-import { ServerBuilder } from "./ServerBuilder";
+import { Cobweb } from "./Cobweb";
 import { RequestPredicate, Endpoint, MiddlewareInventory } from "./types";
 import { RequestListener, IncomingMessage, ServerResponse } from "http";
 
@@ -28,7 +28,7 @@ export class UrlPatternEndpoint<M extends MiddlewareInventory> implements Endpoi
 }
 
 export function addEndpoint<M extends MiddlewareInventory>(
-    builder: ServerBuilder<M>,
+    builder: Cobweb<M>,
     condition: RequestPredicate,
     handler: RequestListener
 ) {
@@ -36,7 +36,7 @@ export function addEndpoint<M extends MiddlewareInventory>(
 }
 
 export function addEndpointForUrl<M extends MiddlewareInventory>(
-    builder: ServerBuilder<M>,
+    builder: Cobweb<M>,
     url: string,
     handler: RequestListener
 ) {
