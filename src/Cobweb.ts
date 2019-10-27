@@ -61,7 +61,7 @@ export class Cobweb<S extends MiddlewareSpec, M extends Middleware<S> = Middlewa
     }
 }
 
-function middlewareSpecToInventoryConstructor<M extends MiddlewareSpec, I extends Middleware<M>>(middlewareSpec: M): MiddlewareConstructor<I> {
+function middlewareSpecToInventoryConstructor<S extends MiddlewareSpec, M extends Middleware<S>>(middlewareSpec: S): MiddlewareConstructor<M> {
     const middlewareInventoryProto = {} as any;
 
     for (const name in middlewareSpec) {

@@ -1,25 +1,25 @@
 import { IncomingMessage, ServerResponse } from "http";
 
-export interface RequestHandler<I extends Middleware> {
-    (req: IncomingMessage, res: ServerResponse, middlewares: I): void
+export interface RequestHandler<M extends Middleware> {
+    (req: IncomingMessage, res: ServerResponse, middleware: M): void
 }
 
-export interface RequestSideEffect<I extends Middleware> {
-    (req: IncomingMessage, middlewares: I): void;
+export interface RequestSideEffect<M extends Middleware> {
+    (req: IncomingMessage, middlewares: M): void;
 }
 
 export interface RequestPredicate {
     (req: IncomingMessage): boolean | Promise<boolean>;
 }
 
-export interface Endpoint<I extends Middleware> {
+export interface Endpoint<M extends Middleware> {
     when: RequestPredicate;
-    do: RequestHandler<I>;
+    do: RequestHandler<M>;
 }
 
-export interface Observer<I extends Middleware> {
+export interface Observer<M extends Middleware> {
     when: RequestPredicate;
-    do: RequestSideEffect<I>;
+    do: RequestSideEffect<M>;
 }
 
 export type MiddlewareSpec = Record<string | number | symbol, (req: IncomingMessage) => any>;
@@ -28,7 +28,7 @@ export type Middleware<M extends MiddlewareSpec = MiddlewareSpec> = {
     [N in keyof M]: () => ReturnType<M[N]>
 };
 
-export interface MiddlewareConstructor<I extends Middleware> {
-    new(req: IncomingMessage): I;
-    prototype?: Partial<I>;
+export interface MiddlewareConstructor<M extends Middleware> {
+    new(req: IncomingMessage): M;
+    prototype?: Partial<M>;
 }
