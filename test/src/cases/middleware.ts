@@ -1,10 +1,10 @@
-import { CobwebServer } from "../../../src";
+import { Cobweb } from "../../../src";
 import { callEndpoint } from "../framework";
 
 export const middlewareTests = [{
     name: "Middleware can be called from a request listener.",
     run: ({ pass, test }) => {
-        const builder = new CobwebServer({
+        const builder = new Cobweb({
             helloWorld: (req) => "hello world",
         });
 
@@ -22,7 +22,7 @@ export const middlewareTests = [{
     run: ({ pass, test }) => {
         let externalData = "one";
 
-        const builder = new CobwebServer({
+        const builder = new Cobweb({
             getExternalData: (req) => {
                 externalData += " change"
                 return externalData;
@@ -44,7 +44,7 @@ export const middlewareTests = [{
     run: ({ pass, test }) => {
         let externalData = "one";
 
-        const builder = new CobwebServer({
+        const builder = new Cobweb({
             getExternalData: (req) => {
                 externalData += " change"
                 return externalData;
@@ -79,7 +79,7 @@ export const middlewareTests = [{
         let expected = 0;
         let actual = 0;
 
-        const builder = new CobwebServer({
+        const builder = new Cobweb({
             increment: () => {
                 actual += 1;
                 return actual;

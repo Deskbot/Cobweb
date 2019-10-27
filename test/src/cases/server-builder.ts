@@ -1,10 +1,10 @@
-import { CobwebServer } from "../../../src";
+import { Cobweb } from "../../../src";
 import { callEndpoint } from "../framework";
 
 export const serverBuilderTests = [{
     name: "A server should be able to listen to things.",
     run({ pass }) {
-        const builder = new CobwebServer({});
+        const builder = new Cobweb({});
         builder.addObserver({
             when: () => true,
             do: () => {
@@ -19,7 +19,7 @@ export const serverBuilderTests = [{
 {
     name: "A server should be able to use custom endpoints.",
     run({ pass }) {
-        const builder = new CobwebServer({});
+        const builder = new Cobweb({});
         builder.addEndpoint({
             when: () => true,
             do: () => {
@@ -34,7 +34,7 @@ export const serverBuilderTests = [{
 {
     name: "A server should end at the only valid endpoint.",
     run({ pass, fail }) {
-        const builder = new CobwebServer({});
+        const builder = new Cobweb({});
         builder.addEndpoint({
             when: () => false,
             do: () => {
@@ -61,7 +61,7 @@ export const serverBuilderTests = [{
 {
     name: "A server should use the first valid endpoint provided.",
     run({ pass, fail }) {
-        const builder = new CobwebServer({});
+        const builder = new Cobweb({});
         builder.addEndpoint({
             when: () => true,
             do: () => {
@@ -82,7 +82,7 @@ export const serverBuilderTests = [{
 {
     name: "A server should not fall over when no listeners or endpoints are defined.",
     run({ pass, fail }) {
-        const builder = new CobwebServer({});
+        const builder = new Cobweb({});
 
         callEndpoint(builder).then(() => {
             pass();
@@ -95,7 +95,7 @@ export const serverBuilderTests = [{
 {
     name: "A server should use the default endpoint if one is set.",
     run({ pass }) {
-        const builder = new CobwebServer({});
+        const builder = new Cobweb({});
         builder.setNoEndpointHandler(() => {
             pass();
         });
@@ -107,7 +107,7 @@ export const serverBuilderTests = [{
 {
     name: "A server should not use the default endpoint if another one matches.",
     run({ pass, fail }) {
-        const builder = new CobwebServer({});
+        const builder = new Cobweb({});
         builder.addEndpoint({
             when: () => true,
             do: () => {
