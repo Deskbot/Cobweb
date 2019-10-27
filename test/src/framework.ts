@@ -17,15 +17,11 @@ export interface Examiner {
 }
 
 export async function makeRequest<M extends MiddlewareSpecification, I extends MiddlewareInventory<M>>
-    (handler: Cobweb<M, I>, path?: string): Promise<void> {
+    (handler: Cobweb<M, I>, path?: string): Promise<void>
+{
     const server = http.createServer((req, res) => {
-        // call the created request listener
-        // and put the return value in a promise
-        // if the return value is a promise, it will wait for that to resolve instead
-        Promise.resolve(handler.handle(req, res))
-            .then(() => {
-                res.end();
-            });
+        handler.handle(req, res);
+        res.end();
     });
 
     await util.promisify(cb => server.listen(TEST_PORT, cb))();
