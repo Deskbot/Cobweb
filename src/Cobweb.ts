@@ -17,7 +17,7 @@ export class Cobweb<M extends MiddlewareSpecification, I extends MiddlewareInven
 
         for (const name in middlewareSpec) {
             middlewareInventoryProto[name] = function() {
-                const result = middlewareSpec[name](this.req);
+                const result = middlewareSpec[name](this.__req);
                 // overwrite this function for any future uses
                 this[name] = () => result;
                 return result;
@@ -39,9 +39,9 @@ export class Cobweb<M extends MiddlewareSpecification, I extends MiddlewareInven
     }
 
     handle(req: IncomingMessage, res: ServerResponse): void {
-        const middlewareInventory = new this.MiddlewareInventory();
+        const middlewareInventory = new this.MiddlewareInventory() as I & { __req: IncomingMessage };
 
-        (middlewareInventory as I & { req: IncomingMessage }).req = req;
+        middlewareInventory.__req = req;
 
         // call observers
 
