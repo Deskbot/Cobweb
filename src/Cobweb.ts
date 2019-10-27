@@ -11,7 +11,7 @@ export class Cobweb<S extends MiddlewareSpec, M extends Middleware<S> = Middlewa
         this.endpoints = [];
         this.observers = [];
 
-        this.MiddlewareInventory = middlewareSpecToInventoryConstructor<S,M>(middlewareSpec);
+        this.MiddlewareInventory = middlewareSpecToConstructor<S,M>(middlewareSpec);
     }
 
     addEndpoint(handler: Endpoint<M>) {
@@ -61,7 +61,7 @@ export class Cobweb<S extends MiddlewareSpec, M extends Middleware<S> = Middlewa
     }
 }
 
-function middlewareSpecToInventoryConstructor<S extends MiddlewareSpec, M extends Middleware<S>>(middlewareSpec: S): MiddlewareConstructor<M> {
+function middlewareSpecToConstructor<S extends MiddlewareSpec, M extends Middleware<S>>(middlewareSpec: S): MiddlewareConstructor<M> {
     const middlewareInventoryProto = {} as any;
 
     for (const name in middlewareSpec) {
