@@ -2,6 +2,7 @@ import { run, rejectAfter, Test } from "./framework";
 import { TEST_FAILS_AFTER } from "./config";
 import { middlewareTests } from "./cases/middleware";
 import { serverBuilderTests } from "./cases/do";
+import { whenTests } from "./cases/when";
 
 main();
 
@@ -9,6 +10,7 @@ async function main() {
     await runTests([
         ...middlewareTests,
         ...serverBuilderTests,
+        ...whenTests,
     ]);
 }
 
