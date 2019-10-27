@@ -13,21 +13,8 @@ export class Cobweb<M extends MiddlewareSpecification, I extends MiddlewareInven
 
         // ensure the middleware don't get changed after initialisation
         middlewareSpec = { ...middlewareSpec };
-        const middlewareInventoryProto = {} as any;
 
-        for (const name in middlewareSpec) {
-            middlewareInventoryProto[name] = function() {
-                const result = middlewareSpec[name](this.__req);
-                // overwrite this function for any future uses
-                this[name] = () => result;
-                return result;
-            }
-        }
-
-        const construct = function() { } as any;
-        construct.prototype = middlewareInventoryProto;
-
-        this.MiddlewareInventory = construct;
+        this.MiddlewareInventory = middlewareSpecToInventoryConstructor<M,I>(middlewareSpec);
     }
 
     addEndpoint(handler: Endpoint<I>) {
@@ -74,4 +61,22 @@ export class Cobweb<M extends MiddlewareSpecification, I extends MiddlewareInven
     setNoEndpointHandler(handler: RequestHandler<I>) {
         this.noEndpointHandler = handler;
     }
+}
+
+function middlewareSpecToInventoryConstructor<M extends MiddlewareSpecification, I extends MiddlewareInventory<M>>(middlewareSpec: M): Constructor<I> {
+    const middlewareInventoryProto = {} as any;
+
+    for (const name in middlewareSpec) {
+        middlewareInventoryProto[name] = function () {
+            const result = middlewareSpec[name](this.__req);
+            // overwrite this function for any future uses
+            this[name] = () => result;
+            return result;
+        }
+    }
+
+    const constructor = function () { } as any;
+    constructor.prototype = middlewareInventoryProto;
+
+    return constructor;
 }
