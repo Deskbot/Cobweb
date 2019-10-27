@@ -1,28 +1,28 @@
 import { Endpoint, Observer, Middleware, RequestHandler, MiddlewareSpec, MiddlewareConstructor } from "./types";
 import { IncomingMessage, ServerResponse } from "http";
 
-export class Cobweb<M extends MiddlewareSpec, I extends Middleware<M> = Middleware<M>> {
-    private endpoints: Endpoint<I>[];
-    private MiddlewareInventory: MiddlewareConstructor<I>;
-    private observers: Observer<I>[];
-    private noEndpointHandler: RequestHandler<I> | undefined;
+export class Cobweb<S extends MiddlewareSpec, M extends Middleware<S> = Middleware<S>> {
+    private endpoints: Endpoint<M>[];
+    private MiddlewareInventory: MiddlewareConstructor<M>;
+    private observers: Observer<M>[];
+    private noEndpointHandler: RequestHandler<M> | undefined;
 
-    constructor(middlewareSpec: M) {
+    constructor(middlewareSpec: S) {
         this.endpoints = [];
         this.observers = [];
 
-        this.MiddlewareInventory = middlewareSpecToInventoryConstructor<M,I>(middlewareSpec);
+        this.MiddlewareInventory = middlewareSpecToInventoryConstructor<S,M>(middlewareSpec);
     }
 
-    addEndpoint(handler: Endpoint<I>) {
+    addEndpoint(handler: Endpoint<M>) {
         this.endpoints.push(handler);
     }
 
-    addObserver(handler: Observer<I>) {
+    addObserver(handler: Observer<M>) {
         this.observers.push(handler);
     }
 
-    private callEndpoints(req: IncomingMessage, res: ServerResponse, middleware: I) {
+    private callEndpoints(req: IncomingMessage, res: ServerResponse, middleware: M) {
         const endpointFound = this.endpoints.find(endpoint => endpoint.when(req));
 
         let endpointToCall = this.noEndpointHandler;
@@ -36,7 +36,7 @@ export class Cobweb<M extends MiddlewareSpec, I extends Middleware<M> = Middlewa
         }
     }
 
-    private callObservers(req: IncomingMessage, middleware: I) {
+    private callObservers(req: IncomingMessage, middleware: M) {
         for (const observer of this.observers) {
             const condition = observer.when(req);
             if (condition instanceof Promise) {
@@ -56,7 +56,7 @@ export class Cobweb<M extends MiddlewareSpec, I extends Middleware<M> = Middlewa
         this.callEndpoints(req, res, middlewareInventory);
     }
 
-    setNoEndpointHandler(handler: RequestHandler<I>) {
+    setNoEndpointHandler(handler: RequestHandler<M>) {
         this.noEndpointHandler = handler;
     }
 }
