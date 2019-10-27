@@ -36,7 +36,8 @@ export type MiddlewareInventory<M extends MiddlewareSpecification = MiddlewareSp
     [N in keyof M]: Middleware<ReturnType<M[N]>>
 };
 
-export interface Constructor<T> {
-    new(): T;
-    prototype?: Partial<T>;
+export interface MiddlewareInventoryConstructor<I extends MiddlewareInventory> {
+    new(req: IncomingMessage): I;
+    prototype?: Partial<I>;
+    __req: IncomingMessage;
 }

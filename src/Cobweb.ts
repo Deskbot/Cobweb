@@ -1,18 +1,15 @@
-import { Endpoint, Observer, MiddlewareInventory, RequestHandler, MiddlewareSpecification, Constructor } from "./types";
+import { Endpoint, Observer, MiddlewareInventory, RequestHandler, MiddlewareSpecification, MiddlewareInventoryConstructor } from "./types";
 import { IncomingMessage, ServerResponse } from "http";
 
 export class Cobweb<M extends MiddlewareSpecification, I extends MiddlewareInventory<M> = MiddlewareInventory<M>> {
     private endpoints: Endpoint<I>[];
-    private MiddlewareInventory: Constructor<I>;
+    private MiddlewareInventory: MiddlewareInventoryConstructor<I>;
     private observers: Observer<I>[];
     private noEndpointHandler: RequestHandler<I> | undefined;
 
     constructor(middlewareSpec: M) {
         this.endpoints = [];
         this.observers = [];
-
-        // ensure the middleware don't get changed after initialisation
-        middlewareSpec = { ...middlewareSpec };
 
         this.MiddlewareInventory = middlewareSpecToInventoryConstructor<M,I>(middlewareSpec);
     }
@@ -26,9 +23,7 @@ export class Cobweb<M extends MiddlewareSpecification, I extends MiddlewareInven
     }
 
     handle(req: IncomingMessage, res: ServerResponse): void {
-        const middlewareInventory = new this.MiddlewareInventory() as I & { __req: IncomingMessage };
-
-        middlewareInventory.__req = req;
+        const middlewareInventory = new this.MiddlewareInventory(req);
 
         // call observers
 
@@ -63,7 +58,7 @@ export class Cobweb<M extends MiddlewareSpecification, I extends MiddlewareInven
     }
 }
 
-function middlewareSpecToInventoryConstructor<M extends MiddlewareSpecification, I extends MiddlewareInventory<M>>(middlewareSpec: M): Constructor<I> {
+function middlewareSpecToInventoryConstructor<M extends MiddlewareSpecification, I extends MiddlewareInventory<M>>(middlewareSpec: M): MiddlewareInventoryConstructor<I> {
     const middlewareInventoryProto = {} as any;
 
     for (const name in middlewareSpec) {
@@ -75,8 +70,11 @@ function middlewareSpecToInventoryConstructor<M extends MiddlewareSpecification,
         }
     }
 
-    const constructor = function () { } as any;
+    function constructor(this: any, req: IncomingMessage) {
+        this.__req = req;
+    };
+
     constructor.prototype = middlewareInventoryProto;
 
-    return constructor;
+    return constructor as any;
 }
