@@ -3,23 +3,23 @@ import { makeRequest } from "../framework";
 
 export const middlewareTests = [{
     name: "Middleware can be called from a request listener.",
-    run: ({ pass, test }) => {
+    run: async ({ pass, test }) => {
         const handler = new Cobweb({
             helloWorld: (req) => "hello world",
         });
 
         handler.setNoEndpointHandler((req, res, middleware) => {
             test(middleware.helloWorld() === "hello world");
-            pass();
         });
 
-        makeRequest(handler);
+        await makeRequest(handler);
+        pass();
     },
 },
 
 {
     name: "Middleware calls are memoised.",
-    run: ({ pass, test }) => {
+    run: async ({ pass, test }) => {
         let externalData = "one";
 
         const handler = new Cobweb({
@@ -32,16 +32,16 @@ export const middlewareTests = [{
         handler.setNoEndpointHandler((req, res, middleware) => {
             test(middleware.getExternalData() === "one change", middleware.getExternalData());
             test(middleware.getExternalData() === "one change", middleware.getExternalData());
-            pass();
         });
 
-        makeRequest(handler);
+        await makeRequest(handler);
+        pass();
     },
 },
 
 {
     name: "Middleware calls are memoised across listeners.",
-    run: ({ pass, test }) => {
+    run: async ({ pass, test }) => {
         let externalData = "one";
 
         const handler = new Cobweb({
@@ -56,7 +56,6 @@ export const middlewareTests = [{
             do: (req, middleware) => {
                 test(middleware.getExternalData() === "one change");
                 test(middleware.getExternalData() === "one change");
-                pass();
             }
         });
 
@@ -65,11 +64,11 @@ export const middlewareTests = [{
             do: (req, middleware) => {
                 test(middleware.getExternalData() === "one change");
                 test(middleware.getExternalData() === "one change");
-                pass();
             }
         });
 
-        makeRequest(handler);
+        await makeRequest(handler);
+        pass();
     },
 },
 
@@ -89,7 +88,6 @@ export const middlewareTests = [{
         handler.addEndpoint({
             when: () => true,
             do: (req, res, middleware) => {
-
                 // we expect that the actual is incremented by the middleware call
                 expected += 1;
                 test(middleware.increment() === expected, `Expected ${expected}, received ${actual}.`);
@@ -124,10 +122,10 @@ export const middlewareTests = [{
             do: (req, res, middleware) => {
                 test(middleware.isEven() === true);
                 test(middleware.isOdd() === false);
-                pass();
             }
         });
 
-        makeRequest(handler);
+        await makeRequest(handler);
+        pass();
     },
 }];
