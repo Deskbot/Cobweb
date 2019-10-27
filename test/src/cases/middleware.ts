@@ -129,4 +129,32 @@ export const middlewareTests: Test[] = [{
 
         makeRequest(handler);
     },
+},
+
+{
+    name: "Middleware can be asynchronous.",
+    run: ({ pass, test }) => {
+        const handler = new Cobweb({
+            async number(req) {
+                return 100;
+            },
+            async isEven(req) {
+                return await this.number(req) % 2 == 0
+            },
+            isOdd: async function (req) {
+                return !await this.isEven(req);
+            }
+        });
+
+        handler.addEndpoint({
+            when: () => true,
+            do: async (req, res, middleware) => {
+                test(await middleware.isEven() === true);
+                test(await middleware.isOdd() === false);
+                pass();
+            }
+        });
+
+        makeRequest(handler);
+    },
 }];
