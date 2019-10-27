@@ -1,19 +1,19 @@
 import { Cobweb } from "../../../src";
-import { callEndpoint } from "../framework";
+import { makeRequest } from "../framework";
 
 export const middlewareTests = [{
     name: "Middleware can be called from a request listener.",
     run: ({ pass, test }) => {
-        const builder = new Cobweb({
+        const handler = new Cobweb({
             helloWorld: (req) => "hello world",
         });
 
-        builder.setNoEndpointHandler((req, res, middleware) => {
+        handler.setNoEndpointHandler((req, res, middleware) => {
             test(middleware.helloWorld() === "hello world");
             pass();
         });
 
-        callEndpoint(builder);
+        makeRequest(handler);
     },
 },
 
@@ -22,20 +22,20 @@ export const middlewareTests = [{
     run: ({ pass, test }) => {
         let externalData = "one";
 
-        const builder = new Cobweb({
+        const handler = new Cobweb({
             getExternalData: (req) => {
                 externalData += " change"
                 return externalData;
             },
         });
 
-        builder.setNoEndpointHandler((req, res, middleware) => {
+        handler.setNoEndpointHandler((req, res, middleware) => {
             test(middleware.getExternalData() === "one change", middleware.getExternalData());
             test(middleware.getExternalData() === "one change", middleware.getExternalData());
             pass();
         });
 
-        callEndpoint(builder);
+        makeRequest(handler);
     },
 },
 
@@ -44,14 +44,14 @@ export const middlewareTests = [{
     run: ({ pass, test }) => {
         let externalData = "one";
 
-        const builder = new Cobweb({
+        const handler = new Cobweb({
             getExternalData: (req) => {
                 externalData += " change"
                 return externalData;
             },
         });
 
-        builder.addObserver({
+        handler.addObserver({
             when: () => true,
             do: (req, middleware) => {
                 test(middleware.getExternalData() === "one change");
@@ -60,7 +60,7 @@ export const middlewareTests = [{
             }
         });
 
-        builder.addObserver({
+        handler.addObserver({
             when: () => true,
             do: (req, middleware) => {
                 test(middleware.getExternalData() === "one change");
@@ -69,7 +69,7 @@ export const middlewareTests = [{
             }
         });
 
-        callEndpoint(builder);
+        makeRequest(handler);
     },
 },
 
@@ -79,14 +79,14 @@ export const middlewareTests = [{
         let expected = 0;
         let actual = 0;
 
-        const builder = new Cobweb({
+        const handler = new Cobweb({
             increment: () => {
                 actual += 1;
                 return actual;
             },
         });
 
-        builder.addEndpoint({
+        handler.addEndpoint({
             when: () => true,
             do: (req, res, middleware) => {
 
@@ -96,9 +96,9 @@ export const middlewareTests = [{
             }
         });
 
-        await callEndpoint(builder);
-        await callEndpoint(builder);
-        await callEndpoint(builder);
+        await makeRequest(handler);
+        await makeRequest(handler);
+        await makeRequest(handler);
 
         pass();
     },

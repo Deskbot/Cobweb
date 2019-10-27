@@ -2,7 +2,7 @@ import * as http from "http";
 import * as util from "util";
 
 import { MiddlewareSpecification, MiddlewareInventory } from "../../src/types";
-import { CobwebServer } from "../../src";
+import { Cobweb } from "../../src";
 import { TEST_PORT } from "./config";
 
 export interface Test {
@@ -16,13 +16,13 @@ export interface Examiner {
     readonly test: (result: boolean, message?: string) => void;
 }
 
-export async function callEndpoint<M extends MiddlewareSpecification, B extends MiddlewareInventory<M>>
-    (builder: CobwebServer<M, B>, path?: string): Promise<void> {
+export async function makeRequest<M extends MiddlewareSpecification, I extends MiddlewareInventory<M>>
+    (handler: Cobweb<M, I>, path?: string): Promise<void> {
     const server = http.createServer((req, res) => {
         // call the created request listener
         // and put the return value in a promise
         // if the return value is a promise, it will wait for that to resolve instead
-        Promise.resolve(builder.handle(req, res))
+        Promise.resolve(handler.handle(req, res))
             .then(() => {
                 res.end();
             });
