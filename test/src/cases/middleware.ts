@@ -10,10 +10,10 @@ export const middlewareTests: Test[] = [{
 
         handler.setNoEndpointHandler((req, res, middleware) => {
             test(middleware.helloWorld() === "hello world");
+            pass();
         });
 
         await makeRequest(handler);
-        pass();
     },
 },
 
@@ -32,15 +32,16 @@ export const middlewareTests: Test[] = [{
         handler.setNoEndpointHandler((req, res, middleware) => {
             test(middleware.getExternalData() === "one change", middleware.getExternalData());
             test(middleware.getExternalData() === "one change", middleware.getExternalData());
+            pass();
         });
 
         await makeRequest(handler);
-        pass();
     },
 },
 
 {
     name: "Middleware calls are memoised across listeners.",
+    cases: 4,
     run: async ({ pass, test }) => {
         let externalData = "one";
 
@@ -68,12 +69,12 @@ export const middlewareTests: Test[] = [{
         });
 
         await makeRequest(handler);
-        pass();
     },
 },
 
 {
     name: "Middleware calls are not memoised across handles.",
+    cases: 3,
     run: async ({ pass, test }) => {
         let expected = 0;
         let actual = 0;
