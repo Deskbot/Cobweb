@@ -56,7 +56,7 @@ export class Cobweb<S extends MiddlewareSpec, M extends Middleware<S> = Middlewa
         this.callEndpoints(req, res, middlewareInventory);
     }
 
-    setNoEndpointHandler(handler: RequestHandler<M>) {
+    setNoEndpointHandler(handler: RequestHandler<M> | undefined) {
         this.noEndpointHandler = handler;
     }
 }
