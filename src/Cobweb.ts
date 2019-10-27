@@ -22,24 +22,7 @@ export class Cobweb<M extends MiddlewareSpec, I extends Middleware<M> = Middlewa
         this.observers.push(handler);
     }
 
-    handle(req: IncomingMessage, res: ServerResponse): void {
-        const middlewareInventory = new this.MiddlewareInventory(req);
-
-        // call observers
-
-        for (const observer of this.observers) {
-            const condition = observer.when(req);
-            if (condition instanceof Promise) {
-                condition.then(() => {
-                    observer.do(req, middlewareInventory);
-                });
-            } else {
-                observer.do(req, middlewareInventory);
-            }
-        }
-
-        // call endpoints
-
+    private callEndpoints(req: IncomingMessage, res: ServerResponse, middleware: I) {
         const endpointFound = this.endpoints.find(endpoint => endpoint.when(req));
 
         let endpointToCall = this.noEndpointHandler;
@@ -49,8 +32,28 @@ export class Cobweb<M extends MiddlewareSpec, I extends Middleware<M> = Middlewa
         }
 
         if (endpointToCall !== undefined) {
-            endpointToCall(req, res, middlewareInventory);
+            endpointToCall(req, res, middleware);
         }
+    }
+
+    private callObservers(req: IncomingMessage, middleware: I) {
+        for (const observer of this.observers) {
+            const condition = observer.when(req);
+            if (condition instanceof Promise) {
+                condition.then(() => {
+                    observer.do(req, middleware);
+                });
+            } else {
+                observer.do(req, middleware);
+            }
+        }
+    }
+
+    handle(req: IncomingMessage, res: ServerResponse): void {
+        const middlewareInventory = new this.MiddlewareInventory(req);
+
+        this.callObservers(req, middlewareInventory);
+        this.callEndpoints(req, res, middlewareInventory);
     }
 
     setNoEndpointHandler(handler: RequestHandler<I>) {
