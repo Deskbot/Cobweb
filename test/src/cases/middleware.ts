@@ -102,4 +102,32 @@ export const middlewareTests = [{
 
         pass();
     },
+},
+
+{
+    name: "Middleware can call each other.",
+    run: async ({ pass, test }) => {
+        const handler = new Cobweb({
+            number(req) {
+                return 100;
+            },
+            isEven(req) {
+                return this.number(req) % 2 === 0
+            },
+            isOdd: function(req) {
+                return !this.isEven(req);
+            }
+        });
+
+        handler.addEndpoint({
+            when: () => true,
+            do: (req, res, middleware) => {
+                test(middleware.isEven() === true);
+                test(middleware.isOdd() === false);
+                pass();
+            }
+        });
+
+        makeRequest(handler);
+    },
 }];
