@@ -1,9 +1,9 @@
-import { Endpoint, Observer, MiddlewareInventory, RequestHandler, MiddlewareSpecification } from "./types";
+import { Endpoint, Observer, MiddlewareInventory, RequestHandler, MiddlewareSpecification, Constructor } from "./types";
 import { IncomingMessage, ServerResponse } from "http";
 
 export class CobwebServer<M extends MiddlewareSpecification, I extends MiddlewareInventory<M> = MiddlewareInventory<M>> {
     private endpoints: Endpoint<I>[];
-    private middlewareInventoryProto: I & { req: undefined };
+    private MiddlewareInventory: Constructor<I>;
     private observers: Observer<I>[];
     private noEndpointHandler: RequestHandler<I> | undefined;
 
@@ -24,7 +24,10 @@ export class CobwebServer<M extends MiddlewareSpecification, I extends Middlewar
             }
         }
 
-        this.middlewareInventoryProto = middlewareInventoryProto;
+        const poop = function() { } as any;
+        poop.prototype = middlewareInventoryProto;
+
+        this.MiddlewareInventory = poop;
     }
 
     addEndpoint(handler: Endpoint<I>) {
@@ -36,9 +39,9 @@ export class CobwebServer<M extends MiddlewareSpecification, I extends Middlewar
     }
 
     handle(req: IncomingMessage, res: ServerResponse): void {
-        const middlewareInventory = Object.create(this.middlewareInventoryProto);
-        middlewareInventory.req = req;
-        middlewareInventory as I & { req: IncomingMessage };
+        const middlewareInventory = new this.MiddlewareInventory();
+
+        (middlewareInventory as I & { req: IncomingMessage }).req = req;
 
         // call observers
 
