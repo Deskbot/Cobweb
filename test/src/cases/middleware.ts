@@ -1,9 +1,9 @@
 import { Cobweb } from "../../../src";
-import { makeRequest } from "../framework";
+import { makeRequest, Test } from "../framework";
 
-export const middlewareTests = [{
+export const middlewareTests: Test[] = [{
     name: "Middleware can be called from a request listener.",
-    run: ({ pass, test }) => {
+    run: async ({ pass, test }) => {
         const handler = new Cobweb({
             helloWorld: (req) => "hello world",
         });
@@ -13,13 +13,13 @@ export const middlewareTests = [{
             pass();
         });
 
-        makeRequest(handler);
+        await makeRequest(handler);
     },
 },
 
 {
     name: "Middleware calls are memoised.",
-    run: ({ pass, test }) => {
+    run: async ({ pass, test }) => {
         let externalData = "one";
 
         const handler = new Cobweb({
@@ -35,13 +35,14 @@ export const middlewareTests = [{
             pass();
         });
 
-        makeRequest(handler);
+        await makeRequest(handler);
     },
 },
 
 {
     name: "Middleware calls are memoised across listeners.",
-    run: ({ pass, test }) => {
+    cases: 4,
+    run: async ({ pass, test }) => {
         let externalData = "one";
 
         const handler = new Cobweb({
@@ -56,7 +57,6 @@ export const middlewareTests = [{
             do: (req, middleware) => {
                 test(middleware.getExternalData() === "one change");
                 test(middleware.getExternalData() === "one change");
-                pass();
             }
         });
 
@@ -65,16 +65,16 @@ export const middlewareTests = [{
             do: (req, middleware) => {
                 test(middleware.getExternalData() === "one change");
                 test(middleware.getExternalData() === "one change");
-                pass();
             }
         });
 
-        makeRequest(handler);
+        await makeRequest(handler);
     },
 },
 
 {
     name: "Middleware calls are not memoised across handles.",
+    cases: 3,
     run: async ({ pass, test }) => {
         let expected = 0;
         let actual = 0;
@@ -89,7 +89,6 @@ export const middlewareTests = [{
         handler.addEndpoint({
             when: () => true,
             do: (req, res, middleware) => {
-
                 // we expect that the actual is incremented by the middleware call
                 expected += 1;
                 test(middleware.increment() === expected, `Expected ${expected}, received ${actual}.`);
@@ -101,5 +100,61 @@ export const middlewareTests = [{
         await makeRequest(handler);
 
         pass();
+    },
+},
+
+{
+    name: "Middleware can call each other.",
+    run: ({ pass, test }) => {
+        const handler = new Cobweb({
+            number(req) {
+                return 100;
+            },
+            isEven(req) {
+                return this.number(req) % 2 === 0
+            },
+            isOdd: function(req) {
+                return !this.isEven(req);
+            }
+        });
+
+        handler.addEndpoint({
+            when: () => true,
+            do: (req, res, middleware) => {
+                test(middleware.isEven() === true);
+                test(middleware.isOdd() === false);
+                pass();
+            }
+        });
+
+        makeRequest(handler);
+    },
+},
+
+{
+    name: "Middleware can be asynchronous.",
+    run: ({ pass, test }) => {
+        const handler = new Cobweb({
+            async number(req) {
+                return 100;
+            },
+            async isEven(req) {
+                return await this.number(req) % 2 == 0
+            },
+            isOdd: async function (req) {
+                return !await this.isEven(req);
+            }
+        });
+
+        handler.addEndpoint({
+            when: () => true,
+            do: async (req, res, middleware) => {
+                test(await middleware.isEven() === true);
+                test(await middleware.isOdd() === false);
+                pass();
+            }
+        });
+
+        makeRequest(handler);
     },
 }];

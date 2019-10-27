@@ -8,6 +8,7 @@ import { TEST_PORT } from "./config";
 export interface Test {
     readonly name: string;
     readonly run: (examiner: Examiner) => void;
+    readonly cases?: number;
 }
 
 export interface Examiner {
@@ -59,27 +60,36 @@ export async function rejectAfter(afterMilliseconds: number): Promise<void> {
     });
 }
 
-export function run(test: Test): Promise<void> {
+export function run(testcase: Test): Promise<void> {
     return new Promise((resolve, reject) => {
-        const fail = (val) => {
-            console.trace();
-            reject(val);
-        };
+        const passesRequired = testcase.cases ? testcase.cases : Infinity;
+        let passes = 0;
 
-        const pass = () => {
-            resolve();
-        };
+        const maybeFinish = () => {
+            if (passes >= passesRequired) {
+                resolve();
+            }
+        }
 
-        test.run({
+        testcase.run({
+            fail(val) {
+                console.trace();
+                reject(val);
+            },
+
+            pass: () => {
+                resolve();
+            },
+
             test(result, message) {
                 if (result) {
+                    passes += 1;
+                    maybeFinish();
                     return;
                 }
 
-                return fail(message);
+                return this.fail(message);
             },
-            fail,
-            pass,
         });
     });
 }

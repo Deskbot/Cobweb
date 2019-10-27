@@ -1,7 +1,7 @@
 import { Cobweb } from "../../../src";
-import { makeRequest } from "../framework";
+import { makeRequest, Test } from "../framework";
 
-export const serverBuilderTests = [{
+export const serverBuilderTests: Test[] = [{
     name: "A server should be able to listen to things.",
     run({ pass }) {
         const handler = new Cobweb({});
