@@ -1,6 +1,5 @@
-import { Cobweb } from "./Cobweb";
-import { RequestPredicate, Endpoint, Middleware } from "./types";
-import { RequestListener, IncomingMessage, ServerResponse } from "http";
+import { Endpoint, Middleware } from "./types";
+import { IncomingMessage, ServerResponse } from "http";
 
 export class UrlPatternEndpoint<M extends Middleware> implements Endpoint<M> {
     private patternMatches: RegExpMatchArray | null;
@@ -25,25 +24,6 @@ export class UrlPatternEndpoint<M extends Middleware> implements Endpoint<M> {
             res
         );
     };
-}
-
-export function addEndpoint<M extends Middleware>(
-    builder: Cobweb<M>,
-    condition: RequestPredicate,
-    handler: RequestListener
-) {
-    builder.addEndpoint({ when: condition, do: handler });
-}
-
-export function addEndpointForUrl<M extends Middleware>(
-    builder: Cobweb<M>,
-    url: string,
-    handler: RequestListener
-) {
-    builder.addEndpoint({
-        when: req => req.url === url,
-        do: handler,
-    });
 }
 
 export function isMethod(req: IncomingMessage, method: string): boolean {
