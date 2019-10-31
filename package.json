@@ -15,10 +15,10 @@
   "author": "Deskbot",
   "license": "UNLICENSED",
   "devDependencies": {
-    "@types/node": "^10.14.22",
-    "typescript": "^3.6.4"
+    "@types/node": "^10.17.2",
+    "typescript": "^3.7.1-rc"
   },
   "dependencies": {
-    "source-map-support": "^0.5.13"
+    "source-map-support": "^0.5.16"
   }
 }
