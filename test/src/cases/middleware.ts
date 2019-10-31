@@ -24,7 +24,7 @@ export const middlewareTests: Test[] = [{
 
         const handler = new Cobweb({
             getExternalData: (req) => {
-                externalData += " change"
+                externalData += " change";
                 return externalData;
             },
         });
@@ -111,7 +111,7 @@ export const middlewareTests: Test[] = [{
                 return 100;
             },
             isEven(req) {
-                return this.number() % 2 === 0
+                return this.number() % 2 === 0;
             },
             isOdd: function(req) {
                 return !this.isEven();
