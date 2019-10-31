@@ -22,7 +22,7 @@ export interface Observer<M extends Middleware> {
     do: RequestSideEffect<M>;
 }
 
-export type MiddlewareSpec = Record<string | number | symbol, (req: IncomingMessage) => any>;
+export type MiddlewareSpec = Record<string | number | symbol, (req?: IncomingMessage) => any>;
 
 export type Middleware<M extends MiddlewareSpec = MiddlewareSpec> = {
     [N in keyof M]: () => ReturnType<M[N]>
