@@ -66,7 +66,7 @@ function middlewareSpecToConstructor<S extends MiddlewareSpec, M extends Middlew
 
     for (const name in middlewareSpec) {
         middlewareInventoryProto[name] = function () {
-            const result = middlewareSpec[name](this.__req);
+            const result = middlewareSpec[name](this.__req, this);
             // overwrite this function for any future uses
             this[name] = () => result;
             return result;
