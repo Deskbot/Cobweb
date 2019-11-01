@@ -111,10 +111,10 @@ export const middlewareTests: Test[] = [{
                 return 100;
             },
             isEven(req) {
-                return this.number() % 2 === 0;
+                return this.number(req) % 2 === 0;
             },
             isOdd: function(req) {
-                return !this.isEven();
+                return !this.isEven(req);
             }
         });
 
@@ -139,10 +139,10 @@ export const middlewareTests: Test[] = [{
                 return 100;
             },
             async isEven(req) {
-                return await this.number() % 2 == 0
+                return await this.number(req) % 2 == 0
             },
             isOdd: async function(req) {
-                return !await this.isEven();
+                return !await this.isEven(req);
             }
         });
 
