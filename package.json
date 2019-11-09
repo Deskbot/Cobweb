@@ -21,13 +21,14 @@
     "node": ">= 10"
   },
 
+  "prepublish": "npm run clean && npm run build",
+
   "scripts": {
     "build": "./node_modules/.bin/tsc --incremental",
     "build-watch": "./node_modules/.bin/tsc -w --incremental",
     "build-test": "./node_modules/.bin/tsc --incremental -p ./test",
     "build-test-watch": "./node_modules/.bin/tsc -w --incremental -p ./test",
-    "rebuild": "./node_modules/.bin/tsc",
-    "rebuild-test": "./node_modules/.bin/tsc -p ./test",
+    "clean": "rm -rf js/*",
     "test": "node -r source-map-support/register ./js/test/src/main"
   },
 
