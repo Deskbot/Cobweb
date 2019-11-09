@@ -19,7 +19,9 @@ The API is still subject to change.
 Install
 -------
 
-TODO
+```
+npm install --save quelaag
+```
 
 Tutorial
 --------
