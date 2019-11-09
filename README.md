@@ -41,7 +41,8 @@ quelaag.addEndpoint({
     }
 });
 
-http.createServer((req, res) => quelaag.handle(req, res));
+const server = http.createServer((req, res) => quelaag.handle(req, res));
+server.listen(8080);
 ```
 
 Quelaag's handle method is versatile can be used anywhere you might want an incoming request handler, even inside other frameworks.
@@ -128,5 +129,6 @@ quelaag.addEndpoint({
     }
 });
 
-http.createServer((req, res) => quelaag.handle(req, res));
+const server = http.createServer((req, res) => quelaag.handle(req, res));
+server.listen(8080);
 ```

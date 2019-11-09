@@ -15,8 +15,8 @@
   "bugs": "https://github.com/Deskbot/Quelaag/issues",
   "repository": "https://github.com/Deskbot/Quelaag",
 
-  "main": "./js/src/index.js",
-  "types": "./js/src",
+  "main": "./build/src/index.js",
+  "types": "./build/src",
   "engines": {
     "node": ">= 10"
   },
@@ -32,7 +32,7 @@
     "build-watch": "./node_modules/.bin/tsc -w --incremental",
     "build-test": "./node_modules/.bin/tsc --incremental -p ./test",
     "build-test-watch": "./node_modules/.bin/tsc -w --incremental -p ./test",
-    "clean": "rm -rf js/*",
+    "clean": "rm -rf build/*",
     "test": "node -r source-map-support/register ./js/test/src/main"
   },
 
