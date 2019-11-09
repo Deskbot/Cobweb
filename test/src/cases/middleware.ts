@@ -1,10 +1,10 @@
-import { Cobweb } from "../../../src";
+import { Quelaag } from "../../../src";
 import { makeRequest, Test } from "../framework";
 
 export const middlewareTests: Test[] = [{
     name: "Middleware can be called from a request listener.",
     run: async ({ pass, test }) => {
-        const handler = new Cobweb({
+        const handler = new Quelaag({
             helloWorld: (req) => "hello world",
         });
 
@@ -22,7 +22,7 @@ export const middlewareTests: Test[] = [{
     run: async ({ pass, test }) => {
         let externalData = "one";
 
-        const handler = new Cobweb({
+        const handler = new Quelaag({
             getExternalData: (req) => {
                 externalData += " change";
                 return externalData;
@@ -45,7 +45,7 @@ export const middlewareTests: Test[] = [{
     run: async ({ pass, test }) => {
         let externalData = "one";
 
-        const handler = new Cobweb({
+        const handler = new Quelaag({
             getExternalData: (req) => {
                 externalData += " change"
                 return externalData;
@@ -79,7 +79,7 @@ export const middlewareTests: Test[] = [{
         let expected = 0;
         let actual = 0;
 
-        const handler = new Cobweb({
+        const handler = new Quelaag({
             increment: () => {
                 actual += 1;
                 return actual;
@@ -106,7 +106,7 @@ export const middlewareTests: Test[] = [{
 {
     name: "Middleware can call each other.",
     run: ({ pass, test }) => {
-        const handler = new Cobweb({
+        const handler = new Quelaag({
             number() {
                 return 100;
             },
@@ -137,7 +137,7 @@ export const middlewareTests: Test[] = [{
 {
     name: "Middleware can be asynchronous.",
     run: ({ pass, test }) => {
-        const handler = new Cobweb({
+        const handler = new Quelaag({
             async number(req) {
                 return 100;
             },

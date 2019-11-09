@@ -1,4 +1,4 @@
-import { Cobweb } from "../../../src";
+import { Quelaag } from "../../../src";
 import { makeRequest, Test } from "../framework";
 
 export const whenTests: Test[] = [{
@@ -6,7 +6,7 @@ export const whenTests: Test[] = [{
     run({ pass, test }) {
         let when = false;
 
-        const handler = new Cobweb({});
+        const handler = new Quelaag({});
         handler.addObserver({
             when: async () => {
                 when = true;

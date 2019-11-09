@@ -1,7 +1,7 @@
-Cobweb
+Quelaag
 ======
 
-Cobweb is a web request handling framework for NodeJS designed to:
+Quelaag is a web request handling framework for NodeJS designed to:
 
 * play well with TypeScript,
 * obviate the need for side-effects in middleware,
@@ -27,11 +27,11 @@ Tutorial
 ### Basic example
 
 ```ts
-import { Cobweb } from "cobweb";
+import { Quelaag } from "quelaag";
 import * as http from "http";
 
-const cobweb = new Cobweb({});
-cobweb.addEndpoint({
+const quelaag = new Quelaag({});
+quelaag.addEndpoint({
     when: req => req.url === "/hello",
     do: (req, res) => {
         res.write("hello world");
@@ -39,23 +39,23 @@ cobweb.addEndpoint({
     }
 });
 
-http.createServer((req, res) => cobweb.handle(req, res));
+http.createServer((req, res) => quelaag.handle(req, res));
 ```
 
-Cobweb's handle method is versatile can be used anywhere you might want an incoming request handler, even inside other frameworks.
+Quelaag's handle method is versatile can be used anywhere you might want an incoming request handler, even inside other frameworks.
 
 ### Endpoints
 
-A request will be handled by the first Endpoint with a matching condition. These are created using `cobweb.addEndpoint(...)`. Endpoints are the only place where the response object can be handled. Cobweb in no way effects the request or response object.
+A request will be handled by the first Endpoint with a matching condition. These are created using `quelaag.addEndpoint(...)`. Endpoints are the only place where the response object can be handled. Quelaag in no way effects the request or response object.
 
 ```ts
-cobweb.addEndpoint({
+quelaag.addEndpoint({
     when: req => req.url === "/hello/world",
     do: (req, res) => {
         res.end("hello world");
     }
 });
-cobweb.addEndpoint({
+quelaag.addEndpoint({
     when: req => req.url.startsWith("/hello"),
     do: (req, res) => {
         res.end("hello");
@@ -67,7 +67,7 @@ In this example a request to the url "/hello/world", matches the condition of bo
 
 ### The Default Endpoint
 
-If no endpoint matches, a default Endpoint can be used, if one has been set with `cobweb.setFallbackEndpoint(...)`;
+If no endpoint matches, a default Endpoint can be used, if one has been set with `quelaag.setFallbackEndpoint(...)`;
 
 ```ts
 handler.setFallbackEndpoint((req, res) => {
@@ -78,10 +78,10 @@ handler.setFallbackEndpoint((req, res) => {
 
 ### Observers
 
-A request will be handled by all Observers with a matching condition. These are created using `cobweb.addObserver(...)`. The response object is not accessible here.
+A request will be handled by all Observers with a matching condition. These are created using `quelaag.addObserver(...)`. The response object is not accessible here.
 
 ```ts
-cobweb.addObserver({
+quelaag.addObserver({
     when: req => req.url === "/hello",
     do: (req) => {
         console.log(req.connection.remoteAddress);
@@ -93,16 +93,16 @@ cobweb.addObserver({
 
 Middleware are functions that are given the request object and return some type. Yes, that includes Promises. Middleware are manually called from any Observer or Endpoint. Middleware calls are memoised meaning that for a single request, each middleware return value will be computed no more than once.
 
-A middleware specification is given to the Cobweb constructor. The specification is an object of functions. Each function must either take no argument, or optionally taking an `IncomingRequest`. (This is for technical reasons that may be resolved when [a certain TypeScript bug](https://github.com/microsoft/TypeScript/issues/34858) is resolved.) The type of each function can be inferred and used in request handlers.
+A middleware specification is given to the Quelaag constructor. The specification is an object of functions. Each function must either take no argument, or optionally taking an `IncomingRequest`. (This is for technical reasons that may be resolved when [a certain TypeScript bug](https://github.com/microsoft/TypeScript/issues/34858) is resolved.) The type of each function can be inferred and used in request handlers.
 
-The object containing all middleware is passed as the last parameter into each of `addEndpoint`, `setFallbackEndpoint`, `addObserver`. Middleware can call each other in their specification. Wherever middleware are called, they should not be given an argument; it will not affect anything. Cobweb in effect applies the request object to the middleware function. In order for middleware to call each other, arrow syntax can't be used by the called in order for `this` to refer to the middleware specification object.
+The object containing all middleware is passed as the last parameter into each of `addEndpoint`, `setFallbackEndpoint`, `addObserver`. Middleware can call each other in their specification. Wherever middleware are called, they should not be given an argument; it will not affect anything. Quelaag in effect applies the request object to the middleware function. In order for middleware to call each other, arrow syntax can't be used by the called in order for `this` to refer to the middleware specification object.
 
 ```ts
-import { Cobweb } from "cobweb";
+import { Quelaag } from "quelaag";
 import * as cookie from "cookie"; // a third party cookie header parsing library
 import * as http from "http";
 
-const cobweb = new Cobweb({
+const quelaag = new Quelaag({
     cookies(req?) {
         return cookie.parse(req.headers.cookie || '');
     },
@@ -114,7 +114,7 @@ const cobweb = new Cobweb({
         return user.isAdmin;
     }
 });
-cobweb.addEndpoint({
+quelaag.addEndpoint({
     when: req => "/admin",
     do: async (req, res, middleware) => {
         if (await middleware.userIsAdministrator()) {
@@ -126,5 +126,5 @@ cobweb.addEndpoint({
     }
 });
 
-http.createServer((req, res) => cobweb.handle(req, res));
+http.createServer((req, res) => quelaag.handle(req, res));
 ```

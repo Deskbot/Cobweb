@@ -2,7 +2,7 @@ import * as http from "http";
 import * as util from "util";
 
 import { MiddlewareSpec, Middleware } from "../../src/types";
-import { Cobweb } from "../../src";
+import { Quelaag } from "../../src";
 import { TEST_PORT } from "./config";
 
 export interface Test {
@@ -18,7 +18,7 @@ export interface Examiner {
 }
 
 export async function makeRequest<M extends MiddlewareSpec, I extends Middleware<M>>
-    (handler: Cobweb<M, I>, path?: string): Promise<void>
+    (handler: Quelaag<M,I>, path?: string): Promise<void>
 {
     const server = http.createServer((req, res) => {
         handler.handle(req, res);

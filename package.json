@@ -1,5 +1,5 @@
 {
-  "name": "cobweb",
+  "name": "quelaag",
   "version": "0.0.0",
   "description": "A web server framework",
   "keywords": [
@@ -11,9 +11,9 @@
   "license": "GNU GPLv3",
 
   "author": "Thomas Richards",
-  "homepage": "https://github.com/Deskbot/Cobweb",
-  "bugs": "https://github.com/Deskbot/Cobweb/issues",
-  "repository": "https://github.com/Deskbot/Cobweb",
+  "homepage": "https://github.com/Deskbot/Quelaag",
+  "bugs": "https://github.com/Deskbot/Quelaag/issues",
+  "repository": "https://github.com/Deskbot/Quelaag",
 
   "main": "./build/src/index.js",
   "types": "./build/src",
