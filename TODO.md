@@ -1,8 +1,6 @@
 TODO
 ====
 
-* configure test port
-* rename setNoEndpointHandler to setFallbackEndpoint
 * test middleware can be merged with spread operator
 * make it importable like a real module
     * --save

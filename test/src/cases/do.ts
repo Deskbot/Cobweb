@@ -96,7 +96,7 @@ export const doTests: Test[] = [{
     name: "A server should use the default endpoint if one is set.",
     run({ pass }) {
         const handler = new Cobweb({});
-        handler.setNoEndpointHandler(() => {
+        handler.setFallbackEndpoint(() => {
             pass();
         });
 
@@ -114,7 +114,7 @@ export const doTests: Test[] = [{
                 pass();
             }
         });
-        handler.setNoEndpointHandler(() => {
+        handler.setFallbackEndpoint(() => {
             fail();
         });
 

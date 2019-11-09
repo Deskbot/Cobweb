@@ -8,7 +8,7 @@ export const middlewareTests: Test[] = [{
             helloWorld: (req) => "hello world",
         });
 
-        handler.setNoEndpointHandler((req, res, middleware) => {
+        handler.setFallbackEndpoint((req, res, middleware) => {
             test(middleware.helloWorld() === "hello world");
             pass();
         });
@@ -29,7 +29,7 @@ export const middlewareTests: Test[] = [{
             },
         });
 
-        handler.setNoEndpointHandler((req, res, middleware) => {
+        handler.setFallbackEndpoint((req, res, middleware) => {
             test(middleware.getExternalData() === "one change", middleware.getExternalData());
             test(middleware.getExternalData() === "one change", middleware.getExternalData());
             pass();

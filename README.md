@@ -67,10 +67,10 @@ In this example a request to the url "/hello/world", matches the condition of bo
 
 ### The Default Endpoint
 
-If no endpoint matches, a default Endpoint can be used, if one has been set with `cobweb.setNoEndpointHandler(...)`;
+If no endpoint matches, a default Endpoint can be used, if one has been set with `cobweb.setFallbackEndpoint(...)`;
 
 ```ts
-handler.setNoEndpointHandler((req, res) => {
+handler.setFallbackEndpoint((req, res) => {
     res.statusCode = 404;
     res.end("404 Not Found");
 });
@@ -95,7 +95,7 @@ Middleware are functions that are given the request object and return some type.
 
 A middleware specification is given to the Cobweb constructor. The specification is an object of functions. Each function must either take no argument, or optionally taking an `IncomingRequest`. (This is for technical reasons that may be resolved when [a certain TypeScript bug](https://github.com/microsoft/TypeScript/issues/34858) is resolved.) The type of each function can be inferred and used in request handlers.
 
-The object containing all middleware is passed as the last parameter into each of `addEndpoint`, `setNoEndpointHandler`, `addObserver`. Middleware can call each other in their specification. Wherever middleware are called, they should not be given an argument; it will not affect anything. Cobweb in effect applies the request object to the middleware function. In order for middleware to call each other, arrow syntax can't be used by the called in order for `this` to refer to the middleware specification object.
+The object containing all middleware is passed as the last parameter into each of `addEndpoint`, `setFallbackEndpoint`, `addObserver`. Middleware can call each other in their specification. Wherever middleware are called, they should not be given an argument; it will not affect anything. Cobweb in effect applies the request object to the middleware function. In order for middleware to call each other, arrow syntax can't be used by the called in order for `this` to refer to the middleware specification object.
 
 ```ts
 import { Cobweb } from "cobweb";
