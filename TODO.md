@@ -1,7 +1,6 @@
 TODO
 ====
 
-* Add to README something about how before version 1 everything is subject to change.
 * configure test port
 * rename setNoEndpointHandler to setFallbackEndpoint
 * test middleware can be merged with spread operator

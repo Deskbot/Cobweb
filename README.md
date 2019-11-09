@@ -14,6 +14,8 @@ Design Philosophy:
 * Composability is prefered over configurability.
 * It is better to facilitate built in libraries than to attempt their re-design.
 
+The API is still subject to change.
+
 Install
 -------
 
