@@ -17,6 +17,9 @@
 
   "main": "./js/src/index.js",
   "types": "./js/src",
+  "engines": {
+    "node": ">= 10"
+  },
 
   "scripts": {
     "build": "./node_modules/.bin/tsc --incremental",
