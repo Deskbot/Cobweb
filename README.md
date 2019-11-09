@@ -59,7 +59,7 @@ quelaag.addEndpoint({
     }
 });
 quelaag.addEndpoint({
-    when: req => req.url.startsWith("/hello"),
+    when: req => req.url!.startsWith("/hello"),
     do: (req, res) => {
         res.end("hello");
     }
@@ -73,7 +73,7 @@ In this example a request to the url "/hello/world", matches the condition of bo
 If no endpoint matches, a default Endpoint can be used, if one has been set with `quelaag.setFallbackEndpoint(...)`;
 
 ```ts
-handler.setFallbackEndpoint((req, res) => {
+quelaag.setFallbackEndpoint((req, res) => {
     res.statusCode = 404;
     res.end("404 Not Found");
 });
@@ -107,7 +107,7 @@ import * as http from "http";
 
 const quelaag = new Quelaag({
     cookies(req?) {
-        return cookie.parse(req.headers.cookie || '');
+        return cookie.parse(req!.headers.cookie || '');
     },
     userId() {
         return parseInt(this.cookies().userId);
@@ -118,7 +118,7 @@ const quelaag = new Quelaag({
     }
 });
 quelaag.addEndpoint({
-    when: req => "/admin",
+    when: req => req.url === "/admin",
     do: async (req, res, middleware) => {
         if (await middleware.userIsAdministrator()) {
             res.end("Greetings planet.");
