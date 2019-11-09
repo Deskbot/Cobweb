@@ -21,6 +21,10 @@
     "node": ">= 10"
   },
 
+  "files": [
+    "build/src",
+    "README.md"
+  ],
   "prepublish": "npm run clean && npm run build",
 
   "scripts": {
