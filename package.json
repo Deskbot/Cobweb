@@ -8,11 +8,12 @@
     "typescript"
   ],
 
-  "license": "UNLICENSED",
+  "license": "GNU GPLv3",
 
   "author": "Thomas Richards",
   "homepage": "https://github.com/Deskbot/Cobweb",
   "bugs": "https://github.com/Deskbot/Cobweb/issues",
+  "repository": "https://github.com/Deskbot/Cobweb",
 
   "main": "./build/src/index.js",
   "types": "./build/src",
