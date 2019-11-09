@@ -1,8 +1,22 @@
 {
-  "name": "web-server",
+  "name": "cobweb",
   "version": "0.0.0",
   "description": "A web server framework",
+  "keywords": [
+    "web",
+    "framework",
+    "typescript"
+  ],
+
+  "license": "UNLICENSED",
+
+  "author": "Thomas Richards",
+  "homepage": "https://github.com/Deskbot/Cobweb",
+  "bugs": "https://github.com/Deskbot/Cobweb/issues",
+
   "main": "./build/src/index.js",
+  "types": "./build/src",
+
   "scripts": {
     "build": "./node_modules/.bin/tsc --incremental",
     "build-watch": "./node_modules/.bin/tsc -w --incremental",
@@ -12,13 +26,10 @@
     "rebuild-test": "./node_modules/.bin/tsc -p ./test",
     "test": "node -r source-map-support/register ./build/test/src/main"
   },
-  "author": "Deskbot",
-  "license": "UNLICENSED",
+
   "devDependencies": {
     "@types/node": "^10.14.22",
+    "source-map-support": "^0.5.13",
     "typescript": "^3.6.4"
-  },
-  "dependencies": {
-    "source-map-support": "^0.5.13"
   }
 }
