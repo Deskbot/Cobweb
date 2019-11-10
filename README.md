@@ -79,12 +79,12 @@ quelaag.setFallbackEndpoint((req, res) => {
 });
 ```
 
-### Observers
+### Spies
 
-A request will be handled by all Observers with a matching condition. These are created using `quelaag.addObserver(...)`. The response object is not accessible here.
+A request will be handled by all Spies with a matching condition. These are created using `quelaag.addSpy(...)`. The response object is not accessible here.
 
 ```ts
-quelaag.addObserver({
+quelaag.addSpy({
     when: req => req.url === "/hello",
     do: (req) => {
         console.log(req.connection.remoteAddress);
@@ -94,11 +94,11 @@ quelaag.addObserver({
 
 ### Middleware
 
-Middleware are functions that are given the request object and return some type. Yes, that includes Promises. Middleware are manually called from any Observer or Endpoint. Middleware calls are memoised meaning that for a single request, each middleware return value will be computed no more than once.
+Middleware are functions that are given the request object and return some type. Yes, that includes Promises. Middleware are manually called from any Spy or Endpoint. Middleware calls are memoised meaning that for a single request, each middleware return value will be computed no more than once.
 
 A middleware specification is given to the Quelaag constructor. The specification is an object of functions. Each function must either take no argument, or optionally take an `IncomingRequest`. (This is for technical reasons that may be resolved when [a certain TypeScript bug](https://github.com/microsoft/TypeScript/issues/34858) is resolved.) The type of each function can be inferred and used in request handlers.
 
-The object containing all middleware is passed as the last parameter to each of `addEndpoint`, `setFallbackEndpoint`, `addObserver`. Middleware can call each other in their specification. Wherever middleware are called, they should not be passed an argument; it will not affect anything. Quelaag in effect applies the request object to the middleware function. In order for middleware to call each other, arrow syntax can't be used by the caller in order for `this` to refer to the middleware specification object.
+The object containing all middleware is passed as the last parameter to each of `addEndpoint`, `setFallbackEndpoint`, `addSpy`. Middleware can call each other in their specification. Wherever middleware are called, they should not be passed an argument; it will not affect anything. Quelaag in effect applies the request object to the middleware function. In order for middleware to call each other, arrow syntax can't be used by the caller in order for `this` to refer to the middleware specification object.
 
 ```ts
 import { Quelaag } from "quelaag";

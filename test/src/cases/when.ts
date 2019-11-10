@@ -7,7 +7,7 @@ export const whenTests: Test[] = [{
         let when = false;
 
         const handler = new Quelaag({});
-        handler.addObserver({
+        handler.addSpy({
             when: async () => {
                 when = true;
                 return true;

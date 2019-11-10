@@ -1,15 +1,15 @@
-import { Endpoint, Observer, Middleware, RequestHandler, MiddlewareSpec, MiddlewareConstructor } from "./types";
+import { Endpoint, Spy, Middleware, RequestHandler, MiddlewareSpec, MiddlewareConstructor } from "./types";
 import { IncomingMessage, ServerResponse } from "http";
 
 export class Quelaag<S extends MiddlewareSpec, M extends Middleware<S> = Middleware<S>> {
     private endpoints: Endpoint<M>[];
     private MiddlewareInventory: MiddlewareConstructor<M>;
-    private observers: Observer<M>[];
+    private spies: Spy<M>[];
     private noEndpointHandler: RequestHandler<M> | undefined;
 
     constructor(middlewareSpec: S) {
         this.endpoints = [];
-        this.observers = [];
+        this.spies = [];
 
         this.MiddlewareInventory = middlewareSpecToConstructor<S,M>(middlewareSpec);
     }
@@ -18,8 +18,8 @@ export class Quelaag<S extends MiddlewareSpec, M extends Middleware<S> = Middlew
         this.endpoints.push(handler);
     }
 
-    addObserver(handler: Observer<M>) {
-        this.observers.push(handler);
+    addSpy(handler: Spy<M>) {
+        this.spies.push(handler);
     }
 
     private callEndpoints(req: IncomingMessage, res: ServerResponse, middleware: M) {
@@ -36,15 +36,15 @@ export class Quelaag<S extends MiddlewareSpec, M extends Middleware<S> = Middlew
         }
     }
 
-    private callObservers(req: IncomingMessage, middleware: M) {
-        for (const observer of this.observers) {
-            const condition = observer.when(req);
+    private callSpies(req: IncomingMessage, middleware: M) {
+        for (const spy of this.spies) {
+            const condition = spy.when(req);
             if (condition instanceof Promise) {
                 condition.then(() => {
-                    observer.do(req, middleware);
+                    spy.do(req, middleware);
                 });
             } else {
-                observer.do(req, middleware);
+                spy.do(req, middleware);
             }
         }
     }
@@ -52,7 +52,7 @@ export class Quelaag<S extends MiddlewareSpec, M extends Middleware<S> = Middlew
     handle(req: IncomingMessage, res: ServerResponse): void {
         const middlewareInventory = new this.MiddlewareInventory(req);
 
-        this.callObservers(req, middlewareInventory);
+        this.callSpies(req, middlewareInventory);
         this.callEndpoints(req, res, middlewareInventory);
     }
 

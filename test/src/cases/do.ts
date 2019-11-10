@@ -5,7 +5,7 @@ export const doTests: Test[] = [{
     name: "A server should be able to listen to things.",
     run({ pass }) {
         const handler = new Quelaag({});
-        handler.addObserver({
+        handler.addSpy({
             when: () => true,
             do: () => {
                 pass();

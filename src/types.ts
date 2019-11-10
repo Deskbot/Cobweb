@@ -17,7 +17,7 @@ export interface Endpoint<M extends Middleware> {
     do: RequestHandler<M>;
 }
 
-export interface Observer<M extends Middleware> {
+export interface Spy<M extends Middleware> {
     when: RequestPredicate;
     do: RequestSideEffect<M>;
 }

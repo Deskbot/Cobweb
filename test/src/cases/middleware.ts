@@ -52,7 +52,7 @@ export const middlewareTests: Test[] = [{
             },
         });
 
-        handler.addObserver({
+        handler.addSpy({
             when: () => true,
             do: (req, middleware) => {
                 test(middleware.getExternalData() === "one change");
@@ -60,7 +60,7 @@ export const middlewareTests: Test[] = [{
             }
         });
 
-        handler.addObserver({
+        handler.addSpy({
             when: () => true,
             do: (req, middleware) => {
                 test(middleware.getExternalData() === "one change");
