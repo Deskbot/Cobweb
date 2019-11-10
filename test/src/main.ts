@@ -7,14 +7,18 @@ import { whenTests } from "./cases/when";
 main();
 
 async function main() {
-    await runTests([
+    const anyFailed = await runTests([
         ...middlewareTests,
         ...doTests,
         ...whenTests,
     ]);
+
+    if (anyFailed) {
+        process.exit(1);
+    }
 }
 
-async function runTests(allTests: Test[]) {
+async function runTests(allTests: Test[]): Promise<boolean> {
     let passes = 0;
     let fails = 0;
 
@@ -35,4 +39,6 @@ async function runTests(allTests: Test[]) {
     console.log("Passes: ", passes);
     console.log("Fails:  ", fails);
     console.log("================");
+
+    return fails > 0;
 }
