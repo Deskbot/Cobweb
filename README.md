@@ -68,9 +68,9 @@ quelaag.addEndpoint({
 
 In this example a request to the url "/hello/world", matches the condition of both endpoints, however only the first endpoint is called, sending "hello world" to the user.
 
-### The Default Endpoint
+### The Fallback Endpoint
 
-If no endpoint matches, a default Endpoint can be used, if one has been set with `quelaag.setFallbackEndpoint(...)`;
+If no endpoint matches, a default can be used, if one has been set with `quelaag.setFallbackEndpoint(...)`;
 
 ```ts
 quelaag.setFallbackEndpoint((req, res) => {
