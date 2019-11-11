@@ -26,11 +26,7 @@ export interface Spy<REQ extends IncomingMessage, M extends Middleware<REQ>> {
     do: RequestSideEffect<REQ, M>;
 }
 
-export type MiddlewareSpec<
-    REQ extends IncomingMessage,
-    K extends string | number | symbol = string | number | symbol
->
-    = Record<K, (req?: REQ) => any>;
+export type MiddlewareSpec<REQ extends IncomingMessage> = Record<any, (req?: REQ) => any>;
 
 export type Middleware<
     REQ extends IncomingMessage,
