@@ -42,7 +42,7 @@ export const middlewareTests: Test[] = [{
 {
     name: "Middleware calls are memoised across listeners.",
     cases: 4,
-    run: async ({ pass, test }) => {
+    run: async ({ test }) => {
         let externalData = "one";
 
         const handler = new Quelaag({
