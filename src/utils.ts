@@ -1,7 +1,9 @@
 import { Endpoint, Middleware } from "./types";
 import { IncomingMessage, ServerResponse } from "http";
 
-export class UrlPatternEndpoint<M extends Middleware> implements Endpoint<M> {
+export class UrlPatternEndpoint<REQ extends IncomingMessage, RES extends ServerResponse, M extends Middleware>
+    implements Endpoint<REQ, RES, M>
+{
     private patternMatches: RegExpMatchArray | null;
     private pattern: RegExp;
     private urlHandler: (matches: RegExpMatchArray | null, req: IncomingMessage, res: ServerResponse) => void;

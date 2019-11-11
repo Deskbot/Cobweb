@@ -1,11 +1,16 @@
 import { Endpoint, Spy, Middleware, RequestHandler, MiddlewareSpec, MiddlewareConstructor } from "./types";
 import { IncomingMessage, ServerResponse } from "http";
 
-export class Quelaag<S extends MiddlewareSpec, M extends Middleware<S> = Middleware<S>> {
-    private endpoints: Endpoint<M>[];
+export class Quelaag<
+    REQ extends IncomingMessage,
+    RES extends ServerResponse,
+    S extends MiddlewareSpec,
+    M extends Middleware<S> = Middleware<S>
+> {
+    private endpoints: Endpoint<REQ, RES, M>[];
     private MiddlewareInventory: MiddlewareConstructor<M>;
-    private spies: Spy<M>[];
-    private noEndpointHandler: RequestHandler<M> | undefined;
+    private spies: Spy<REQ, M>[];
+    private noEndpointHandler: RequestHandler<REQ, RES, M> | undefined;
 
     constructor(middlewareSpec: S) {
         this.endpoints = [];
@@ -14,15 +19,15 @@ export class Quelaag<S extends MiddlewareSpec, M extends Middleware<S> = Middlew
         this.MiddlewareInventory = middlewareSpecToConstructor<S,M>(middlewareSpec);
     }
 
-    addEndpoint(handler: Endpoint<M>) {
+    addEndpoint(handler: Endpoint<REQ, RES, M>) {
         this.endpoints.push(handler);
     }
 
-    addSpy(handler: Spy<M>) {
+    addSpy(handler: Spy<REQ, M>) {
         this.spies.push(handler);
     }
 
-    private callEndpoints(req: IncomingMessage, res: ServerResponse, middleware: M) {
+    private callEndpoints(req: REQ, res: RES, middleware: M) {
         const endpointFound = this.endpoints.find(endpoint => endpoint.when(req));
 
         let endpointToCall = this.noEndpointHandler;
@@ -36,7 +41,7 @@ export class Quelaag<S extends MiddlewareSpec, M extends Middleware<S> = Middlew
         }
     }
 
-    private callSpies(req: IncomingMessage, middleware: M) {
+    private callSpies(req: REQ, middleware: M) {
         for (const spy of this.spies) {
             const condition = spy.when(req);
             if (condition instanceof Promise) {
@@ -49,14 +54,14 @@ export class Quelaag<S extends MiddlewareSpec, M extends Middleware<S> = Middlew
         }
     }
 
-    handle(req: IncomingMessage, res: ServerResponse): void {
+    handle(req: REQ, res: RES): void {
         const middlewareInventory = new this.MiddlewareInventory(req);
 
         this.callSpies(req, middlewareInventory);
         this.callEndpoints(req, res, middlewareInventory);
     }
 
-    setFallbackEndpoint(handler: RequestHandler<M> | undefined) {
+    setFallbackEndpoint(handler: RequestHandler<REQ, RES, M> | undefined) {
         this.noEndpointHandler = handler;
     }
 }
