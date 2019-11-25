@@ -5,13 +5,13 @@ Quelaag is a web request handling framework for NodeJS designed to:
 
 * play well with TypeScript,
 * obviate the need for side-effects in middleware,
-* narrow the area in which the response to the client can be effected.
+* narrow the area in which the response to the client can be affected.
 
 Design Philosophy:
 
-* Doing things better is prefered over doing more things.
+* Doing things better is preferred over doing more things.
 * New features must pass trial by YAGNI.
-* Composability is prefered over configurability.
+* Composability is preferred over configurability.
 * It is better to facilitate built in libraries than to attempt their re-design.
 
 The API is still subject to change.
@@ -49,7 +49,7 @@ Quelaag's handle method is versatile can be used anywhere you might want an inco
 
 ### Endpoints
 
-A request will be handled by the first Endpoint with a matching condition. These are created using `quelaag.addEndpoint(...)`. Endpoints are the only place where the response object can be handled. Quelaag in no way effects the request or response object.
+A request will be handled by the first Endpoint with a matching condition. These are created using `quelaag.addEndpoint(...)`. Endpoints are the only place where the response object can be handled. Quelaag in no way affects the request or response object.
 
 ```ts
 quelaag.addEndpoint({
