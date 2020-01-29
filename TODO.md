@@ -1,7 +1,6 @@
 TODO
 ====
 
-* compatibility for types of request and response other than the ones built in
 * add optional catch to endpoints and spies
 * add optional default catch paramter to constructor
 * some way of scoping middleware
