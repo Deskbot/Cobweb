@@ -1,41 +1,38 @@
 import { IncomingMessage, ServerResponse } from "http";
 
-export interface RequestHandler<
-    REQ extends IncomingMessage,
-    RES extends ServerResponse,
-    M extends Middleware<REQ>
-> {
-    (req: REQ, res: RES, middleware: M): void
+export interface RequestHandler<M extends Middleware, I = IncomingMessage, R = ServerResponse> {
+    (req: I, res: R, middleware: M): void
 }
 
-export interface RequestSideEffect<REQ extends IncomingMessage, M extends Middleware<REQ>> {
-    (req: REQ, middlewares: M): void;
+export interface RequestSideEffect<M extends Middleware, I = IncomingMessage> {
+    (req: I, middlewares: M): void;
 }
 
-export interface RequestPredicate<REQ extends IncomingMessage> {
-    (req: REQ): boolean | Promise<boolean>;
+export interface RequestPredicate<I = IncomingMessage> {
+    (req: I): boolean | Promise<boolean>;
 }
 
-export interface Endpoint<REQ extends IncomingMessage, RES extends ServerResponse, M extends Middleware<REQ>> {
-    when: RequestPredicate<REQ>;
-    do: RequestHandler<REQ, RES, M>;
+export interface Endpoint<M extends Middleware, I = IncomingMessage, R = ServerResponse> {
+    when: RequestPredicate<I>;
+    do: RequestHandler<M, I, R>;
 }
 
-export interface Spy<REQ extends IncomingMessage, M extends Middleware<REQ>> {
-    when: RequestPredicate<REQ>;
-    do: RequestSideEffect<REQ, M>;
+export interface Spy<M extends Middleware, I = IncomingMessage> {
+    when: RequestPredicate<I>;
+    do: RequestSideEffect<M, I>;
 }
 
-export type MiddlewareSpec<REQ extends IncomingMessage> = Record<any, (req?: REQ) => any>;
+export type MiddlewareSpec<
+    K extends string | number | symbol = any,
+    I = IncomingMessage,
+>
+    = Record<K, (req?: I) => any>;
 
-export type Middleware<
-    REQ extends IncomingMessage,
-    M extends MiddlewareSpec<REQ> = MiddlewareSpec<REQ>,
-> = {
-    [N in keyof M]: () => ReturnType<M[N]>
+export type Middleware<S extends MiddlewareSpec<string | number | symbol, I> = any, I = IncomingMessage> = {
+    [N in keyof S]: () => ReturnType<S[N]>
 };
 
-export interface MiddlewareConstructor<REQ extends IncomingMessage, M extends Middleware<REQ>> {
-    new(req: REQ): M;
+export interface MiddlewareConstructor<M extends Middleware<any, I>, I = IncomingMessage> {
+    new(req: I): M;
     prototype?: Partial<M>;
 }
