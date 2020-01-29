@@ -36,7 +36,9 @@ export class Quelaag<
             try {
                 var result = doFunc(req, res, middleware);
             } catch (err) {
-                endpointFound?.catch(err);
+                if (endpointFound?.catch) {
+                    endpointFound.catch(err);
+                }
                 return;
             }
 
