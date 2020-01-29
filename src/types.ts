@@ -1,34 +1,38 @@
 import { IncomingMessage, ServerResponse } from "http";
 
-export interface RequestHandler<M extends Middleware> {
-    (req: IncomingMessage, res: ServerResponse, middleware: M): void
+export interface RequestHandler<M extends Middleware, I = IncomingMessage, R = ServerResponse> {
+    (req: I, res: R, middleware: M): void
 }
 
-export interface RequestSideEffect<M extends Middleware> {
-    (req: IncomingMessage, middlewares: M): void;
+export interface RequestSideEffect<M extends Middleware, I = IncomingMessage> {
+    (req: I, middlewares: M): void;
 }
 
-export interface RequestPredicate {
-    (req: IncomingMessage): boolean | Promise<boolean>;
+export interface RequestPredicate<I = IncomingMessage> {
+    (req: I): boolean | Promise<boolean>;
 }
 
-export interface Endpoint<M extends Middleware> {
-    when: RequestPredicate;
-    do: RequestHandler<M>;
+export interface Endpoint<M extends Middleware, I = IncomingMessage, R = ServerResponse> {
+    when: RequestPredicate<I>;
+    do: RequestHandler<M, I, R>;
 }
 
-export interface Spy<M extends Middleware> {
-    when: RequestPredicate;
-    do: RequestSideEffect<M>;
+export interface Spy<M extends Middleware, I = IncomingMessage> {
+    when: RequestPredicate<I>;
+    do: RequestSideEffect<M, I>;
 }
 
-export type MiddlewareSpec<K extends string | number | symbol = string | number | symbol> = Record<K, (req?: IncomingMessage) => any>;
+export type MiddlewareSpec<
+    K extends string | number | symbol = any,
+    I = IncomingMessage,
+>
+    = Record<K, (req?: I) => any>;
 
-export type Middleware<M extends MiddlewareSpec<string | number | symbol> = MiddlewareSpec<string | number | symbol>> = {
-    [N in keyof M]: () => ReturnType<M[N]>
+export type Middleware<S extends MiddlewareSpec<string | number | symbol, I> = any, I = IncomingMessage> = {
+    [N in keyof S]: () => ReturnType<S[N]>
 };
 
-export interface MiddlewareConstructor<M extends Middleware> {
-    new(req: IncomingMessage): M;
+export interface MiddlewareConstructor<M extends Middleware<any, I>, I = IncomingMessage> {
+    new(req: I): M;
     prototype?: Partial<M>;
 }
