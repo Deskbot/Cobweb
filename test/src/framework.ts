@@ -17,9 +17,7 @@ export interface Examiner {
     readonly test: (result: boolean, message?: string) => void;
 }
 
-export async function makeRequest<M extends MiddlewareSpec, I extends Middleware<M>>
-    (handler: Quelaag<M,I>, path?: string): Promise<void>
-{
+export async function makeRequest(handler: Quelaag, path?: string): Promise<void> {
     const server = http.createServer((req, res) => {
         handler.handle(req, res);
         res.end();
