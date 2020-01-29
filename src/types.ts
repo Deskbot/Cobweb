@@ -1,7 +1,7 @@
 import { IncomingMessage, ServerResponse } from "http";
 
 export interface RequestHandler<M extends Middleware, Req = IncomingMessage, Res = ServerResponse> {
-    (req: Req, res: Res, middleware: M): void
+    (req: Req, res: Res, middleware: M): void | Promise<void>
 }
 
 export interface RequestSideEffect<M extends Middleware, Req = IncomingMessage> {
@@ -15,6 +15,7 @@ export interface RequestPredicate<Req = IncomingMessage> {
 export interface Endpoint<M extends Middleware, Req = IncomingMessage, Res = ServerResponse> {
     when: RequestPredicate<Req>;
     do: RequestHandler<M, Req, Res>;
+    catch: <E = any>(error: E) => void;
 }
 
 export interface Spy<M extends Middleware, Req = IncomingMessage> {

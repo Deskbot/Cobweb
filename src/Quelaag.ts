@@ -30,14 +30,19 @@ export class Quelaag<
     private callEndpoints(req: Req, res: Res, middleware: M) {
         const endpointFound = this.endpoints.find(endpoint => endpoint.when(req));
 
-        let endpointToCall = this.noEndpointHandler;
+        const doFunc = endpointFound?.do ?? this.noEndpointHandler;
 
-        if (endpointFound !== undefined) {
-            endpointToCall = endpointFound.do;
-        }
+        if (doFunc !== undefined) {
+            try {
+                var result = doFunc(req, res, middleware);
+            } catch (err) {
+                endpointFound?.catch(err);
+                return;
+            }
 
-        if (endpointToCall !== undefined) {
-            endpointToCall(req, res, middleware);
+            if (result instanceof Promise && endpointFound?.catch) {
+                result.catch(endpointFound.catch);
+            }
         }
     }
 
