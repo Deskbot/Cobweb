@@ -52,11 +52,20 @@ export class Quelaag<
         for (const spy of this.spies) {
             const condition = spy.when(req);
             if (condition instanceof Promise) {
-                condition.then(() => {
+                const promise = condition.then(() => {
                     spy.do(req, middleware);
                 });
+                if (spy.catch) {
+                    promise.catch(spy.catch);
+                }
             } else {
-                spy.do(req, middleware);
+                try {
+                    spy.do(req, middleware);
+                } catch (err) {
+                    if (spy.catch) {
+                        spy.catch(err);
+                    }
+                }
             }
         }
     }
