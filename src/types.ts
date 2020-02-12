@@ -15,12 +15,13 @@ export interface RequestPredicate<Req = IncomingMessage> {
 export interface Endpoint<M extends Middleware, Req = IncomingMessage, Res = ServerResponse> {
     when: RequestPredicate<Req>;
     do: RequestHandler<M, Req, Res>;
-    catch?: <E = any>(error: E) => void;
+    catch?: (error: any) => void;
 }
 
 export interface Spy<M extends Middleware, Req = IncomingMessage> {
     when: RequestPredicate<Req>;
     do: RequestSideEffect<M, Req>;
+    catch?: (error: any) => void;
 }
 
 export type MiddlewareSpec<
