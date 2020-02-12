@@ -32,8 +32,8 @@ export class Quelaag<
             try {
                 var when = endpoint.when(req);
             } catch (err) {
-                if (endpointFound?.catch) {
-                    endpointFound.catch(err);
+                if (endpoint.catch) {
+                    endpoint.catch(err);
                 }
                 return;
             }
