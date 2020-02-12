@@ -3,13 +3,15 @@ import { TEST_FAILS_AFTER } from "./config";
 import { middlewareTests } from "./cases/middleware";
 import { doTests } from "./cases/do";
 import { whenTests } from "./cases/when";
+import { catchTests } from "./cases/catch";
 
 main();
 
 async function main() {
     const anyFailed = await runTests([
-        ...middlewareTests,
+        ...catchTests,
         ...doTests,
+        ...middlewareTests,
         ...whenTests,
     ]);
 

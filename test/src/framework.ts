@@ -1,7 +1,6 @@
 import * as http from "http";
 import * as util from "util";
 
-import { MiddlewareSpec, Middleware } from "../../src/types";
 import { Quelaag } from "../../src";
 import { TEST_PORT } from "./config";
 
