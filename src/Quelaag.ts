@@ -28,7 +28,20 @@ export class Quelaag<
     }
 
     private callEndpoints(req: Req, res: Res, middleware: M) {
-        const endpointFound = this.endpoints.find(endpoint => endpoint.when(req));
+        const endpointFound = this.endpoints.find(endpoint => {
+            try {
+                var when = endpoint.when(req);
+            } catch (err) {
+                if (endpointFound?.catch) {
+                    endpointFound.catch(err);
+                }
+                return;
+            }
+
+            if (when instanceof Promise && endpointFound?.catch) {
+                when.catch(endpointFound.catch);
+            }
+        });
 
         const doFunc = endpointFound?.do ?? this.noEndpointHandler;
 
@@ -50,13 +63,21 @@ export class Quelaag<
 
     private callSpies(req: Req, middleware: M) {
         for (const spy of this.spies) {
-            const condition = spy.when(req);
-            if (condition instanceof Promise) {
-                const promise = condition.then(() => {
+            try {
+                var when = spy.when(req);
+            } catch (err) {
+                if (spy.catch) {
+                    spy.catch(err);
+                }
+                continue;
+            }
+
+            if (when instanceof Promise) {
+                const conditionProm = when.then(() => {
                     spy.do(req, middleware);
                 });
                 if (spy.catch) {
-                    promise.catch(spy.catch);
+                    conditionProm.catch(spy.catch);
                 }
             } else {
                 try {
