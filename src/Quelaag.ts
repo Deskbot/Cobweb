@@ -1,4 +1,4 @@
-import { Endpoint, Spy, Middleware, MiddlewareSpec, MiddlewareConstructor, FallbackEndpoint } from "./types";
+import { Endpoint, Spy, Middleware, MiddlewareSpec, MiddlewareConstructor, FallbackEndpoint, RequestHandler } from "./types";
 import { IncomingMessage, ServerResponse } from "http";
 
 export class Quelaag<
@@ -123,7 +123,13 @@ export class Quelaag<
         return constructor as any;
     }
 
-    setFallbackEndpoint(handler: FallbackEndpoint<M, Req, Res> | undefined) {
-        this.fallbackEndpoint = handler;
+    setFallbackEndpoint(handler: FallbackEndpoint<M, Req, Res> | RequestHandler<M, Req, Res> | undefined) {
+        if (typeof handler === "function") {
+            this.fallbackEndpoint = {
+                do: handler,
+            };
+        } else {
+            this.fallbackEndpoint = handler;
+        }
     }
 }
