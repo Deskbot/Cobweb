@@ -1,4 +1,4 @@
-import { Endpoint, Spy, Middleware, RequestHandler, MiddlewareSpec, MiddlewareConstructor } from "./types";
+import { Endpoint, Spy, Middleware, MiddlewareSpec, MiddlewareConstructor, FallbackEndpoint } from "./types";
 import { IncomingMessage, ServerResponse } from "http";
 
 export class Quelaag<
@@ -10,7 +10,7 @@ export class Quelaag<
     private endpoints: Endpoint<M, Req, Res>[];
     private MiddlewareInventory: MiddlewareConstructor<M, Req>;
     private spies: Spy<M, Req>[];
-    private noEndpointHandler: RequestHandler<M, Req, Res> | undefined;
+    private fallbackEndpoint: FallbackEndpoint<M, Req, Res> | undefined;
 
     constructor(middlewareSpec: Spec) {
         this.endpoints = [];
@@ -28,7 +28,7 @@ export class Quelaag<
     }
 
     private callEndpoints(req: Req, res: Res, middleware: M) {
-        const endpointFound = this.endpoints.find(endpoint => {
+        const userEndpoint = this.endpoints.find(endpoint => {
             try {
                 var when = endpoint.when(req);
             } catch (err) {
@@ -38,25 +38,29 @@ export class Quelaag<
                 return;
             }
 
-            if (when instanceof Promise && endpointFound?.catch) {
-                when.catch(endpointFound.catch);
+            if (when instanceof Promise && endpoint.catch) {
+                when.catch(endpoint.catch);
             }
         });
 
-        const doFunc = endpointFound?.do ?? this.noEndpointHandler;
+        const endpoint = userEndpoint ?? this.fallbackEndpoint;
 
-        if (doFunc !== undefined) {
+        if (!endpoint) {
+            return;
+        }
+
+        if (endpoint.do !== undefined) {
             try {
-                var result = doFunc(req, res, middleware);
+                var result = endpoint.do(req, res, middleware);
             } catch (err) {
-                if (endpointFound?.catch) {
-                    endpointFound.catch(err);
+                if (endpoint.catch) {
+                    endpoint.catch(err);
                 }
                 return;
             }
 
-            if (result instanceof Promise && endpointFound?.catch) {
-                result.catch(endpointFound.catch);
+            if (result instanceof Promise && endpoint.catch) {
+                result.catch(endpoint.catch);
             }
         }
     }
@@ -119,7 +123,7 @@ export class Quelaag<
         return constructor as any;
     }
 
-    setFallbackEndpoint(handler: RequestHandler<M, Req, Res> | undefined) {
-        this.noEndpointHandler = handler;
+    setFallbackEndpoint(handler: FallbackEndpoint<M, Req, Res> | undefined) {
+        this.fallbackEndpoint = handler;
     }
 }

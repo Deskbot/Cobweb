@@ -18,6 +18,11 @@ export interface Endpoint<M extends Middleware, Req = IncomingMessage, Res = Ser
     catch?: (error: any) => void;
 }
 
+export interface FallbackEndpoint<M extends Middleware, Req = IncomingMessage, Res = ServerResponse> {
+    do: RequestHandler<M, Req, Res>;
+    catch?: (error: any) => void;
+}
+
 export interface Spy<M extends Middleware, Req = IncomingMessage> {
     when: RequestPredicate<Req>;
     do: RequestSideEffect<M, Req>;
