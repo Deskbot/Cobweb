@@ -27,8 +27,10 @@ export class Quelaag<
         this.spies.push(handler);
     }
 
-    private callEndpoints(req: Req, res: Res, middleware: M) {
-        const userEndpoint = this.endpoints.find(endpoint => {
+    private async callEndpoints(req: Req, res: Res, middleware: M) {
+        let userEndpoint: Endpoint<M, Req, Res> | undefined;
+
+        for (const endpoint of this.endpoints) {
             try {
                 var when = endpoint.when(req);
             } catch (err) {
@@ -38,10 +40,17 @@ export class Quelaag<
                 return;
             }
 
-            if (when instanceof Promise && endpoint.catch) {
-                when.catch(endpoint.catch);
+            if (when instanceof Promise) {
+                if (endpoint.catch) {
+                    when.catch(endpoint.catch);
+                }
+                if (await when) {
+                    userEndpoint = endpoint;
+                }
+            } else if (when) {
+                userEndpoint = endpoint;
             }
-        });
+        }
 
         const endpoint = userEndpoint ?? this.fallbackEndpoint;
 
