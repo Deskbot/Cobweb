@@ -45,7 +45,7 @@ const server = http.createServer((req, res) => quelaag.handle(req, res));
 server.listen(8080);
 ```
 
-Quelaag's handle method is versatile can be used anywhere you might want an incoming request handler, even inside other frameworks.
+Quelaag's handle method is versatile. It can be used anywhere you might want an incoming request handler, even inside other frameworks.
 
 ### Endpoints
 
@@ -66,7 +66,7 @@ quelaag.addEndpoint({
 });
 ```
 
-In this example a request to the url "/hello/world", matches the condition of both endpoints, however only the first endpoint is called, sending "hello world" to the user.
+In this example, a request to "/hello/world" is matched by the condition of both endpoints, however only the first endpoint is called, sending "hello world" to the user.
 
 ### The Fallback Endpoint
 
