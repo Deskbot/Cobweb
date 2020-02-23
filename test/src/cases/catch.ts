@@ -3,7 +3,7 @@ import { makeRequest, Test } from "../framework";
 
 export const catchTests: Test[] = [{
     name: "A thrown exception in `when` should be caught.",
-    run({ test }) {
+    run({ fail, test }) {
         const handler = new Quelaag({});
         handler.addEndpoint({
             when: () => {
@@ -19,6 +19,9 @@ export const catchTests: Test[] = [{
                 throw "error2";
             },
             do: () => {},
+            catch: () => {
+                fail();
+            }
         });
 
         makeRequest(handler);
@@ -26,12 +29,15 @@ export const catchTests: Test[] = [{
 },
 {
     name: "A thrown exception in `do` should be caught.",
-    run({ test }) {
+    run({ fail, test }) {
         const handler = new Quelaag({});
         handler.addEndpoint({
-            when: () => true,
+            when: () => false,
             do: () => {
                 throw "error1";
+            },
+            catch: () => {
+                fail();
             }
         });
         handler.addEndpoint({
@@ -49,11 +55,14 @@ export const catchTests: Test[] = [{
 },
 {
     name: "A rejected promise in `when` should be caught.",
-    run({ test }) {
+    run({ fail, test }) {
         const handler = new Quelaag({});
         handler.addEndpoint({
-            when: () => Promise.reject("error1"),
-            do: () => { }
+            when: () => false,
+            do: () => {},
+            catch: () => {
+                fail();
+            },
         });
         handler.addEndpoint({
             when: () => Promise.reject("error2"),
@@ -68,11 +77,14 @@ export const catchTests: Test[] = [{
 },
 {
     name: "A rejected promise in `do` should be caught.",
-    run({ test }) {
+    run({ fail, test }) {
         const handler = new Quelaag({});
         handler.addEndpoint({
-            when: () => true,
+            when: () => false,
             do: () => Promise.reject("error1"),
+            catch: () => {
+                fail();
+            },
         });
         handler.addEndpoint({
             when: () => true,
