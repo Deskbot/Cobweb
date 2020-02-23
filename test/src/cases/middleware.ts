@@ -1,5 +1,6 @@
 import { Quelaag } from "../../../src";
 import { makeRequest, Test } from "../framework";
+import { IncomingMessage } from "http";
 
 export const middlewareTests: Test[] = [{
     name: "Middleware can be called from a request listener.",
@@ -109,17 +110,17 @@ export const middlewareTests: Test[] = [{
     cases: 2,
     run: ({ test }) => {
         const handler = new Quelaag({
-            number(req?) {
+            number(req: IncomingMessage) {
                 return 100;
             },
-            isEven(req?) {
-                return this.number() % 2 === 0;
+            isEven(req: IncomingMessage) {
+                return this.number(req) % 2 === 0;
             },
-            isNotEven(req?) {
-                return !this.isEven();
+            isNotEven(req: IncomingMessage) {
+                return !this.isEven(req);
             },
-            isOdd: function(req?) {
-                return !this.isEven() && this.isNotEven();
+            isOdd: function (req: IncomingMessage) {
+                return !this.isEven(req) && this.isNotEven(req);
             }
         });
 
@@ -140,13 +141,13 @@ export const middlewareTests: Test[] = [{
     cases: 2,
     run: ({ test }) => {
         const handler = new Quelaag({
-            async number(req) {
+            async number(req: IncomingMessage) {
                 return 100;
             },
-            async isEven(req) {
+            async isEven(req: IncomingMessage) {
                 return await this.number() % 2 == 0;
             },
-            isOdd: async function(req) {
+            isOdd: async function (req: IncomingMessage) {
                 return !await this.isEven();
             }
         });
