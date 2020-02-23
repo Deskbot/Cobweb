@@ -4,7 +4,7 @@ import { IncomingMessage, ServerResponse } from "http";
 export class UrlPatternEndpoint<
     Req extends IncomingMessage,
     Res extends ServerResponse,
-    M extends Middleware<any, Req>
+    M extends Middleware<Req, any>
 >
     implements Endpoint<M, Req, Res>
 {

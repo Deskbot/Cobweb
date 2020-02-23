@@ -5,7 +5,7 @@ export class Quelaag<
     Req = IncomingMessage,
     Res = ServerResponse,
     Spec extends MiddlewareSpec<any, Req> = any,
-    M extends Middleware<Spec, Req> = Middleware<Spec, Req>
+    M extends Middleware<Req, Spec> = Middleware<Req, Spec>
 > {
     private endpoints: Endpoint<M, Req, Res>[];
     private MiddlewareInventory: MiddlewareConstructor<M, Req>;

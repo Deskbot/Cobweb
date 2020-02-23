@@ -110,16 +110,16 @@ export const middlewareTests: Test[] = [{
     cases: 2,
     run: ({ test }) => {
         const handler = new Quelaag({
-            number(req: IncomingMessage) {
+            number(req): number {
                 return 100;
             },
-            isEven(req: IncomingMessage) {
+            isEven(req): boolean {
                 return this.number(req) % 2 === 0;
             },
-            isNotEven(req: IncomingMessage) {
+            isNotEven(req): boolean {
                 return !this.isEven(req);
             },
-            isOdd: function (req: IncomingMessage) {
+            isOdd: function (req): boolean {
                 return !this.isEven(req) && this.isNotEven(req);
             }
         });
