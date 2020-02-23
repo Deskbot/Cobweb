@@ -96,4 +96,34 @@ export const catchTests: Test[] = [{
 
         makeRequest(handler);
     }
-}];
+},
+{
+    name: "A thrown exception in fallback handler should be caught.",
+    run({ pass }) {
+        const handler = new Quelaag({});
+        handler.setFallbackEndpoint({
+            do: () => {
+                throw "error1";
+            },
+            catch: () => {
+                pass();
+            }
+        });
+
+        makeRequest(handler);
+    }
+},
+{
+    name: "A rejected promise in fallback handler should be caught.",
+    run({ pass }) {
+        const handler = new Quelaag({});
+        handler.setFallbackEndpoint({
+            do: () => Promise.reject("error1"),
+            catch: () => {
+                pass();
+            },
+        });
+
+        makeRequest(handler);
+    }
+},];
