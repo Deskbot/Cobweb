@@ -1,6 +1,7 @@
 TODO
 ====
 
+* don't swallow all errors
 * guarantee a lack of unhandled promise rejections
 * some way of scoping middleware
     * either to an endpoint
