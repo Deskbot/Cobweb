@@ -1,7 +1,7 @@
 TODO
 ====
 
-* add optional default catch paramter to constructor / fallback catcher
+* guarantee a lack of unhandled promise rejections
 * some way of scoping middleware
     * either to an endpoint
     * or using sub-instances of Quelaag
