@@ -3,7 +3,7 @@ import { makeRequest, Test } from "../framework";
 
 export const whenTests: Test[] = [{
     name: "Whens can be asynchronous.",
-    run({ pass, test }) {
+    run({ test }) {
         let when = false;
 
         const handler = new Quelaag({});
@@ -14,7 +14,6 @@ export const whenTests: Test[] = [{
             },
             do: () => {
                 test(when);
-                pass();
             },
         });
 

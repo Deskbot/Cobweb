@@ -11,7 +11,6 @@ export const middlewareTests: Test[] = [{
         handler.setFallbackEndpoint({
             do: (req, res, middleware) => {
                 test(middleware.helloWorld() === "hello world");
-                pass();
             }
         });
 
@@ -21,6 +20,7 @@ export const middlewareTests: Test[] = [{
 
 {
     name: "Middleware calls are memoised.",
+    cases: 2,
     run: async ({ pass, test }) => {
         let externalData = "one";
 
@@ -35,7 +35,6 @@ export const middlewareTests: Test[] = [{
             do: (req, res, middleware) => {
                 test(middleware.getExternalData() === "one change", middleware.getExternalData());
                 test(middleware.getExternalData() === "one change", middleware.getExternalData());
-                pass();
             }
         });
 
@@ -102,13 +101,12 @@ export const middlewareTests: Test[] = [{
         await makeRequest(handler);
         await makeRequest(handler);
         await makeRequest(handler);
-
-        pass();
     },
 },
 
 {
     name: "Middleware can call each other.",
+    cases: 2,
     run: ({ pass, test }) => {
         const handler = new Quelaag({
             number() {
@@ -130,7 +128,6 @@ export const middlewareTests: Test[] = [{
             do: (req, res, middleware) => {
                 test(middleware.isEven() === true);
                 test(middleware.isOdd() === false);
-                pass();
             }
         });
 
@@ -140,6 +137,7 @@ export const middlewareTests: Test[] = [{
 
 {
     name: "Middleware can be asynchronous.",
+    cases: 2,
     run: ({ pass, test }) => {
         const handler = new Quelaag({
             async number(req) {
@@ -158,7 +156,6 @@ export const middlewareTests: Test[] = [{
             do: async (req, res, middleware) => {
                 test(await middleware.isEven() === true);
                 test(await middleware.isOdd() === false);
-                pass();
             }
         });
 
