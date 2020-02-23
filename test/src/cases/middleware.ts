@@ -3,7 +3,7 @@ import { makeRequest, Test } from "../framework";
 
 export const middlewareTests: Test[] = [{
     name: "Middleware can be called from a request listener.",
-    run: async ({ pass, test }) => {
+    run: async ({ test }) => {
         const handler = new Quelaag({
             helloWorld: (req) => "hello world",
         });
@@ -21,7 +21,7 @@ export const middlewareTests: Test[] = [{
 {
     name: "Middleware calls are memoised.",
     cases: 2,
-    run: async ({ pass, test }) => {
+    run: async ({ test }) => {
         let externalData = "one";
 
         const handler = new Quelaag({
@@ -78,7 +78,7 @@ export const middlewareTests: Test[] = [{
 {
     name: "Middleware calls are not memoised across handles.",
     cases: 3,
-    run: async ({ pass, test }) => {
+    run: async ({ test }) => {
         let expected = 0;
         let actual = 0;
 
@@ -107,9 +107,9 @@ export const middlewareTests: Test[] = [{
 {
     name: "Middleware can call each other.",
     cases: 2,
-    run: ({ pass, test }) => {
+    run: ({ test }) => {
         const handler = new Quelaag({
-            number() {
+            number(req?) {
                 return 100;
             },
             isEven(req?) {
@@ -138,7 +138,7 @@ export const middlewareTests: Test[] = [{
 {
     name: "Middleware can be asynchronous.",
     cases: 2,
-    run: ({ pass, test }) => {
+    run: ({ test }) => {
         const handler = new Quelaag({
             async number(req) {
                 return 100;
