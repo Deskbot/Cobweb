@@ -3,26 +3,22 @@ import { makeRequest, Test } from "../framework";
 
 export const catchTests: Test[] = [{
     name: "A thrown exception in `when` should be caught.",
-    cases: 2,
     run({ test }) {
         const handler = new Quelaag({});
         handler.addEndpoint({
             when: () => {
-                throw "error"
+                throw "error1"
             },
             do: () => {},
             catch: (err) => {
-                test(err === "error");
+                test(err === "error1");
             }
         });
         handler.addEndpoint({
             when: () => {
-                throw "error";
+                throw "error2";
             },
             do: () => {},
-            catch: (err) => {
-                test(err === "error");
-            }
         });
 
         makeRequest(handler);
@@ -30,25 +26,21 @@ export const catchTests: Test[] = [{
 },
 {
     name: "A thrown exception in `do` should be caught.",
-    cases: 2,
     run({ test }) {
         const handler = new Quelaag({});
         handler.addEndpoint({
             when: () => true,
             do: () => {
-                throw "error";
-            },
-            catch: (err) => {
-                test(err === "error");
+                throw "error1";
             }
         });
         handler.addEndpoint({
             when: () => true,
             do: () => {
-                throw "error";
+                throw "error2";
             },
             catch: (err) => {
-                test(err === "error");
+                test(err === "error2");
             }
         });
 
@@ -57,21 +49,17 @@ export const catchTests: Test[] = [{
 },
 {
     name: "A rejected promise in `when` should be caught.",
-    cases: 2,
     run({ test }) {
         const handler = new Quelaag({});
         handler.addEndpoint({
-            when: () => Promise.reject("error"),
-            do: () => {},
-            catch: (err) => {
-                test(err === "error");
-            }
+            when: () => Promise.reject("error1"),
+            do: () => { }
         });
         handler.addEndpoint({
-            when: () => Promise.reject("error"),
+            when: () => Promise.reject("error2"),
             do: () => {},
             catch: (err) => {
-                test(err === "error");
+                test(err === "error2");
             }
         });
 
@@ -80,21 +68,17 @@ export const catchTests: Test[] = [{
 },
 {
     name: "A rejected promise in `do` should be caught.",
-    cases: 2,
     run({ test }) {
         const handler = new Quelaag({});
         handler.addEndpoint({
             when: () => true,
-            do: () => Promise.reject("error"),
-            catch: (err) => {
-                test(err === "error");
-            }
+            do: () => Promise.reject("error1"),
         });
         handler.addEndpoint({
             when: () => true,
-            do: () => Promise.reject("error"),
+            do: () => Promise.reject("error2"),
             catch: (err) => {
-                test(err === "error");
+                test(err === "error2");
             }
         });
 

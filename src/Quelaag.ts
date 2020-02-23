@@ -36,19 +36,27 @@ export class Quelaag<
             } catch (err) {
                 if (endpoint.catch) {
                     endpoint.catch(err);
+                    return;
+                } else {
+                    throw err;
                 }
-                return;
             }
 
             if (when instanceof Promise) {
                 if (endpoint.catch) {
                     when.catch(endpoint.catch);
                 }
-                if (await when) {
-                    userEndpoint = endpoint;
+                try {
+                    if (await when) {
+                        userEndpoint = endpoint;
+                    }
+                } catch (err) {
+                    throw err;
                 }
+                break;
             } else if (when) {
                 userEndpoint = endpoint;
+                break;
             }
         }
 
