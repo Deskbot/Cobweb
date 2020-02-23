@@ -96,8 +96,8 @@ export const doTests: Test[] = [{
     name: "A server should use the default endpoint if one is set.",
     run({ pass }) {
         const handler = new Quelaag({});
-        handler.setFallbackEndpoint(() => {
-            pass();
+        handler.setFallbackEndpoint({
+            do: () => pass()
         });
 
         makeRequest(handler);
@@ -114,8 +114,8 @@ export const doTests: Test[] = [{
                 pass();
             }
         });
-        handler.setFallbackEndpoint(() => {
-            fail();
+        handler.setFallbackEndpoint({
+            do: () => fail()
         });
 
         makeRequest(handler);

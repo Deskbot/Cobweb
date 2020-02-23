@@ -8,9 +8,11 @@ export const middlewareTests: Test[] = [{
             helloWorld: (req) => "hello world",
         });
 
-        handler.setFallbackEndpoint((req, res, middleware) => {
-            test(middleware.helloWorld() === "hello world");
-            pass();
+        handler.setFallbackEndpoint({
+            do: (req, res, middleware) => {
+                test(middleware.helloWorld() === "hello world");
+                pass();
+            }
         });
 
         await makeRequest(handler);
@@ -29,10 +31,12 @@ export const middlewareTests: Test[] = [{
             },
         });
 
-        handler.setFallbackEndpoint((req, res, middleware) => {
-            test(middleware.getExternalData() === "one change", middleware.getExternalData());
-            test(middleware.getExternalData() === "one change", middleware.getExternalData());
-            pass();
+        handler.setFallbackEndpoint({
+            do: (req, res, middleware) => {
+                test(middleware.getExternalData() === "one change", middleware.getExternalData());
+                test(middleware.getExternalData() === "one change", middleware.getExternalData());
+                pass();
+            }
         });
 
         await makeRequest(handler);

@@ -1,8 +1,7 @@
 TODO
 ====
 
-* add optional catch to endpoints and spies
-* add optional default catch paramter to constructor
+* add optional default catch paramter to constructor / fallback catcher
 * some way of scoping middleware
     * either to an endpoint
     * or using sub-instances of Quelaag

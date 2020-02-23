@@ -7,25 +7,20 @@
     "framework",
     "typescript"
   ],
-
   "license": "GNU GPLv3",
-
   "author": "Thomas Richards",
   "homepage": "https://github.com/Deskbot/Quelaag",
   "bugs": "https://github.com/Deskbot/Quelaag/issues",
   "repository": "https://github.com/Deskbot/Quelaag",
-
   "main": "./build/src/index.js",
   "types": "./build/src",
   "engines": {
     "node": ">= 10"
   },
-
   "files": [
     "build/src/**",
     "README.md"
   ],
-
   "scripts": {
     "build": "./node_modules/.bin/tsc --incremental",
     "build-watch": "./node_modules/.bin/tsc -w --incremental",
@@ -35,10 +30,9 @@
     "prepublishOnly": "npm run clean && npm run build-test && npm run test",
     "test": "node -r source-map-support/register ./build/test/src/main"
   },
-
   "devDependencies": {
-    "@types/node": "^10.14.22",
-    "source-map-support": "^0.5.13",
-    "typescript": "^3.6.4"
+    "@types/node": "^10.17.16",
+    "source-map-support": "^0.5.16",
+    "typescript": "^3.8.2"
   }
 }

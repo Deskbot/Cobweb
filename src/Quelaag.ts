@@ -1,4 +1,4 @@
-import { Endpoint, Spy, Middleware, RequestHandler, MiddlewareSpec, MiddlewareConstructor } from "./types";
+import { Endpoint, Spy, Middleware, MiddlewareSpec, MiddlewareConstructor, FallbackEndpoint, RequestHandler } from "./types";
 import { IncomingMessage, ServerResponse } from "http";
 
 export class Quelaag<
@@ -10,7 +10,7 @@ export class Quelaag<
     private endpoints: Endpoint<M, Req, Res>[];
     private MiddlewareInventory: MiddlewareConstructor<M, Req>;
     private spies: Spy<M, Req>[];
-    private noEndpointHandler: RequestHandler<M, Req, Res> | undefined;
+    private fallbackEndpoint: FallbackEndpoint<M, Req, Res> | undefined;
 
     constructor(middlewareSpec: Spec) {
         this.endpoints = [];
@@ -27,29 +27,87 @@ export class Quelaag<
         this.spies.push(handler);
     }
 
-    private callEndpoints(req: Req, res: Res, middleware: M) {
-        const endpointFound = this.endpoints.find(endpoint => endpoint.when(req));
+    private async callEndpoints(req: Req, res: Res, middleware: M) {
+        let userEndpoint: Endpoint<M, Req, Res> | undefined;
 
-        let endpointToCall = this.noEndpointHandler;
+        for (const endpoint of this.endpoints) {
+            try {
+                var when = endpoint.when(req);
+            } catch (err) {
+                if (endpoint.catch) {
+                    endpoint.catch(err);
+                    return;
+                } else {
+                    throw err;
+                }
+            }
 
-        if (endpointFound !== undefined) {
-            endpointToCall = endpointFound.do;
+            if (when instanceof Promise) {
+                if (endpoint.catch) {
+                    when.catch(endpoint.catch);
+                }
+                try {
+                    if (await when) {
+                        userEndpoint = endpoint;
+                    }
+                } catch (err) {
+                    throw err;
+                }
+                break;
+            } else if (when) {
+                userEndpoint = endpoint;
+                break;
+            }
         }
 
-        if (endpointToCall !== undefined) {
-            endpointToCall(req, res, middleware);
+        const endpoint = userEndpoint ?? this.fallbackEndpoint;
+
+        if (!endpoint) {
+            return;
+        }
+
+        if (endpoint.do !== undefined) {
+            try {
+                var result = endpoint.do(req, res, middleware);
+            } catch (err) {
+                if (endpoint.catch) {
+                    endpoint.catch(err);
+                }
+                return;
+            }
+
+            if (result instanceof Promise && endpoint.catch) {
+                result.catch(endpoint.catch);
+            }
         }
     }
 
     private callSpies(req: Req, middleware: M) {
         for (const spy of this.spies) {
-            const condition = spy.when(req);
-            if (condition instanceof Promise) {
-                condition.then(() => {
+            try {
+                var when = spy.when(req);
+            } catch (err) {
+                if (spy.catch) {
+                    spy.catch(err);
+                }
+                continue;
+            }
+
+            if (when instanceof Promise) {
+                const conditionProm = when.then(() => {
                     spy.do(req, middleware);
                 });
+                if (spy.catch) {
+                    conditionProm.catch(spy.catch);
+                }
             } else {
-                spy.do(req, middleware);
+                try {
+                    spy.do(req, middleware);
+                } catch (err) {
+                    if (spy.catch) {
+                        spy.catch(err);
+                    }
+                }
             }
         }
     }
@@ -82,7 +140,13 @@ export class Quelaag<
         return constructor as any;
     }
 
-    setFallbackEndpoint(handler: RequestHandler<M, Req, Res> | undefined) {
-        this.noEndpointHandler = handler;
+    setFallbackEndpoint(handler: FallbackEndpoint<M, Req, Res> | RequestHandler<M, Req, Res> | undefined) {
+        if (typeof handler === "function") {
+            this.fallbackEndpoint = {
+                do: handler,
+            };
+        } else {
+            this.fallbackEndpoint = handler;
+        }
     }
 }
