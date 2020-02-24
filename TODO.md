@@ -1,7 +1,6 @@
 TODO
 ====
 
-* middleware should be memoised no matter where they are called from
 * `when` should take middleware
 * don't swallow all errors
 * clean up error handling code
