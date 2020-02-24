@@ -26,16 +26,31 @@ export const middlewareTests: Test[] = [{
         let externalData = "one";
 
         const handler = new Quelaag({
-            getExternalData: (req) => {
+            getExternalData(req): string {
                 externalData += " change";
                 return externalData;
+            },
+            getMiddlewareData(req): string {
+                return this.getExternalData(req);
+            },
+        });
+
+        handler.addSpy({
+            when: (req) => true,
+            do: (req, middleware) => {
+                middleware.getExternalData();
+                middleware.getMiddlewareData();
+                middleware.getExternalData();
+                middleware.getMiddlewareData();
             },
         });
 
         handler.setFallbackEndpoint({
             do: (req, res, middleware) => {
                 test(middleware.getExternalData() === "one change", middleware.getExternalData());
+                test(middleware.getMiddlewareData() === "one change", middleware.getMiddlewareData());
                 test(middleware.getExternalData() === "one change", middleware.getExternalData());
+                test(middleware.getMiddlewareData() === "one change", middleware.getMiddlewareData());
             }
         });
 
@@ -77,7 +92,7 @@ export const middlewareTests: Test[] = [{
 },
 
 {
-    name: "Middleware calls are not memoised across handles.",
+    name: "Middleware calls are not memoised across handlers.",
     cases: 3,
     run: async ({ test }) => {
         let expected = 0;

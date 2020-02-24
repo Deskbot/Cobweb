@@ -12,6 +12,11 @@ export class Quelaag<
     private spies: Spy<M, Req>[];
     private fallbackEndpoint: FallbackEndpoint<M, Req, Res> | undefined;
 
+    /**
+     * The symbol that is the key for the request object hidden in the middleware object.
+     */
+    public static readonly __req = Symbol('request key');
+
     constructor(middlewareSpec: Spec) {
         this.endpoints = [];
         this.spies = [];
@@ -124,7 +129,8 @@ export class Quelaag<
 
         for (const name in middlewareSpec) {
             middlewareInventoryProto[name] = function () {
-                const result = middlewareSpec[name](this.__req);
+                const result = middlewareSpec[name].apply(this, this[Quelaag.__req]);
+
                 // overwrite this function for any future uses
                 this[name] = () => result;
                 return result;
@@ -132,7 +138,7 @@ export class Quelaag<
         }
 
         function constructor(this: any, req: Req) {
-            this.__req = req;
+            this[Quelaag.__req] = req;
         };
 
         constructor.prototype = middlewareInventoryProto;
