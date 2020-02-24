@@ -20,7 +20,7 @@ export const middlewareTests: Test[] = [{
 },
 
 {
-    name: "Middleware calls are memoised when called from a handler.",
+    name: "Middleware calls are memoised.",
     cases: 2,
     run: async ({ test }) => {
         let externalData = "one";
@@ -92,7 +92,7 @@ export const middlewareTests: Test[] = [{
 },
 
 {
-    name: "Middleware calls are not memoised across handles.",
+    name: "Middleware calls are not memoised across handlers.",
     cases: 3,
     run: async ({ test }) => {
         let expected = 0;
