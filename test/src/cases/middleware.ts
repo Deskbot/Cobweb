@@ -6,7 +6,9 @@ export const middlewareTests: Test[] = [{
     name: "Middleware should receive the request object when called from a handler.",
     run: async ({ test }) => {
         const handler = new Quelaag({
-            takeReq: req => test(req as any != false),
+            takeReq: req => {
+                test(!!req);
+            }
         });
 
         handler.setFallbackEndpoint({
@@ -26,7 +28,9 @@ export const middlewareTests: Test[] = [{
             callTakeReq(req) {
                 this.takeReq(req);
             },
-            takeReq: req => test(req as any != false),
+            takeReq: (req) => {
+                test(!!req);
+            },
         });
 
         handler.setFallbackEndpoint({
