@@ -3,6 +3,43 @@ import { makeRequest, Test } from "../framework";
 import { IncomingMessage } from "http";
 
 export const middlewareTests: Test[] = [{
+    name: "Middleware should receive the request object when called from a handler.",
+    run: async ({ test }) => {
+        const handler = new Quelaag({
+            takeReq: req => test(req as any != false),
+        });
+
+        handler.setFallbackEndpoint({
+            do: (req, res, middleware) => {
+                middleware.takeReq();
+            }
+        });
+
+        await makeRequest(handler);
+    },
+},
+
+{
+    name: "Middleware should receive the request object when called from middleware.",
+    run: async ({ test }) => {
+        const handler = new Quelaag({
+            callTakeReq(req) {
+                this.takeReq(req);
+            },
+            takeReq: req => test(req as any != false),
+        });
+
+        handler.setFallbackEndpoint({
+            do: (req, res, middleware) => {
+                middleware.callTakeReq();
+            }
+        });
+
+        await makeRequest(handler);
+    },
+},
+
+{
     name: "Middleware can be called from a request spy.",
     run: async ({ test }) => {
         const handler = new Quelaag({
