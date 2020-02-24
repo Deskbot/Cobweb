@@ -1,7 +1,10 @@
 TODO
 ====
 
+* middleware should be memoised no matter where they are called from
+* `when` should take middleware
 * don't swallow all errors
+* clean up error handling code
 * guarantee a lack of unhandled promise rejections
 * some way of scoping middleware
     * either to an endpoint
