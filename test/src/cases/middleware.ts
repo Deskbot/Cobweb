@@ -20,22 +20,37 @@ export const middlewareTests: Test[] = [{
 },
 
 {
-    name: "Middleware calls are memoised.",
+    name: "Middleware calls are memoised when called from a handler.",
     cases: 2,
     run: async ({ test }) => {
         let externalData = "one";
 
         const handler = new Quelaag({
-            getExternalData: (req) => {
+            getExternalData(req): string {
                 externalData += " change";
                 return externalData;
+            },
+            getMiddlewareData(req): string {
+                return this.getExternalData(req);
+            },
+        });
+
+        handler.addSpy({
+            when: (req) => true,
+            do: (req, middleware) => {
+                middleware.getExternalData();
+                middleware.getMiddlewareData();
+                middleware.getExternalData();
+                middleware.getMiddlewareData();
             },
         });
 
         handler.setFallbackEndpoint({
             do: (req, res, middleware) => {
                 test(middleware.getExternalData() === "one change", middleware.getExternalData());
+                test(middleware.getMiddlewareData() === "one change", middleware.getMiddlewareData());
                 test(middleware.getExternalData() === "one change", middleware.getExternalData());
+                test(middleware.getMiddlewareData() === "one change", middleware.getMiddlewareData());
             }
         });
 
