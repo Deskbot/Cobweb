@@ -80,7 +80,7 @@ export const doTests: Test[] = [{
 },
 
 {
-    name: "A server should not fall over when no listeners or endpoints are defined.",
+    name: "A server should not fall over when no spies or endpoints are defined.",
     run({ pass, fail }) {
         const handler = new Quelaag({});
 

@@ -3,7 +3,7 @@ import { makeRequest, Test } from "../framework";
 import { IncomingMessage } from "http";
 
 export const middlewareTests: Test[] = [{
-    name: "Middleware can be called from a request listener.",
+    name: "Middleware can be called from a request spy.",
     run: async ({ test }) => {
         const handler = new Quelaag({
             helloWorld: (req) => "hello world",
@@ -44,7 +44,7 @@ export const middlewareTests: Test[] = [{
 },
 
 {
-    name: "Middleware calls are memoised across listeners.",
+    name: "Middleware calls are memoised across spies.",
     cases: 4,
     run: async ({ test }) => {
         let externalData = "one";
