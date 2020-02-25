@@ -67,6 +67,7 @@ export class Quelaag<
                 }
             } else if (isWhen) {
                 userEndpoint = endpoint;
+                break;
             }
         }
 
