@@ -73,21 +73,19 @@ export class Quelaag<
 
         const endpoint = userEndpoint ?? this.fallbackEndpoint;
 
-        if (!endpoint) {
+        if (!endpoint || !endpoint.do) {
             return;
         }
 
-        if (endpoint.do !== undefined) {
-            try {
-                var result = endpoint.do(req, res, middleware);
-            } catch (err) {
-                this.handleThrow(endpoint, err);
-                return;
-            }
+        try {
+            var result = endpoint.do(req, res, middleware);
+        } catch (err) {
+            this.handleThrow(endpoint, err);
+            return;
+        }
 
-            if (result instanceof Promise && endpoint.catch) {
-                this.handleReject(endpoint, result);
-            }
+        if (result instanceof Promise && endpoint.catch) {
+            this.handleReject(endpoint, result);
         }
     }
 
