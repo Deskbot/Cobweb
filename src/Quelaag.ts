@@ -91,7 +91,7 @@ export class Quelaag<
         }
     }
 
-    private callSpies(req: Req, middleware: M) {
+    private async callSpies(req: Req, middleware: M) {
         for (const spy of this.spies) {
             try {
                 var when = spy.when(req, middleware);
@@ -101,10 +101,9 @@ export class Quelaag<
             }
 
             if (when instanceof Promise) {
-                const conditionProm = when.then(() => {
+                if (await when) {
                     spy.do(req, middleware);
-                });
-                this.handleReject(spy, conditionProm);
+                }
             } else {
                 try {
                     spy.do(req, middleware);
