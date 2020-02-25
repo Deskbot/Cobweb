@@ -2,7 +2,7 @@ import { Quelaag } from "../../../src";
 import { makeRequest, Test } from "../framework";
 
 export const errorTests: Test[] = [{
-    name: "An uncaught exception thrown in `when` should be catchable .",
+    name: "An uncaught exception thrown in `when` in endpoint should be catchable .",
     run({ test }) {
         const handler = new Quelaag({}, err => test(err === "error"));
         handler.addEndpoint({
@@ -16,7 +16,21 @@ export const errorTests: Test[] = [{
     }
 },
 {
-    name: "An uncaught exception thrown in `do` should be catchable .",
+    name: "An uncaught exception thrown in `when` in spy should be catchable .",
+    run({ test }) {
+        const handler = new Quelaag({}, err => test(err === "error"));
+        handler.addSpy({
+            when: () => {
+                throw "error"
+            },
+            do: () => {},
+        });
+
+        makeRequest(handler);
+    }
+},
+{
+    name: "An uncaught exception thrown in `do` in endpoint should be catchable .",
     run({ test }) {
         const handler = new Quelaag({}, err => test(err === "error"));
         handler.addEndpoint({
@@ -30,7 +44,7 @@ export const errorTests: Test[] = [{
     }
 },
 {
-    name: "An uncaught exception thrown in `spy` should be catchable .",
+    name: "An uncaught exception thrown in `do` in spy should be catchable .",
     run({ test }) {
         const handler = new Quelaag({}, err => test(err === "error"));
         handler.addSpy({

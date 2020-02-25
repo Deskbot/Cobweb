@@ -113,6 +113,8 @@ export class Quelaag<
             } catch (err) {
                 if (spy.catch) {
                     spy.catch(err);
+                } else if (this.catcher) {
+                    this.catcher(err);
                 }
                 continue;
             }
@@ -123,6 +125,8 @@ export class Quelaag<
                 });
                 if (spy.catch) {
                     conditionProm.catch(spy.catch);
+                } else if (this.catcher) {
+                    conditionProm.catch(this.catcher);
                 }
             } else {
                 try {
@@ -130,6 +134,8 @@ export class Quelaag<
                 } catch (err) {
                     if (spy.catch) {
                         spy.catch(err);
+                    } else if (this.catcher) {
+                        this.catcher(err);
                     }
                 }
             }
