@@ -1,8 +1,9 @@
 TODO
 ====
 
-* don't swallow all errors
 * clean up error handling code
+* update README about errors
+* publish
 * guarantee a lack of unhandled promise rejections
 * some way of scoping middleware
     * either to an endpoint

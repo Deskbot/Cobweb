@@ -58,23 +58,6 @@ export const errorTests: Test[] = [{
     }
 },
 {
-    name: "An uncaught exception thrown in `catch` should be catchable .",
-    run({ test }) {
-        const handler = new Quelaag({}, err => test(err === "error"));
-        handler.addEndpoint({
-            when: () => true,
-            do: () => {
-                throw "errorForEndpointCatch";
-            },
-            catch: () => {
-                throw "error";
-            },
-        });
-
-        makeRequest(handler);
-    }
-},
-{
     name: "An uncaught exception thrown in `middleware` should be catchable .",
     run({ test }) {
         const handler = new Quelaag({}, err => test(err === "error"));
