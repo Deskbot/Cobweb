@@ -37,7 +37,7 @@ export class Quelaag<
 
         for (const endpoint of this.endpoints) {
             try {
-                var when = endpoint.when(req);
+                var when = endpoint.when(req, middleware);
             } catch (err) {
                 if (endpoint.catch) {
                     endpoint.catch(err);
@@ -90,7 +90,7 @@ export class Quelaag<
     private callSpies(req: Req, middleware: M) {
         for (const spy of this.spies) {
             try {
-                var when = spy.when(req);
+                var when = spy.when(req, middleware);
             } catch (err) {
                 if (spy.catch) {
                     spy.catch(err);

@@ -1,7 +1,6 @@
 TODO
 ====
 
-* `when` should take middleware
 * don't swallow all errors
 * clean up error handling code
 * guarantee a lack of unhandled promise rejections

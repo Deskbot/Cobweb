@@ -3,7 +3,28 @@ import { makeRequest, Test } from "../framework";
 import { IncomingMessage } from "http";
 
 export const middlewareTests: Test[] = [{
-    name: "Middleware should receive the request object when called from a handler.",
+    name: "Middleware should receive the request object when called from a when handler.",
+    run: async ({ test }) => {
+        const handler = new Quelaag({
+            takeReq: req => {
+                test(!!req);
+            }
+        });
+
+        handler.addEndpoint({
+            when: (req) => {
+                test(!!req);
+                return true;
+            },
+            do: () => {},
+        });
+
+        await makeRequest(handler);
+    },
+},
+
+{
+    name: "Middleware should receive the request object when called from a do handler.",
     run: async ({ test }) => {
         const handler = new Quelaag({
             takeReq: req => {
@@ -62,7 +83,7 @@ export const middlewareTests: Test[] = [{
 
 {
     name: "Middleware calls are memoised.",
-    cases: 2,
+    cases: 4,
     run: async ({ test }) => {
         let externalData = "one";
 
@@ -77,7 +98,13 @@ export const middlewareTests: Test[] = [{
         });
 
         handler.addSpy({
-            when: (req) => true,
+            when: (req, middleware) => {
+                middleware.getExternalData();
+                middleware.getMiddlewareData();
+                middleware.getExternalData();
+                middleware.getMiddlewareData();
+                return true;
+            },
             do: (req, middleware) => {
                 middleware.getExternalData();
                 middleware.getMiddlewareData();
@@ -133,7 +160,48 @@ export const middlewareTests: Test[] = [{
 },
 
 {
-    name: "Middleware calls are not memoised across handlers.",
+    name: "Middleware calls are memoised across handlers.",
+    cases: 8,
+    run: async ({ test }) => {
+        let externalData = "one";
+
+        const handler = new Quelaag({
+            getExternalData: (req) => {
+                externalData += " change"
+                return externalData;
+            },
+        });
+
+        handler.addSpy({
+            when: (req, middleware) => {
+                test(middleware.getExternalData() === "one change");
+                test(middleware.getExternalData() === "one change");
+                return true;
+            },
+            do: (req, middleware) => {
+                test(middleware.getExternalData() === "one change");
+                test(middleware.getExternalData() === "one change");
+            }
+        });
+
+        handler.addEndpoint({
+            when: (req, middleware) => {
+                test(middleware.getExternalData() === "one change");
+                test(middleware.getExternalData() === "one change");
+                return true;
+            },
+            do: (req, res, middleware) => {
+                test(middleware.getExternalData() === "one change");
+                test(middleware.getExternalData() === "one change");
+            }
+        });
+
+        await makeRequest(handler);
+    },
+},
+
+{
+    name: "Middleware calls are not memoised across different requests.",
     cases: 3,
     run: async ({ test }) => {
         let expected = 0;
@@ -146,8 +214,21 @@ export const middlewareTests: Test[] = [{
             },
         });
 
+        handler.addSpy({
+            when: (req, middleware) => {
+                middleware.increment();
+                return true;
+            },
+            do: (req, middleware) => {
+                middleware.increment();
+            }
+        });
+
         handler.addEndpoint({
-            when: () => true,
+            when: (req, middleware) => {
+                middleware.increment();
+                return true;
+            },
             do: (req, res, middleware) => {
                 // we expect that the actual is incremented by the middleware call
                 expected += 1;

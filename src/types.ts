@@ -8,12 +8,12 @@ export interface RequestSideEffect<M extends Middleware<Req>, Req = IncomingMess
     (req: Req, middlewares: M): void;
 }
 
-export interface RequestPredicate<Req = IncomingMessage> {
-    (req: Req): boolean | Promise<boolean>;
+export interface RequestPredicate<M extends Middleware<Req>, Req = IncomingMessage> {
+    (req: Req, middleware: M): boolean | Promise<boolean>;
 }
 
 export interface Endpoint<M extends Middleware<Req>, Req = IncomingMessage, Res = ServerResponse> {
-    when: RequestPredicate<Req>;
+    when: RequestPredicate<M, Req>;
     do: RequestHandler<M, Req, Res>;
     catch?: (error: any) => void;
 }
@@ -24,7 +24,7 @@ export interface FallbackEndpoint<M extends Middleware<Req>, Req = IncomingMessa
 }
 
 export interface Spy<M extends Middleware<Req>, Req = IncomingMessage> {
-    when: RequestPredicate<Req>;
+    when: RequestPredicate<M, Req>;
     do: RequestSideEffect<M, Req>;
     catch?: (error: any) => void;
 }
