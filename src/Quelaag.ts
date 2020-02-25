@@ -47,7 +47,7 @@ export class Quelaag<
             try {
                 var isWhen = endpoint.when(req, middleware);
             } catch (err) {
-                this.handleError(endpoint, err);
+                this.handleThrow(endpoint, err);
                 return;
             }
 
@@ -55,22 +55,18 @@ export class Quelaag<
                 // this.catcher will never reference members of this
                 // if the user wants to use a function with a binded `this`
                 // they should wrap it in a lambda as is normal
-                if (endpoint.catch) {
-                    isWhen.catch(endpoint.catch);
-                } else if (this.catcher) {
-                    isWhen.catch(this.catcher);
-                }
+                this.handleReject(endpoint, isWhen);
+
                 try {
                     if (await isWhen) {
                         userEndpoint = endpoint;
                     }
                 } catch (err) {
-                    this.handleError(endpoint, err);
+                    this.handleThrow(endpoint, err);
+                    return;
                 }
-                break;
             } else if (isWhen) {
                 userEndpoint = endpoint;
-                break;
             }
         }
 
@@ -84,16 +80,12 @@ export class Quelaag<
             try {
                 var result = endpoint.do(req, res, middleware);
             } catch (err) {
-                this.handleError(endpoint, err);
+                this.handleThrow(endpoint, err);
                 return;
             }
 
             if (result instanceof Promise && endpoint.catch) {
-                if (endpoint.catch) {
-                    result.catch(endpoint.catch);
-                } else if (this.catcher) {
-                    result.catch(this.catcher);
-                }
+                this.handleReject(endpoint, result);
             }
         }
     }
@@ -103,7 +95,7 @@ export class Quelaag<
             try {
                 var when = spy.when(req, middleware);
             } catch (err) {
-                this.handleError(spy, err);
+                this.handleThrow(spy, err);
                 continue;
             }
 
@@ -111,16 +103,13 @@ export class Quelaag<
                 const conditionProm = when.then(() => {
                     spy.do(req, middleware);
                 });
-                if (spy.catch) {
-                    conditionProm.catch(spy.catch);
-                } else if (this.catcher) {
-                    conditionProm.catch(this.catcher);
-                }
+                this.handleReject(spy, conditionProm);
             } else {
                 try {
                     spy.do(req, middleware);
                 } catch (err) {
-                    this.handleError(spy, err);
+                    this.handleThrow(spy, err);
+                    continue;
                 }
             }
         }
@@ -133,7 +122,15 @@ export class Quelaag<
         this.callEndpoint(req, res, middlewareInventory);
     }
 
-    private handleError(maybeCatcher: CatchHandler, err: any) {
+    private handleReject(maybeCatcher: CatchHandler, promise: Promise<unknown>) {
+        if (maybeCatcher.catch) {
+            promise.catch(maybeCatcher.catch);
+        } else if (this.catcher) {
+            promise.catch(this.catcher);
+        }
+    }
+
+    private handleThrow(maybeCatcher: CatchHandler, err: any) {
         if (maybeCatcher.catch) {
             maybeCatcher.catch(err);
         } else if (this.catcher) {
