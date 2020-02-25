@@ -16,16 +16,22 @@ export interface Examiner {
     readonly test: (result: boolean, message?: string) => void;
 }
 
-export async function makeRequest(handler: Quelaag, path?: string): Promise<void> {
+export async function makeRequest(handler: Quelaag, catcher?: (err: any) => void): Promise<void> {
     const server = http.createServer((req, res) => {
-        handler.handle(req, res);
+        try {
+            handler.handle(req, res);
+        } catch (e) {
+            if (catcher) {
+                catcher(e);
+            }
+        }
         res.end();
     });
 
     await util.promisify(cb => server.listen(TEST_PORT, cb))();
 
     const reqToServer = http.request({
-        path,
+        path: undefined,
         port: TEST_PORT,
     });
 

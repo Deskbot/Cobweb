@@ -1,9 +1,10 @@
 import { run, rejectAfter, Test } from "./framework";
 import { TEST_FAILS_AFTER } from "./config";
 import { middlewareTests } from "./cases/middleware";
+import { catchTests } from "./cases/catch";
+import { errorTests } from "./cases/error";
 import { doTests } from "./cases/do";
 import { whenTests } from "./cases/when";
-import { catchTests } from "./cases/catch";
 
 main();
 
@@ -11,6 +12,7 @@ async function main() {
     const anyFailed = await runTests([
         ...catchTests,
         ...doTests,
+        ...errorTests,
         ...middlewareTests,
         ...whenTests,
     ]);
