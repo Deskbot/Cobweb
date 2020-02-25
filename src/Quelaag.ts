@@ -32,7 +32,7 @@ export class Quelaag<
         this.spies.push(handler);
     }
 
-    private async callEndpoints(req: Req, res: Res, middleware: M) {
+    private async callEndpoint(req: Req, res: Res, middleware: M) {
         let userEndpoint: Endpoint<M, Req, Res> | undefined;
 
         for (const endpoint of this.endpoints) {
@@ -121,7 +121,7 @@ export class Quelaag<
         const middlewareInventory = new this.MiddlewareInventory(req);
 
         this.callSpies(req, middlewareInventory);
-        this.callEndpoints(req, res, middlewareInventory);
+        this.callEndpoint(req, res, middlewareInventory);
     }
 
     private middlewareSpecToConstructor(middlewareSpec: Spec): MiddlewareConstructor<M, Req> {
