@@ -1,4 +1,4 @@
-import { Endpoint, Spy, Middleware, MiddlewareSpec, MiddlewareConstructor, FallbackEndpoint, RequestHandler } from "./types";
+import { Endpoint, Spy, Middleware, MiddlewareSpec, MiddlewareConstructor, FallbackEndpoint, RequestHandler, CatchHandler } from "./types";
 import { IncomingMessage, ServerResponse } from "http";
 
 export class Quelaag<
@@ -47,11 +47,7 @@ export class Quelaag<
             try {
                 var isWhen = endpoint.when(req, middleware);
             } catch (err) {
-                if (endpoint.catch) {
-                    endpoint.catch(err);
-                } else if (this.catcher) {
-                    this.catcher(err);
-                }
+                this.handleError(endpoint, err);
                 return;
             }
 
@@ -69,9 +65,7 @@ export class Quelaag<
                         userEndpoint = endpoint;
                     }
                 } catch (err) {
-                    if (this.catcher) {
-                        this.catcher(err);
-                    }
+                    this.handleError(endpoint, err);
                 }
                 break;
             } else if (isWhen) {
@@ -90,9 +84,7 @@ export class Quelaag<
             try {
                 var result = endpoint.do(req, res, middleware);
             } catch (err) {
-                if (endpoint.catch) {
-                    endpoint.catch(err);
-                }
+                this.handleError(endpoint, err);
                 return;
             }
 
@@ -111,11 +103,7 @@ export class Quelaag<
             try {
                 var when = spy.when(req, middleware);
             } catch (err) {
-                if (spy.catch) {
-                    spy.catch(err);
-                } else if (this.catcher) {
-                    this.catcher(err);
-                }
+                this.handleError(spy, err);
                 continue;
             }
 
@@ -132,11 +120,7 @@ export class Quelaag<
                 try {
                     spy.do(req, middleware);
                 } catch (err) {
-                    if (spy.catch) {
-                        spy.catch(err);
-                    } else if (this.catcher) {
-                        this.catcher(err);
-                    }
+                    this.handleError(spy, err);
                 }
             }
         }
@@ -147,6 +131,14 @@ export class Quelaag<
 
         this.callSpies(req, middlewareInventory);
         this.callEndpoint(req, res, middlewareInventory);
+    }
+
+    private handleError(maybeCatcher: CatchHandler, err: any) {
+        if (maybeCatcher.catch) {
+            maybeCatcher.catch(err);
+        } else if (this.catcher) {
+            this.catcher(err);
+        }
     }
 
     private middlewareSpecToConstructor(middlewareSpec: Spec): MiddlewareConstructor<M, Req> {

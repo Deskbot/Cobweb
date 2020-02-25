@@ -12,21 +12,22 @@ export interface RequestPredicate<M extends Middleware<Req>, Req = IncomingMessa
     (req: Req, middleware: M): boolean | Promise<boolean>;
 }
 
-export interface Endpoint<M extends Middleware<Req>, Req = IncomingMessage, Res = ServerResponse> {
+export interface CatchHandler {
+    catch?: (error: any) => void;
+}
+
+export interface Endpoint<M extends Middleware<Req>, Req = IncomingMessage, Res = ServerResponse> extends CatchHandler {
     when: RequestPredicate<M, Req>;
     do: RequestHandler<M, Req, Res>;
-    catch?: (error: any) => void;
 }
 
-export interface FallbackEndpoint<M extends Middleware<Req>, Req = IncomingMessage, Res = ServerResponse> {
+export interface FallbackEndpoint<M extends Middleware<Req>, Req = IncomingMessage, Res = ServerResponse> extends CatchHandler {
     do: RequestHandler<M, Req, Res>;
-    catch?: (error: any) => void;
 }
 
-export interface Spy<M extends Middleware<Req>, Req = IncomingMessage> {
+export interface Spy<M extends Middleware<Req>, Req = IncomingMessage> extends CatchHandler {
     when: RequestPredicate<M, Req>;
     do: RequestSideEffect<M, Req>;
-    catch?: (error: any) => void;
 }
 
 export type MiddlewareSpec<
