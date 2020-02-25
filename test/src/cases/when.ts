@@ -30,12 +30,18 @@ export const whenTests: Test[] = [{
     }
 }, {
     name: "A spy is not called when its when is false.",
-    run({ fail }) {
+    run({ fail, pass }) {
         const handler = new Quelaag({});
         handler.addSpy({
             when: () => false,
             do: () => {
                 fail();
+            },
+        });
+        handler.addEndpoint({
+            when: () => true,
+            do: () => {
+                pass();
             },
         });
 
@@ -44,12 +50,18 @@ export const whenTests: Test[] = [{
 },
 {
     name: "An endpoint is not called when its when is false.",
-    run({ fail }) {
+    run({ fail, pass }) {
         const handler = new Quelaag({});
         handler.addEndpoint({
             when: () => false,
             do: () => {
                 fail();
+            },
+        });
+        handler.addEndpoint({
+            when: () => true,
+            do: () => {
+                pass();
             },
         });
 
