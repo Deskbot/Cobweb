@@ -7,17 +7,25 @@ export class Quelaag<
     Spec extends MiddlewareSpec<any, Req> = any,
     M extends Middleware<Req, Spec> = Middleware<Req, Spec>
 > {
+    private catcher: ((error: any) => void) | undefined;
     private endpoints: Endpoint<M, Req, Res>[];
+    private fallbackEndpoint: FallbackEndpoint<M, Req, Res> | undefined;
     private MiddlewareInventory: MiddlewareConstructor<M, Req>;
     private spies: Spy<M, Req>[];
-    private fallbackEndpoint: FallbackEndpoint<M, Req, Res> | undefined;
 
     /**
      * The symbol that is the key for the request object hidden in the middleware object.
      */
     public static readonly __req = Symbol('request key');
 
-    constructor(middlewareSpec: Spec) {
+    /**
+     * Create a Quelaag web server handler.
+     * @param middlewareSpec Define middleware.
+     * @param catcher Respond to an error that occurs anywhere within endpoints, spies, and middleware.
+     *                The `this` parameter of the function will be stripped.
+     */
+    constructor(middlewareSpec: Spec, catcher?: (error: any) => void) {
+        this.catcher = catcher;
         this.endpoints = [];
         this.spies = [];
 
@@ -37,29 +45,36 @@ export class Quelaag<
 
         for (const endpoint of this.endpoints) {
             try {
-                var when = endpoint.when(req, middleware);
+                var isWhen = endpoint.when(req, middleware);
             } catch (err) {
                 if (endpoint.catch) {
                     endpoint.catch(err);
-                    return;
-                } else {
-                    throw err;
+                } else if (this.catcher) {
+                    this.catcher(err);
                 }
+                return;
             }
 
-            if (when instanceof Promise) {
+            if (isWhen instanceof Promise) {
+                // this.catcher will never reference members of this
+                // if the user wants to use a function with a binded `this`
+                // they should wrap it in a lambda as is normal
                 if (endpoint.catch) {
-                    when.catch(endpoint.catch);
+                    isWhen.catch(endpoint.catch);
+                } else if (this.catcher) {
+                    isWhen.catch(this.catcher);
                 }
                 try {
-                    if (await when) {
+                    if (await isWhen) {
                         userEndpoint = endpoint;
                     }
                 } catch (err) {
-                    throw err;
+                    if (this.catcher) {
+                        this.catcher(err);
+                    }
                 }
                 break;
-            } else if (when) {
+            } else if (isWhen) {
                 userEndpoint = endpoint;
                 break;
             }
@@ -82,7 +97,11 @@ export class Quelaag<
             }
 
             if (result instanceof Promise && endpoint.catch) {
-                result.catch(endpoint.catch);
+                if (endpoint.catch) {
+                    result.catch(endpoint.catch);
+                } else if (this.catcher) {
+                    result.catch(this.catcher);
+                }
             }
         }
     }

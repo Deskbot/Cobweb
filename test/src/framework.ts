@@ -16,15 +16,9 @@ export interface Examiner {
     readonly test: (result: boolean, message?: string) => void;
 }
 
-export async function makeRequest(handler: Quelaag, catcher?: (err: any) => void): Promise<void> {
+export async function makeRequest(handler: Quelaag): Promise<void> {
     const server = http.createServer((req, res) => {
-        try {
-            handler.handle(req, res);
-        } catch (e) {
-            if (catcher) {
-                catcher(e);
-            }
-        }
+        handler.handle(req, res);
         res.end();
     });
 
