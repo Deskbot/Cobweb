@@ -102,7 +102,7 @@ export class Quelaag<
                 if (await when) {
                     spy.do(req, middleware);
                 }
-            } else {
+            } else if (when) {
                 try {
                     spy.do(req, middleware);
                 } catch (err) {
