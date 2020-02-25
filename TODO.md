@@ -1,7 +1,6 @@
 TODO
 ====
 
-* clean up error handling code
 * update README about errors
 * publish
 * guarantee a lack of unhandled promise rejections
