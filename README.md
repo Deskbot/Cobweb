@@ -157,6 +157,38 @@ server.listen(8080);
 
 In order for middleware to call each other, arrow syntax can't be used by the caller in order for `this` to refer to the middleware specification object. The `noImplicitThis` option in your tsconfig needs to be enabled for the type checking on `this` to be correct.
 
+### Error handling
+
+An error thrown or a promise rejected in a `when` or `do` can be caught with an optional `catch` function on any Endpoint or Spy.
+
+A catch handler can also be given to Quelaag, as a fallback for when a local `catch` is not defined.
+
+```ts
+import { Quelaag } from "quelaag";
+const quelaag = new Quelaag(
+    {},
+    (err) => {
+        console.error(err);
+    }
+);
+quelaag.addEndpoint({
+    when: req => req.url === "/local/handle",
+    do: (req, res, middleware) => {
+        throw "will only be caught by the handler given to this Endpoint";
+    },
+    catch: (err) => {
+        console.error(err);
+    },
+});
+quelaag.addEndpoint({
+    when: req => req.url === "/quelaag/handle",
+    do: (req, res, middleware) => {
+        throw "will only be caught by the handler given to Quelaag";
+    }
+});
+```
+
+
 TypeScript Troubles
 -------------------
 

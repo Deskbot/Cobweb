@@ -1,7 +1,6 @@
 TODO
 ====
 
-* update README about errors
 * publish
 * guarantee a lack of unhandled promise rejections
 * some way of scoping middleware
