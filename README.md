@@ -61,11 +61,10 @@ quelaag.addEndpoint({
 });
 const app = express();
 app.use((req, res, next) => {
-    console.log("[pp[", req.ip);
     quelaag.handle(req, res);
     next();
 });
-app.listen(8000);
+app.listen(8081);
 ```
 
 ### Endpoints
@@ -80,7 +79,7 @@ quelaag.addEndpoint({
     }
 });
 quelaag.addEndpoint({
-    when: req => req.url!.startsWith("/hello"),
+    when: req => req.url.startsWith("/hello"),
     do: (req, res) => {
         res.end("hello");
     }
