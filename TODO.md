@@ -1,7 +1,6 @@
 TODO
 ====
 
-* publish
 * guarantee a lack of unhandled promise rejections
 * some way of scoping middleware
     * either to an endpoint
