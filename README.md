@@ -114,13 +114,13 @@ quelaag.addSpy({
 
 ### Middleware
 
-Middleware are functions that are given the request object and return some type. Yes, that includes Promises. Middleware are manually called from any Spy or Endpoint. Middleware calls are memoised meaning that for a single request, each middleware return value will be computed no more than once.
+Middleware are functions that are given the request object and return some type. Yes, that includes Promises. Middleware are manually called from any Spy, Endpoint, or other middleware. Middleware calls are memoised meaning that for a single request, each middleware return value will be computed no more than once.
 
 A middleware specification is given to the Quelaag constructor. The specification is an object of functions. Each function must take a request. The type of each function can be inferred and used in request handlers.
 
 The object containing all middleware is passed as the last parameter to each of `addEndpoint`, `setFallbackEndpoint`, `addSpy`. Here, middleware functions do not need to take the request as an argument. Quelaag in effect applies the request object to the middleware function.
 
-However in the middleware specification, they should be passed an argument. In order for middleware to call each other, arrow syntax can't be used by the caller in order for `this` to refer to the middleware specification object.
+In the middleware specification, middleware calls should be passed an argument in order for TypeScript to compile. However, the argument is ignored and the calls are still memoised.
 
 ```ts
 import { Quelaag } from "quelaag";
@@ -155,6 +155,8 @@ const server = http.createServer((req, res) => quelaag.handle(req, res));
 server.listen(8080);
 ```
 
+In order for middleware to call each other, arrow syntax can't be used by the caller in order for `this` to refer to the middleware specification object. The `noImplicitThis` option in your tsconfig needs to be enabled for the type checking on `this` to be correct.
+
 TypeScript Troubles
 -------------------
 
@@ -181,6 +183,6 @@ new Quelaag({
 });
 ```
 
-### No implicit any
+### No implicit this
 
 To get the a greater benefit from TypeScript's type inference, you should enable `noImplicitThis` in your tsconfig.json. It causes `this` in your middleware specification to be correctly typed instead of treated as `any`.
