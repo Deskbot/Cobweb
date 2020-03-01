@@ -55,20 +55,20 @@ export const catchTests: Test[] = [{
 },
 {
     name: "A rejected promise in `when` should be caught.",
-    run(ex) {
+    run({ fail, test }) {
         const handler = new Quelaag({});
         handler.addEndpoint({
             when: () => false,
             do: () => {},
             catch: () => {
-                ex.fail();
+                fail();
             },
         });
         handler.addEndpoint({
             when: () => Promise.reject("error2"),
             do: () => {},
             catch: (err) => {
-                ex.test(err === "error2");
+                test(err === "error2");
             }
         });
 
