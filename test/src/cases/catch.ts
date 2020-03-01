@@ -1,5 +1,6 @@
 import { Quelaag } from "../../../src";
 import { makeRequest, Test } from "../framework";
+import { IncomingMessage, ServerResponse } from "http";
 
 export const catchTests: Test[] = [{
     name: "A thrown exception in `when` should be caught.",
@@ -55,20 +56,20 @@ export const catchTests: Test[] = [{
 },
 {
     name: "A rejected promise in `when` should be caught.",
-    run(ex) {
+    run({ fail, test }) {
         const handler = new Quelaag({});
         handler.addEndpoint({
             when: () => false,
             do: () => {},
             catch: () => {
-                ex.fail();
+                fail();
             },
         });
         handler.addEndpoint({
             when: () => Promise.reject("error2"),
             do: () => {},
             catch: (err) => {
-                ex.test(err === "error2");
+                test(err === "error2");
             }
         });
 
@@ -126,4 +127,40 @@ export const catchTests: Test[] = [{
 
         makeRequest(handler);
     }
-},];
+},
+{
+    name: "A caught endpoint should have an error message, request, and response.",
+    run({ test }) {
+        const handler = new Quelaag({});
+        handler.addEndpoint({
+            when: () => true,
+            do: () => {
+                throw "error";
+            },
+            catch: (err, req, res) => {
+                test(err === "error");
+                test(req instanceof IncomingMessage);
+                test(res instanceof ServerResponse);
+            }
+        });
+
+        makeRequest(handler);
+    }
+}, {
+    name: "A caught spy should have an error message and request.",
+    run({ test }) {
+        const handler = new Quelaag({});
+        handler.addSpy({
+            when: () => true,
+            do: () => {
+                throw "error";
+            },
+            catch: (err, req) => {
+                test(err === "error");
+                test(req instanceof IncomingMessage);
+            }
+        });
+
+        makeRequest(handler);
+    }
+}];

@@ -1,4 +1,4 @@
-import { Endpoint, Spy, Middleware, MiddlewareSpec, MiddlewareConstructor, FallbackEndpoint, RequestHandler, CatchHandler } from "./types";
+import { Endpoint, Spy, Middleware, MiddlewareSpec, MiddlewareConstructor, FallbackEndpoint, RequestHandler, EndpointCatch, SpyCatch } from "./types";
 import { IncomingMessage, ServerResponse } from "http";
 
 export class Quelaag<
@@ -47,7 +47,7 @@ export class Quelaag<
             try {
                 var isWhen = endpoint.when(req, middleware);
             } catch (err) {
-                this.handleThrow(endpoint, err);
+                this.handleEndpointThrow(endpoint, err, req, res);
                 return;
             }
 
@@ -55,14 +55,14 @@ export class Quelaag<
                 // this.catcher will never reference members of this
                 // if the user wants to use a function with a binded `this`
                 // they should wrap it in a lambda as is normal
-                this.handleReject(endpoint, isWhen);
+                this.handleReject(endpoint, isWhen, req, res);
 
                 try {
                     if (await isWhen) {
                         userEndpoint = endpoint;
                     }
                 } catch (err) {
-                    this.handleThrow(endpoint, err);
+                    this.handleEndpointThrow(endpoint, err, req, res);
                     return;
                 }
             } else if (isWhen) {
@@ -80,12 +80,12 @@ export class Quelaag<
         try {
             var result = endpoint.do(req, res, middleware);
         } catch (err) {
-            this.handleThrow(endpoint, err);
+            this.handleEndpointThrow(endpoint, err, req, res);
             return;
         }
 
         if (result instanceof Promise && endpoint.catch) {
-            this.handleReject(endpoint, result);
+            this.handleReject(endpoint, result, req, res);
         }
     }
 
@@ -94,7 +94,7 @@ export class Quelaag<
             try {
                 var when = spy.when(req, middleware);
             } catch (err) {
-                this.handleThrow(spy, err);
+                this.handleSpyThrow(spy, err, req);
                 continue;
             }
 
@@ -106,7 +106,7 @@ export class Quelaag<
                 try {
                     spy.do(req, middleware);
                 } catch (err) {
-                    this.handleThrow(spy, err);
+                    this.handleSpyThrow(spy, err, req);
                     continue;
                 }
             }
@@ -115,22 +115,30 @@ export class Quelaag<
 
     handle(req: Req, res: Res): void {
         const middlewareInventory = new this.MiddlewareInventory(req);
-
         this.callSpies(req, middlewareInventory);
         this.callEndpoint(req, res, middlewareInventory);
     }
 
-    private handleReject(maybeCatcher: CatchHandler, promise: Promise<unknown>) {
+    private handleReject(maybeCatcher: EndpointCatch<Req, Res>, promise: Promise<unknown>, req: Req, res: Res) {
         if (maybeCatcher.catch) {
-            promise.catch(maybeCatcher.catch);
+            const c = maybeCatcher.catch;
+            promise.catch(err => c(err, req, res));
         } else if (this.catcher) {
             promise.catch(this.catcher);
         }
     }
 
-    private handleThrow(maybeCatcher: CatchHandler, err: any) {
+    private handleEndpointThrow(maybeCatcher: EndpointCatch<Req, Res>, err: any, req: Req, res: Res) {
         if (maybeCatcher.catch) {
-            maybeCatcher.catch(err);
+            maybeCatcher.catch(err, req, res);
+        } else if (this.catcher) {
+            this.catcher(err);
+        }
+    }
+
+    private handleSpyThrow(maybeCatcher: SpyCatch<Req>, err: any, req: Req) {
+        if (maybeCatcher.catch) {
+            maybeCatcher.catch(err, req);
         } else if (this.catcher) {
             this.catcher(err);
         }
