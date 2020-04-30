@@ -41,37 +41,7 @@ export class Quelaag<
     }
 
     private async callEndpoint(req: Req, res: Res, middleware: M) {
-        let userEndpoint: Endpoint<M, Req, Res> | undefined;
-
-        for (const endpoint of this.endpoints) {
-            try {
-                var isWhen = endpoint.when(req, middleware);
-            } catch (err) {
-                this.handleEndpointThrow(endpoint, err, req, res);
-                return;
-            }
-
-            if (isWhen instanceof Promise) {
-                // this.catcher will never reference members of this
-                // if the user wants to use a function with a binded `this`
-                // they should wrap it in a lambda as is normal
-                this.handleReject(endpoint, isWhen, req, res);
-
-                try {
-                    if (await isWhen) {
-                        userEndpoint = endpoint;
-                    }
-                } catch (err) {
-                    this.handleEndpointThrow(endpoint, err, req, res);
-                    return;
-                }
-            } else if (isWhen) {
-                userEndpoint = endpoint;
-                break;
-            }
-        }
-
-        const endpoint = userEndpoint ?? this.fallbackEndpoint;
+        const endpoint = await this.getEndpointToCall(req, res, middleware);
 
         if (!endpoint || !endpoint.do) {
             return;
@@ -111,6 +81,42 @@ export class Quelaag<
                 }
             }
         }
+    }
+
+    private async getEndpointToCall(req: Req, res: Res, middleware: M)
+        : Promise<Endpoint<M, Req, Res> | FallbackEndpoint<M, Req, Res> | undefined>
+    {
+        let userEndpoint: Endpoint<M, Req, Res> | undefined;
+
+        for (const endpoint of this.endpoints) {
+            try {
+                var isWhen = endpoint.when(req, middleware);
+            } catch (err) {
+                this.handleEndpointThrow(endpoint, err, req, res);
+                return;
+            }
+
+            if (isWhen instanceof Promise) {
+                // this.catcher will never reference members of this
+                // if the user wants to use a function with a binded `this`
+                // they should wrap it in a lambda as is normal
+                this.handleReject(endpoint, isWhen, req, res);
+
+                try {
+                    if (await isWhen) {
+                        userEndpoint = endpoint;
+                    }
+                } catch (err) {
+                    this.handleEndpointThrow(endpoint, err, req, res);
+                    return;
+                }
+            } else if (isWhen) {
+                userEndpoint = endpoint;
+                break;
+            }
+        }
+
+        return userEndpoint ?? this.fallbackEndpoint;
     }
 
     handle(req: Req, res: Res): void {
