@@ -43,7 +43,7 @@ export class Quelaag<
     private async callEndpoint(req: Req, res: Res, middleware: M) {
         const endpoint = await this.getEndpointToCall(req, res, middleware);
 
-        if (!endpoint || !endpoint.do) {
+        if (!endpoint) {
             return;
         }
 
