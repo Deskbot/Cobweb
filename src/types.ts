@@ -35,12 +35,12 @@ export interface Spy<M extends Middleware<Req>, Req = IncomingMessage> extends S
 }
 
 export type MiddlewareSpec<
-    K extends string | number | symbol = any,
+    K extends keyof any = any,
     Req = IncomingMessage,
 >
     = Record<K, (req: Req) => any>;
 
-export type Middleware<Req, Spec extends MiddlewareSpec<string | number | symbol, Req> = any> = {
+export type Middleware<Req, Spec extends MiddlewareSpec<keyof any, Req> = any> = {
     [N in keyof Spec]: () => ReturnType<Spec[N]>
 };
 
