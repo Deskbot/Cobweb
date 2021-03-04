@@ -1,7 +1,7 @@
 import * as http from "http";
 import * as util from "util";
 
-import { Quelaag } from "../../src";
+import { Router } from "../../src";
 import { TEST_PORT } from "./config";
 
 export interface Test {
@@ -16,7 +16,7 @@ export interface Examiner {
     readonly test: (result: boolean, message?: string) => void;
 }
 
-export async function makeRequest(handler: Quelaag): Promise<void> {
+export async function makeRequest(handler: Router): Promise<void> {
     const server = http.createServer((req, res) => {
         handler.handle(req, res);
         res.end();
@@ -44,7 +44,7 @@ export async function makeRequest(handler: Quelaag): Promise<void> {
         });
 
     }).finally(() => {
-        // ensure that only one server is alive at a time beacuse they always use the same port
+        // ensure that only one server is alive at a time because they always use the same port
         server.close();
     });
 }

@@ -32,6 +32,8 @@ export function quelaag
     return req => new constructor(req);
 }
 
+export default quelaag;
+
 export class Router<
     Req = IncomingMessage,
     Res = ServerResponse,

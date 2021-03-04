@@ -1,15 +1,15 @@
-import { Quelaag } from "../../../src";
+import { quelaag, Router } from "../../../src";
 import { makeRequest, Test } from "../framework";
 import { IncomingMessage } from "http";
 
 export const middlewareTests: Test[] = [{
     name: "Middleware should receive the request object when called from a when handler.",
     run: async ({ test }) => {
-        const handler = new Quelaag({
+        const handler = new Router(quelaag({
             takeReq: req => {
                 test(!!req);
             }
-        });
+        }));
 
         handler.addEndpoint({
             when: (req) => {
@@ -26,11 +26,11 @@ export const middlewareTests: Test[] = [{
 {
     name: "Middleware should receive the request object when called from a do handler.",
     run: async ({ test }) => {
-        const handler = new Quelaag({
+        const handler = new Router(quelaag({
             takeReq: req => {
                 test(!!req);
             }
-        });
+        }));
 
         handler.setFallbackEndpoint({
             do: (req, res, middleware) => {
@@ -45,14 +45,14 @@ export const middlewareTests: Test[] = [{
 {
     name: "Middleware should receive the request object when called from middleware.",
     run: async ({ test }) => {
-        const handler = new Quelaag({
+        const handler = new Router(quelaag({
             callTakeReq(req) {
                 this.takeReq(req);
             },
             takeReq: (req) => {
                 test(!!req);
             },
-        });
+        }));
 
         handler.setFallbackEndpoint({
             do: (req, res, middleware) => {
@@ -67,9 +67,9 @@ export const middlewareTests: Test[] = [{
 {
     name: "Middleware can be called from a request spy.",
     run: async ({ test }) => {
-        const handler = new Quelaag({
+        const handler = new Router(quelaag({
             helloWorld: (req) => "hello world",
-        });
+        }));
 
         handler.setFallbackEndpoint({
             do: (req, res, middleware) => {
@@ -87,7 +87,7 @@ export const middlewareTests: Test[] = [{
     run: async ({ test }) => {
         let externalData = "one";
 
-        const handler = new Quelaag({
+        const handler = new Router(quelaag({
             getExternalData(req): string {
                 externalData += " change";
                 return externalData;
@@ -95,7 +95,7 @@ export const middlewareTests: Test[] = [{
             getMiddlewareData(req): string {
                 return this.getExternalData(req);
             },
-        });
+        }));
 
         handler.addSpy({
             when: (req, middleware) => {
@@ -132,12 +132,12 @@ export const middlewareTests: Test[] = [{
     run: async ({ test }) => {
         let externalData = "one";
 
-        const handler = new Quelaag({
+        const handler = new Router(quelaag({
             getExternalData: (req) => {
                 externalData += " change"
                 return externalData;
             },
-        });
+        }));
 
         handler.addSpy({
             when: () => true,
@@ -165,12 +165,12 @@ export const middlewareTests: Test[] = [{
     run: async ({ test }) => {
         let externalData = "one";
 
-        const handler = new Quelaag({
+        const handler = new Router(quelaag({
             getExternalData: (req) => {
                 externalData += " change"
                 return externalData;
             },
-        });
+        }));
 
         handler.addSpy({
             when: (req, middleware) => {
@@ -207,12 +207,12 @@ export const middlewareTests: Test[] = [{
         let expected = 0;
         let actual = 0;
 
-        const handler = new Quelaag({
+        const handler = new Router(quelaag({
             increment: () => {
                 actual += 1;
                 return actual;
             },
-        });
+        }));
 
         handler.addSpy({
             when: (req, middleware) => {
@@ -246,7 +246,7 @@ export const middlewareTests: Test[] = [{
     name: "Middleware can call each other.",
     cases: 2,
     run: ({ test }) => {
-        const handler = new Quelaag({
+        const handler = new Router(quelaag({
             number(req): number {
                 return 100;
             },
@@ -259,7 +259,7 @@ export const middlewareTests: Test[] = [{
             isOdd: function (req): boolean {
                 return !this.isEven(req) && this.isNotEven(req);
             }
-        });
+        }));
 
         handler.addEndpoint({
             when: () => true,
@@ -277,7 +277,7 @@ export const middlewareTests: Test[] = [{
     name: "Middleware can be asynchronous.",
     cases: 2,
     run: ({ test }) => {
-        const handler = new Quelaag({
+        const handler = new Router(quelaag({
             async number(req: IncomingMessage) {
                 return 100;
             },
@@ -287,7 +287,7 @@ export const middlewareTests: Test[] = [{
             isOdd: async function (req: IncomingMessage) {
                 return !await this.isEven();
             }
-        });
+        }));
 
         handler.addEndpoint({
             when: () => true,

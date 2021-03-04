@@ -1,10 +1,10 @@
-import { Quelaag } from "../../../src";
+import { quelaag, Router } from "../../../src";
 import { makeRequest, Test } from "../framework";
 
 export const whenTests: Test[] = [{
     name: "A spy is called when its when is true.",
     run({ pass }) {
-        const handler = new Quelaag({});
+        const handler = new Router(quelaag({}));
         handler.addSpy({
             when: () => true,
             do: () => {
@@ -18,7 +18,7 @@ export const whenTests: Test[] = [{
 {
     name: "An endpoint is called when its when is true.",
     run({ pass }) {
-        const handler = new Quelaag({});
+        const handler = new Router(quelaag({}));
         handler.addEndpoint({
             when: () => true,
             do: () => {
@@ -31,7 +31,7 @@ export const whenTests: Test[] = [{
 }, {
     name: "A spy is not called when its when is false.",
     run({ fail, pass }) {
-        const handler = new Quelaag({});
+        const handler = new Router(quelaag({}));
         handler.addSpy({
             when: () => false,
             do: () => {
@@ -51,7 +51,7 @@ export const whenTests: Test[] = [{
 {
     name: "An endpoint is not called when its when is false.",
     run({ fail, pass }) {
-        const handler = new Quelaag({});
+        const handler = new Router(quelaag({}));
         handler.addEndpoint({
             when: () => false,
             do: () => {
@@ -73,7 +73,7 @@ export const whenTests: Test[] = [{
     run({ test }) {
         let when = false;
 
-        const handler = new Quelaag({});
+        const handler = new Router(quelaag({}));
         handler.addSpy({
             when: async () => {
                 when = true;
