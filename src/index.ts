@@ -1,3 +1,3 @@
-export * from "./Quelaag";
+export * from "./quelaag";
 export * from "./types";
 export * from "./utils";
