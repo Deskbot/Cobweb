@@ -22,7 +22,7 @@ The API is still subject to change.
 npm install --save quelaag
 ```
 
-## Basic Example
+## "Hello World" Example
 
 ```ts
 import { quelaag, Router } from "quelaag";
@@ -105,13 +105,11 @@ request2.ip();   //              returns "127.0.0.1"
 request1Again.ip(); // prints "ip", returns "127.0.0.1"
 ```
 
-In order for middleware to call each other, arrow syntax can't be used by the caller in order for `this` to refer to the middleware specification object. The `noImplicitThis` option in your tsconfig needs to be enabled for the type checking on `this` to be correct.
+In order for middleware to call each other, the function can't be defined with arrow syntax, so that `this` inside the function refer to the middleware object. The `noImplicitThis` option in your tsconfig needs to be enabled for the type checking on `this` to be correct.
 
-### Full Example
+### Proper Example
 
-The router that comes with `quelaag` creates new middleware objects for you.
-
-A middleware instance is passed as the last parameter to each of each callback in each of `addEndpoint`, `setFallbackEndpoint`, `addSpy`.
+`Router` creates new middleware instances for you, which are passed as the last parameter to all of `Router`'s callbacks.
 
 ```ts
 import { quelaag, Router } from "quelaag";
@@ -151,7 +149,7 @@ server.listen(8080);
 
 ### Endpoints
 
-A request will be handled by the first Endpoint with a matching condition. These are created using `quelaag.addEndpoint(...)`. Endpoints are the only place where the response object can be handled. Quelaag in no way affects the request or response object.
+A request will be handled by the first Endpoint with a matching condition. These are created using `quelaag.addEndpoint(...)`. Endpoints are the only place where the response object can be handled. `Router` and `quelaag` in no way affect the request or response object.
 
 ```ts
 router.addEndpoint({
