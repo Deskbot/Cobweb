@@ -5,7 +5,7 @@ export interface RequestHandler<M extends Middleware<Req>, Req = IncomingMessage
 }
 
 export interface RequestSideEffect<M extends Middleware<Req>, Req = IncomingMessage> {
-    (req: Req, middlewares: M): void;
+    (req: Req, middleware: M): void;
 }
 
 export interface RequestPredicate<M extends Middleware<Req>, Req = IncomingMessage> {
@@ -44,7 +44,5 @@ export type Middleware<Req, Spec extends MiddlewareSpec<keyof any, Req> = any> =
     [N in keyof Spec]: () => ReturnType<Spec[N]>
 };
 
-export interface MiddlewareConstructor<M extends Middleware<Req>, Req = IncomingMessage> {
-    new(req: Req): M;
-    prototype?: Partial<M>;
-}
+export type Quelaag<M extends Middleware<Req>, Req = IncomingMessage> =
+    (req: Req) => M
