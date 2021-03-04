@@ -3,12 +3,11 @@ import { IncomingMessage } from "http";
 
 const __req = Symbol('request key');
 
-export function quelaag
-    <
-        Req = IncomingMessage,
-        Spec extends MiddlewareSpec<any, Req> = any,
-        M extends Middleware<Req, Spec> = any
-    >
+export function quelaag<
+    Req = IncomingMessage,
+    Spec extends MiddlewareSpec<any, Req> = any,
+    M extends Middleware<Req, Spec> = any
+>
     (middlewareSpec: Spec): Quelaag<M, Req>
 {
     const middlewareInventoryProto = {} as any;

@@ -27,14 +27,14 @@ npm install --save quelaag
 Tutorial
 --------
 
-### Basic example
+### Basic Example
 
 ```ts
-import { Quelaag } from "quelaag";
+import { quelaag, Router } from "quelaag";
 import * as http from "http";
 
-const quelaag = new Quelaag({});
-quelaag.addEndpoint({
+const router = new Router(quelaag({}));
+router.addEndpoint({
     when: req => req.url === "/hello",
     do: (req, res) => {
         res.write("hello world");
@@ -42,27 +42,31 @@ quelaag.addEndpoint({
     }
 });
 
-const server = http.createServer((req, res) => quelaag.handle(req, res));
+const server = http.createServer((req, res) => router.handle(req, res));
 server.listen(8080);
 ```
 
-Quelaag's handle method is versatile. It can be used anywhere you might want an incoming request handler, even inside other frameworks.
+`quelaag` is a function that memoises middleware functions. In this example there are no middleware functions.
 
-By default, the type of requests and responses are that of NodeJS's `IncomingMessage` and `ServerResponse`. However these can be overridden with type arguments to `Quelaag`.
+The handle method on `Router` is versatile. It can be used anywhere you might want an incoming request handler, even inside other frameworks. The built-in router is entirely optional.
+
+By default, the type of requests and responses are that of NodeJS's `IncomingMessage` and `ServerResponse`. However, these can be overridden with type arguments to `quelaag` or `Router`.
 
 ```ts
-import { Quelaag } from "quelaag";
+import { quelaag, Router } from "quelaag";
 import * as express from "express";
-const quelaag = new Quelaag<express.Request, express.Response>({});
-quelaag.addEndpoint({
+
+const router = new Router<express.Request, express.Response>(quelaag({}));
+router.addEndpoint({
     when: req => req.ip.endsWith("127.0.0.1"),
     do: (req, res, middleware) => {
         res.json({ hello: "world" });
     }
 });
+
 const app = express();
 app.use((req, res, next) => {
-    quelaag.handle(req, res);
+    router.handle(req, res);
     next();
 });
 app.listen(8081);
@@ -73,13 +77,13 @@ app.listen(8081);
 A request will be handled by the first Endpoint with a matching condition. These are created using `quelaag.addEndpoint(...)`. Endpoints are the only place where the response object can be handled. Quelaag in no way affects the request or response object.
 
 ```ts
-quelaag.addEndpoint({
+router.addEndpoint({
     when: req => req.url === "/hello/world",
     do: (req, res) => {
         res.end("hello world");
     }
 });
-quelaag.addEndpoint({
+router.addEndpoint({
     when: req => req.url.startsWith("/hello"),
     do: (req, res) => {
         res.end("hello");
@@ -91,10 +95,10 @@ In this example, a request to "/hello/world" is matched by the condition of both
 
 ### The Fallback Endpoint
 
-If no endpoint matches, a default can be used, if one has been set with `quelaag.setFallbackEndpoint(...)`;
+If no endpoint matches, a default can be used, if one has been set with `router.setFallbackEndpoint(...)`;
 
 ```ts
-quelaag.setFallbackEndpoint((req, res) => {
+router.setFallbackEndpoint((req, res) => {
     res.statusCode = 404;
     res.end("404 Not Found");
 });
@@ -102,10 +106,10 @@ quelaag.setFallbackEndpoint((req, res) => {
 
 ### Spies
 
-A request will be handled by all Spies with a matching condition. These are created using `quelaag.addSpy(...)`. The response object is not accessible here.
+A request will be handled by all Spies with a matching condition. These are created using `router.addSpy(...)`. The response object is not accessible here.
 
 ```ts
-quelaag.addSpy({
+router.addSpy({
     when: req => req.url === "/hello",
     do: (req) => {
         console.log(req.connection.remoteAddress);
@@ -117,18 +121,18 @@ quelaag.addSpy({
 
 Middleware are functions that are given the request object and return some type. Yes, that includes Promises. Middleware are manually called from any Spy, Endpoint, or other middleware. Middleware calls are memoised meaning that for a single request, each middleware return value will be computed no more than once.
 
-A middleware specification is given to the Quelaag constructor. The specification is an object of functions. Each function must take a request. The type of each function can be inferred and used in request handlers.
+A middleware specification is given to the `quelaag` function. The specification is an object of functions. Each function must take a request. The type of each function can be inferred and used in request handlers.
 
-The object containing all middleware is passed as the last parameter to each of `addEndpoint`, `setFallbackEndpoint`, `addSpy`. Here, middleware functions do not need to take the request as an argument. Quelaag in effect applies the request object to the middleware function.
+The object containing all middleware is passed as the last parameter to each of `addEndpoint`, `setFallbackEndpoint`, `addSpy`. Here, middleware functions do not need to take the request as an argument. `Router` in effect applies the request object to the middleware function.
 
 In the middleware specification, middleware calls should be passed an argument in order for TypeScript to compile. However, the argument is ignored and the calls are still memoised.
 
 ```ts
-import { Quelaag } from "quelaag";
+import { quelaag, Router } from "quelaag";
 import * as cookie from "cookie"; // a third party cookie header parsing library
 import * as http from "http";
 
-const quelaag = new Quelaag({
+const router = new Router(quelaag({
     cookies(req) {
         return cookie.parse(req.headers.cookie || '');
     },
@@ -139,8 +143,8 @@ const quelaag = new Quelaag({
         const user = await getUserFromDatabase(this.userId(req));
         return user.isAdmin;
     }
-});
-quelaag.addEndpoint({
+}));
+router.addEndpoint({
     when: req => req.url === "/admin",
     do: async (req, res, middleware) => {
         if (await middleware.userIsAdministrator()) {
@@ -152,7 +156,7 @@ quelaag.addEndpoint({
     }
 });
 
-const server = http.createServer((req, res) => quelaag.handle(req, res));
+const server = http.createServer((req, res) => router.handle(req, res));
 server.listen(8080);
 ```
 
@@ -165,14 +169,14 @@ An error thrown or a promise rejected in a `when` or `do` can be caught with an 
 A catch handler can also be given to Quelaag, as a fallback for when a local `catch` is not defined.
 
 ```ts
-import { Quelaag } from "quelaag";
-const quelaag = new Quelaag(
-    {},
+import { quelaag, Router } from "quelaag";
+const router = new Router(
+    quelaag({}),
     (err) => {
         console.error(err);
     }
 );
-quelaag.addEndpoint({
+router.addEndpoint({
     when: req => req.url === "/local/handle",
     do: (req, res, middleware) => {
         throw "will only be caught by the handler given to this Endpoint";
@@ -181,7 +185,7 @@ quelaag.addEndpoint({
         console.error(err);
     },
 });
-quelaag.addEndpoint({
+router.addEndpoint({
     when: req => req.url === "/quelaag/handle",
     do: (req, res, middleware) => {
         throw "will only be caught by the handler given to Quelaag";
@@ -200,7 +204,7 @@ TypeScript is a fantastic language with often impressive type inference. [Howeve
 In the examples below, each call to `this.number` should take `req` for Quelaag to function correctly. However the exclusion of a return type in the method signature affects whether TypeScript will allow it.
 
 ```ts
-new Quelaag({
+quelaag({
     number(req) {
         return 100;
     },

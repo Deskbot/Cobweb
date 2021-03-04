@@ -7,7 +7,7 @@ export class Router<
     Spec extends MiddlewareSpec<any, Req> = any,
     M extends Middleware<Req, Spec> = any,
     Q extends Quelaag<M, Req> = any,
-    > {
+> {
     private catcher: ((error: any) => void) | undefined;
     private endpoints: Endpoint<M, Req, Res>[];
     private fallbackEndpoint: FallbackEndpoint<M, Req, Res> | undefined;
