@@ -1,5 +1,4 @@
-Quelaag
-======
+# Quelaag
 
 Quelaag is a web request handling library for NodeJS designed to:
 
@@ -17,17 +16,13 @@ Design Philosophy:
 
 The API is still subject to change.
 
-Install
--------
+## Install
 
 ```
 npm install --save quelaag
 ```
 
-Tutorial
---------
-
-### Basic Example
+## Basic Example
 
 ```ts
 import { quelaag, Router } from "quelaag";
@@ -46,11 +41,11 @@ const server = http.createServer((req, res) => router.handle(req, res));
 server.listen(8080);
 ```
 
-`quelaag` is a function that memoises middleware functions. In this example there are no middleware functions.
+`quelaag` is a function that creates memoised middleware functions. In this example there are no middleware functions. `Router` is a class that facilitates choosing what to do when handling an incoming request.
 
-The handle method on `Router` is versatile. It can be used anywhere you might want an incoming request handler, even inside other frameworks. The built-in router is entirely optional.
+`quelaag` and `Router` are designed to be flexible in how they can be used. You can use them with NodeJS's built-in libraries or a third-party framework. `quelaag` can be used without `Router` entirely.
 
-By default, the type of requests and responses are that of NodeJS's `IncomingMessage` and `ServerResponse`. However, these can be overridden with type arguments to `quelaag` or `Router`.
+By default, the type of requests and responses are NodeJS's `IncomingMessage` and `ServerResponse`. However, these can be overridden with type arguments to `quelaag` or `Router`.
 
 ```ts
 import { quelaag, Router } from "quelaag";
@@ -71,6 +66,88 @@ app.use((req, res, next) => {
 });
 app.listen(8081);
 ```
+
+## Middleware
+
+Middleware are functions that are given the request object and return some type. Yes, that includes Promises. Middleware are always called explicitly. Middleware calls are memoised meaning that for a single request, each middleware function will compute its return value no more than once.
+
+A middleware specification, containing an object of functions, is given to the `quelaag` function. These methods should take the request object, but the memoised methods do not take the request object.
+
+### Memoisation
+
+```ts
+import { quelaag } from "quelaag";
+
+const makeMiddleware = quelaag({
+    ip(req): string {
+        console.log("ip");
+        return req.connection.remoteAddress;
+    },
+    isMe(req): boolean {
+        return this.ip(req) === "127.0.0.1";
+    }
+});
+
+let req1, req2; // Imagine you got some request objects from somewhere.
+
+const request1 = makeMiddleware(req1);
+const request2 = makeMiddleware(req2);
+const request1Again = makeMiddleware(req1);
+
+request1.ip();   // prints "ip", returns "127.0.0.1"
+request1.ip();   //              returns "127.0.0.1"
+request1.isMe(); //              returns true
+
+request2.isMe(); // prints "ip", returns true
+request2.ip();   //              returns "127.0.0.1"
+request2.ip();   //              returns "127.0.0.1"
+
+request1Again.ip(); // prints "ip", returns "127.0.0.1"
+```
+
+In order for middleware to call each other, arrow syntax can't be used by the caller in order for `this` to refer to the middleware specification object. The `noImplicitThis` option in your tsconfig needs to be enabled for the type checking on `this` to be correct.
+
+### Full Example
+
+The router that comes with `quelaag` creates new middleware objects for you.
+
+A middleware instance is passed as the last parameter to each of each callback in each of `addEndpoint`, `setFallbackEndpoint`, `addSpy`.
+
+```ts
+import { quelaag, Router } from "quelaag";
+import * as cookie from "cookie"; // a third party cookie header parsing library
+import * as http from "http";
+
+const router = new Router(quelaag({
+    cookies(req) {
+        return cookie.parse(req.headers.cookie || '');
+    },
+    userId(req) {
+        return parseInt(this.cookies(req).userId);
+    },
+    async userIsAdministrator(req) {
+        const user = await getUserFromDatabase(this.userId(req));
+        return user.isAdmin;
+    }
+}));
+
+router.addEndpoint({
+    when: req => req.url === "/admin",
+    do: async (req, res, middleware) => {
+        if (await middleware.userIsAdministrator()) {
+            res.end("Greetings planet.");
+        } else {
+            res.statusCode = 403;
+            res.end("403 Forbidden");
+        }
+    }
+});
+
+const server = http.createServer((req, res) => router.handle(req, res));
+server.listen(8080);
+```
+
+## Routing
 
 ### Endpoints
 
@@ -117,51 +194,6 @@ router.addSpy({
 });
 ```
 
-### Middleware
-
-Middleware are functions that are given the request object and return some type. Yes, that includes Promises. Middleware are manually called from any Spy, Endpoint, or other middleware. Middleware calls are memoised meaning that for a single request, each middleware return value will be computed no more than once.
-
-A middleware specification is given to the `quelaag` function. The specification is an object of functions. Each function must take a request. The type of each function can be inferred and used in request handlers.
-
-The object containing all middleware is passed as the last parameter to each of `addEndpoint`, `setFallbackEndpoint`, `addSpy`. Here, middleware functions do not need to take the request as an argument. `Router` in effect applies the request object to the middleware function.
-
-In the middleware specification, middleware calls should be passed an argument in order for TypeScript to compile. However, the argument is ignored and the calls are still memoised.
-
-```ts
-import { quelaag, Router } from "quelaag";
-import * as cookie from "cookie"; // a third party cookie header parsing library
-import * as http from "http";
-
-const router = new Router(quelaag({
-    cookies(req) {
-        return cookie.parse(req.headers.cookie || '');
-    },
-    userId(req) {
-        return parseInt(this.cookies(req).userId);
-    },
-    async userIsAdministrator(req) {
-        const user = await getUserFromDatabase(this.userId(req));
-        return user.isAdmin;
-    }
-}));
-router.addEndpoint({
-    when: req => req.url === "/admin",
-    do: async (req, res, middleware) => {
-        if (await middleware.userIsAdministrator()) {
-            res.end("Greetings planet.");
-        } else {
-            res.statusCode = 403;
-            res.end("403 Forbidden");
-        }
-    }
-});
-
-const server = http.createServer((req, res) => router.handle(req, res));
-server.listen(8080);
-```
-
-In order for middleware to call each other, arrow syntax can't be used by the caller in order for `this` to refer to the middleware specification object. The `noImplicitThis` option in your tsconfig needs to be enabled for the type checking on `this` to be correct.
-
 ### Error handling
 
 An error thrown or a promise rejected in a `when` or `do` can be caught with an optional `catch` function on any Endpoint or Spy.
@@ -193,9 +225,7 @@ router.addEndpoint({
 });
 ```
 
-
-TypeScript Troubles
--------------------
+## TypeScript Troubles
 
 TypeScript is a fantastic language with often impressive type inference. [However it isn't always perfect and in situations where there is a lot that can be inferred, TypeScript may be too permissive.](https://github.com/microsoft/TypeScript/issues/34858#issuecomment-577932912)
 
