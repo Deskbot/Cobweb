@@ -1,11 +1,12 @@
 Quelaag
 ======
 
-Quelaag is a web request handling framework for NodeJS designed to:
+Quelaag is a web request handling library for NodeJS designed to:
 
 * play well with TypeScript,
-* obviate the need for side-effects in middleware,
-* narrow the area in which the response to the client can be affected.
+* avoid applying side-effects to the request object,
+* manage dependencies between middleware easily,
+* make code paths explicit for straight-forward debugging.
 
 Design Philosophy:
 
