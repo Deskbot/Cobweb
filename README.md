@@ -105,9 +105,9 @@ request2.ip();   //              returns "127.0.0.1"
 request1Again.ip(); // prints "ip", returns "127.0.0.1"
 ```
 
-In order for middleware to call each other, the function can't be defined with arrow syntax, so that `this` inside the function refer to the middleware object. The `noImplicitThis` option in your tsconfig needs to be enabled for the type checking on `this` to be correct.
+In order for middleware to call each other, the function can't be defined with arrow syntax, so that `this` inside the function refers to the middleware object. The `noImplicitThis` option in your tsconfig needs to be enabled for the type checking on `this` to be correct.
 
-### Proper Example
+## Proper Example
 
 `Router` creates new middleware instances for you, which are passed as the last parameter to all of `Router`'s callbacks.
 
@@ -149,7 +149,7 @@ server.listen(8080);
 
 ### Endpoints
 
-A request will be handled by the first Endpoint with a matching condition. These are created using `quelaag.addEndpoint(...)`. Endpoints are the only place where the response object can be handled. `Router` and `quelaag` in no way affect the request or response object.
+A request will be handled by the first Endpoint with a matching condition. These are created using `router.addEndpoint(...)`. Endpoints are the only place where the response object can be handled. `Router` and `quelaag` in no way affect the request or response object.
 
 ```ts
 router.addEndpoint({
