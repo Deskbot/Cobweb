@@ -4,7 +4,7 @@ import { IncomingMessage } from "http";
 const __req = Symbol('request key');
 
 export function quelaag<
-    Req = IncomingMessage,
+    Req extends any = IncomingMessage,
     Spec extends MiddlewareSpec<any, Req> = any,
     M extends Middleware<Req, Spec> = any
 >

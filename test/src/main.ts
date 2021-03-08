@@ -5,6 +5,7 @@ import { catchTests } from "./router/catch";
 import { errorTests } from "./router/error";
 import { doTests } from "./router/do";
 import { whenTests } from "./router/when";
+import { subquelaagTests } from "./quelaag/subquelaag";
 
 main();
 
@@ -15,6 +16,7 @@ async function main() {
         ...errorTests,
         ...middlewareTests,
         ...whenTests,
+        ...subquelaagTests,
     ]);
 
     if (anyFailed) {
