@@ -7,8 +7,8 @@ const __context = Symbol("context key");
 export function quelaag<
     Context,
     Req = IncomingMessage,
-    Spec extends MiddlewareSpec<any, Req> = any,
-    M extends Middleware<Req, Spec> = any
+    Spec extends MiddlewareSpec<any, Req, Context> = MiddlewareSpec<any, Req, Context>,
+    M extends Middleware<Req, Context, Spec> = Middleware<Req, Context, Spec>,
 >
     (middlewareSpec: Spec): Quelaag<Context, M, Req>
 {

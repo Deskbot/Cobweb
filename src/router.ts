@@ -2,11 +2,11 @@ import { IncomingMessage, ServerResponse } from "http";
 import { Endpoint, EndpointCatch, FallbackEndpoint, Middleware, MiddlewareSpec, Quelaag, RequestHandler, Spy, SpyCatch } from "./types";
 
 export class Router<
-    Context = unknown,
+    Context,
     Req = IncomingMessage,
     Res = ServerResponse,
-    Spec extends MiddlewareSpec<any, Req> = any,
-    M extends Middleware<Req, Spec> = any,
+    Spec extends MiddlewareSpec<any, Req, Context> = any,
+    M extends Middleware<Req, Context, Spec> = any,
     Q extends Quelaag<Context, M, Req> = any,
 > {
     private catcher: ((error: any) => void) | undefined;

@@ -8,7 +8,7 @@ export const subquelaagTests: Test[] = [
     run: ({ test }) => {
         let count = 0;
 
-        const makeMiddleware1 = quelaag<string>({
+        const makeMiddleware1 = quelaag<undefined, string>({
             inc(req) {
                 count += 1;
             }
@@ -16,11 +16,11 @@ export const subquelaagTests: Test[] = [
 
         const makeMiddleware2 = quelaag<undefined, string>({
             subquelaag(req) {
-                return makeMiddleware1(this);
+                return makeMiddleware1("request", undefined);
             },
 
-            inc(req: boolean) {
-                return this.subquelaag(req).inc(req);
+            inc(req) {
+                return this.subquelaag(req, undefined).inc(req);
             },
         });
 
