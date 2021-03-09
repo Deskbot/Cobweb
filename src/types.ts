@@ -41,7 +41,7 @@ export type MiddlewareSpec<
 >
     = Record<K, (req: Req, context: C) => any>;
 
-export type Middleware<Req, C extends unknown, Spec extends MiddlewareSpec<keyof any, Req, C> = any> = {
+export type Middleware<C extends unknown, Req, Spec extends MiddlewareSpec<keyof any, Req, C> = any> = {
     [N in keyof Spec]: () => ReturnType<Spec[N]>
 };
 

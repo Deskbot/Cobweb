@@ -6,7 +6,7 @@ export class Router<
     Req = IncomingMessage,
     Res = ServerResponse,
     Spec extends MiddlewareSpec<any, Req, Context> = any,
-    M extends Middleware<Req, Context, Spec> = any,
+    M extends Middleware<Context, Req, Spec> = any,
     Q extends Quelaag<Context, M, Req> = any,
 > {
     private catcher: ((error: any) => void) | undefined;

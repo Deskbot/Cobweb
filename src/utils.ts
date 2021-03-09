@@ -2,28 +2,29 @@ import { Endpoint, Middleware } from "./types";
 import { IncomingMessage, ServerResponse } from "http";
 
 export class UrlPatternEndpoint<
+    Context,
     Req extends IncomingMessage,
     Res extends ServerResponse,
-    M extends Middleware<Req, any>
+    M extends Middleware<Context, Req, any> = Middleware<Context, Req, any>
 >
     implements Endpoint<M, Req, Res>
 {
     private patternMatches: RegExpMatchArray | null;
     private pattern: RegExp;
-    private urlHandler: (matches: RegExpMatchArray | null, req: IncomingMessage, res: ServerResponse) => void;
+    private urlHandler: (matches: RegExpMatchArray | null, req: Req, res: Res) => void;
 
-    constructor(pattern: RegExp, handler: (matches: RegExpMatchArray | null, req: IncomingMessage, res: ServerResponse) => void) {
+    constructor(pattern: RegExp, handler: (matches: RegExpMatchArray | null, req: Req, res: Res) => void) {
         this.pattern = pattern;
         this.patternMatches = null;
         this.urlHandler = handler;
     }
 
-    when(req: IncomingMessage) {
+    when(req: Req) {
         this.patternMatches = req.url!.match(this.pattern);
         return !!this.patternMatches;
     }
 
-    do(req: IncomingMessage, res: ServerResponse) {
+    do(req: Req, res: Res) {
         this.urlHandler(
             this.patternMatches,
             req,

@@ -8,7 +8,7 @@ export function quelaag<
     Context,
     Req = IncomingMessage,
     Spec extends MiddlewareSpec<any, Req, Context> = MiddlewareSpec<any, Req, Context>,
-    M extends Middleware<Req, Context, Spec> = Middleware<Req, Context, Spec>,
+    M extends Middleware<Context, Req, Spec> = Middleware<Context, Req, Spec>,
 >
     (middlewareSpec: Spec): Quelaag<Context, M, Req>
 {
