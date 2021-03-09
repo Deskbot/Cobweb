@@ -76,6 +76,9 @@ export type Middleware<
 export type Quelaag<
     Context,
     Req = IncomingMessage,
-    M extends Middleware<Req, Context> = Middleware<Req, Context>,
+    M extends Middleware<Context, Req> = Middleware<Context, Req>,
+    // M is needed as a generic
+    // to allow typescript to infer exactly which Middleware this is
+    // and not just the most generic one, with "any" as the Spec.
 > =
     (req: Req, context?: Context) => M;
