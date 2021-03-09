@@ -14,12 +14,12 @@ export const subquelaagTests: Test[] = [
             }
         });
 
-        const makeMiddleware2 = quelaag<string>({
+        const makeMiddleware2 = quelaag<undefined, string>({
             subquelaag(req) {
                 return makeMiddleware1(this);
             },
 
-            inc(req) {
+            inc(req: boolean) {
                 return this.subquelaag(req).inc(req);
             },
         });
