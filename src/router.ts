@@ -1,11 +1,12 @@
 import { IncomingMessage, ServerResponse } from "http";
-import { Endpoint, EndpointCatch, FallbackEndpoint, Middleware, Quelaag, RequestHandler, Spy, SpyCatch } from "./types";
+import { Endpoint, EndpointCatch, FallbackEndpoint, Middleware, MiddlewareSpec, Quelaag, RequestHandler, Spy, SpyCatch } from "./types";
 
 export class Router<
     Context,
     Req = IncomingMessage,
     Res = ServerResponse,
-    M extends Middleware<Context, Req> = Middleware<Context, Req>,
+    Spec extends MiddlewareSpec<Context, Req> = MiddlewareSpec<Context, Req>,
+    M extends Middleware<Context, Req, Spec> = Middleware<Context, Req, Spec>,
     Q extends Quelaag<Context, Req, M> = Quelaag<Context, Req, M>,
 > {
     private catcher: ((error: unknown) => void) | undefined;
