@@ -76,7 +76,7 @@ class ExaminerImpl implements Examiner {
         });
     }
 
-    fail(val) {
+    fail(val: unknown) {
         console.trace();
         this.reject(val);
     }
@@ -92,13 +92,13 @@ class ExaminerImpl implements Examiner {
         this.maybeFinish();
     }
 
-    test(result, message) {
+    test(result: boolean, message?: string) {
         if (result) {
             this.pass();
             return;
         }
 
-        return this.fail(message);
+        this.fail(message);
     }
 }
 

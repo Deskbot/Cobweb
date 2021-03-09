@@ -15,7 +15,7 @@ export function quelaag<
     const middlewareInventoryProto = {} as any;
 
     for (const name in middlewareSpec) {
-        middlewareInventoryProto[name] = function () {
+        middlewareInventoryProto[name] = function() {
             const result = middlewareSpec[name].call(this, this[__req], this[__context]);
 
             // overwrite this function for any future uses
@@ -31,7 +31,7 @@ export function quelaag<
 
     constructor.prototype = middlewareInventoryProto;
 
-    return (req, context?) => new constructor(req, context);
+    return (req, context?) => new (constructor as any)(req, context);
 }
 
 export default quelaag;
