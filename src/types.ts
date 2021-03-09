@@ -1,26 +1,26 @@
 import { IncomingMessage, ServerResponse } from "http";
 
 export interface RequestHandler<
-    M extends Middleware<Req, C>,
+    Context,
     Req = IncomingMessage,
     Res = ServerResponse,
-    C = any
+    M extends Middleware<Context, Req> = Middleware<Context, Req>,
 > {
     (req: Req, res: Res, middleware: M): void | Promise<void>
 }
 
 export interface RequestSideEffect<
-    M extends Middleware<Req, C>,
+    Context,
     Req = IncomingMessage,
-    C = any
+    M extends Middleware<Context, Req> = Middleware<Context, Req>,
 > {
     (req: Req, middleware: M): void;
 }
 
 export interface RequestPredicate<
-    M extends Middleware<Req, C>,
+    Context,
     Req = IncomingMessage,
-    C = any
+    M extends Middleware<Context, Req> = Middleware<Context, Req>,
 > {
     (req: Req, middleware: M): boolean | Promise<boolean>;
 }
@@ -34,54 +34,54 @@ export interface SpyCatch<Req = IncomingMessage> {
 }
 
 export interface Endpoint<
-    M extends Middleware<Req, C>,
+    Context,
     Req = IncomingMessage,
     Res = ServerResponse,
-    C = any
+    M extends Middleware<Context, Req> = Middleware<Context, Req>,
 > extends EndpointCatch<Req, Res>
 {
-    when: RequestPredicate<M, Req>;
-    do: RequestHandler<M, Req, Res>;
+    when: RequestPredicate<Context, Req, M>;
+    do: RequestHandler<Context, Req, Res, M>;
 }
 
 export interface FallbackEndpoint<
-    M extends Middleware<Req, C>,
+    Context,
     Req = IncomingMessage,
     Res = ServerResponse,
-    C = any
+    M extends Middleware<Context, Req> = Middleware<Context, Req>,
 > extends EndpointCatch<Req, Res>
 {
-    do: RequestHandler<M, Req, Res>;
+    do: RequestHandler<Context, Req, Res, M>;
 }
 
 export interface Spy<
-    M extends Middleware<Req, C>,
+    Context,
     Req = IncomingMessage,
-    C = any
+    M extends Middleware<Req, Context> = Middleware<Req, Context>,
 > extends SpyCatch<Req>
 {
-    when: RequestPredicate<M, Req>;
-    do: RequestSideEffect<M, Req>;
+    when: RequestPredicate<Context, Req, M>;
+    do: RequestSideEffect<Context, Req, M>;
 }
 
 export type MiddlewareSpec<
-    K extends keyof any = keyof any,
+    Context,
     Req = IncomingMessage,
-    C = any,
+    K extends keyof any = keyof any,
 >
-    = Record<K, (req: Req, context: C) => any>;
+    = Record<K, (req: Req, context: Context) => any>;
 
 export type Middleware<
-    C,
+    Context,
     Req,
-    Spec extends MiddlewareSpec<keyof any, Req, C> = any
+    Spec extends MiddlewareSpec<Context, Req, keyof any> = any
 > = {
     [N in keyof Spec]: () => ReturnType<Spec[N]>
 };
 
 export type Quelaag<
-    C,
-    M extends Middleware<Req, C>,
-    Req = IncomingMessage
+    Context,
+    Req = IncomingMessage,
+    M extends Middleware<Req, Context> = Middleware<Req, Context>,
 > =
-    (req: Req, context?: C) => M;
+    (req: Req, context?: Context) => M;
