@@ -67,8 +67,8 @@ export type MiddlewareSpec<
 
 export type Middleware<
     Context,
-    Req,
-    Spec extends MiddlewareSpec<Context, Req, keyof any> = MiddlewareSpec<Context, Req, keyof any>
+    Req = IncomingMessage,
+    Spec extends MiddlewareSpec<Context, Req> = MiddlewareSpec<Context, Req>
 > = {
     [N in keyof Spec]: () => ReturnType<Spec[N]>
 };
