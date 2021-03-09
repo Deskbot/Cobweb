@@ -93,7 +93,8 @@ export const middlewareTests: Test[] = [{
                 return externalData;
             },
             getMiddlewareData(req): string {
-                return this.getExternalData(req);
+                const data = this.getExternalData(req);
+                return data;
             },
         }));
 
