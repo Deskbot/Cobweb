@@ -11,7 +11,7 @@ export interface Test {
 }
 
 export interface Examiner {
-    readonly fail: (reason?: any) => void;
+    readonly fail: (reason?: unknown) => void;
     readonly pass: () => void;
     readonly test: (result: boolean, message?: string) => void;
 }
@@ -62,7 +62,7 @@ class ExaminerImpl implements Examiner {
     private passesRequired: number;
     public readonly promise: Promise<void>;
     private resolve: (value?: void | PromiseLike<void> | undefined) => void;
-    private reject: (reason?: any) => void;
+    private reject: (reason?: unknown) => void;
 
     constructor(passesRequired: number | undefined) {
         this.passes = 0;

@@ -8,7 +8,7 @@ export class Router<
     M extends Middleware<Context, Req> = Middleware<Context, Req>,
     Q extends Quelaag<Context, Req, M> = Quelaag<Context, Req, M>,
 > {
-    private catcher: ((error: any) => void) | undefined;
+    private catcher: ((error: unknown) => void) | undefined;
     private endpoints: Endpoint<Context, Req, Res>[];
     private fallbackEndpoint: FallbackEndpoint<Context, Req, Res> | undefined;
     private quelaag: Q;
@@ -20,7 +20,7 @@ export class Router<
      * @param catcher Respond to an error that occurs anywhere within endpoints, spies, and middleware.
      *                The `this` parameter of the function will be stripped.
      */
-    constructor(quelaag: Q, catcher?: (error: any) => void) {
+    constructor(quelaag: Q, catcher?: (error: unknown) => void) {
         this.catcher = catcher;
         this.endpoints = [];
         this.quelaag = quelaag;
@@ -128,7 +128,7 @@ export class Router<
         }
     }
 
-    private handleEndpointThrow(maybeCatcher: EndpointCatch<Req, Res>, err: any, req: Req, res: Res) {
+    private handleEndpointThrow(maybeCatcher: EndpointCatch<Req, Res>, err: unknown, req: Req, res: Res) {
         if (maybeCatcher.catch) {
             maybeCatcher.catch(err, req, res);
         } else if (this.catcher) {
@@ -136,7 +136,7 @@ export class Router<
         }
     }
 
-    private handleSpyThrow(maybeCatcher: SpyCatch<Req>, err: any, req: Req) {
+    private handleSpyThrow(maybeCatcher: SpyCatch<Req>, err: unknown, req: Req) {
         if (maybeCatcher.catch) {
             maybeCatcher.catch(err, req);
         } else if (this.catcher) {
