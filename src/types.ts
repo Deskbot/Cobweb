@@ -4,22 +4,25 @@ export interface RequestHandler<
     Context,
     Req = IncomingMessage,
     Res = ServerResponse,
+    M extends Middleware<Context, Req> = Middleware<Context, Req>,
 > {
-    (req: Req, res: Res, middleware: Middleware<Context, Req>): void | Promise<void>
+    (req: Req, res: Res, middleware: M): void | Promise<void>
 }
 
 export interface RequestSideEffect<
     Context,
     Req = IncomingMessage,
+    M extends Middleware<Context, Req> = Middleware<Context, Req>,
 > {
-    (req: Req, middleware: Middleware<Context, Req>): void;
+    (req: Req, middleware: M): void;
 }
 
 export interface RequestPredicate<
     Context,
     Req = IncomingMessage,
+    M extends Middleware<Context, Req> = Middleware<Context, Req>,
 > {
-    (req: Req, middleware: Middleware<Context, Req>): boolean | Promise<boolean>;
+    (req: Req, middleware: M): boolean | Promise<boolean>;
 }
 
 export interface EndpointCatch<Req = IncomingMessage, Res = ServerResponse> {
@@ -34,28 +37,31 @@ export interface Endpoint<
     Context,
     Req = IncomingMessage,
     Res = ServerResponse,
+    M extends Middleware<Context, Req> = Middleware<Context, Req>,
 > extends EndpointCatch<Req, Res>
 {
-    when: RequestPredicate<Context, Req>;
-    do: RequestHandler<Context, Req, Res>;
+    when: RequestPredicate<Context, Req, M>;
+    do: RequestHandler<Context, Req, Res, M>;
 }
 
 export interface FallbackEndpoint<
     Context,
     Req = IncomingMessage,
     Res = ServerResponse,
+    M extends Middleware<Context, Req> = Middleware<Context, Req>,
 > extends EndpointCatch<Req, Res>
 {
-    do: RequestHandler<Context, Req, Res>;
+    do: RequestHandler<Context, Req, Res, M>;
 }
 
 export interface Spy<
     Context,
     Req = IncomingMessage,
+    M extends Middleware<Context, Req> = Middleware<Context, Req>,
 > extends SpyCatch<Req>
 {
-    when: RequestPredicate<Context, Req>;
-    do: RequestSideEffect<Context, Req>;
+    when: RequestPredicate<Context, Req, M>;
+    do: RequestSideEffect<Context, Req, M>;
 }
 
 export type MiddlewareSpec<

@@ -87,7 +87,7 @@ export const middlewareTests: Test[] = [{
     run: async ({ test }) => {
         let externalData = "one";
 
-        const handler = new Router(quelaag({
+        const poop = quelaag({
             getExternalData(req, context): string {
                 externalData += " change";
                 return externalData;
@@ -96,7 +96,17 @@ export const middlewareTests: Test[] = [{
                 const data = this.getExternalData(req, context);
                 return data;
             },
-        }));
+        });
+
+        // const pee = poop("" as any);
+        // pee.getExternalData();
+        // pee.getMiddlewareData();
+
+        const handler = new Router(poop);
+
+        // const pee2 = handler.quelaag("" as any);
+        // pee2.getExternalData();
+        // pee2.getMiddlewareData();
 
         handler.addSpy({
             when: (req, middleware) => {
