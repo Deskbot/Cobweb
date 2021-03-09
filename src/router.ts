@@ -9,10 +9,10 @@ export class Router<
     Q extends Quelaag<Context, Req, M> = Quelaag<Context, Req, M>,
 > {
     private catcher: ((error: any) => void) | undefined;
-    private endpoints: Endpoint<M, Req, Res>[];
-    private fallbackEndpoint: FallbackEndpoint<M, Req, Res> | undefined;
+    private endpoints: Endpoint<Context, Req, Res>[];
+    private fallbackEndpoint: FallbackEndpoint<Context, Req, Res> | undefined;
     private quelaag: Q;
-    private spies: Spy<M, Req>[];
+    private spies: Spy<Context, Req>[];
 
     /**
      * Create a Quelaag web server handler.
@@ -79,7 +79,7 @@ export class Router<
     }
 
     private async getEndpointToCall(req: Req, res: Res, middleware: M)
-        : Promise<Endpoint<M, Req, Res> | FallbackEndpoint<M, Req, Res> | undefined> {
+        : Promise<Endpoint<Context, Req, Res> | FallbackEndpoint<Context, Req, Res> | undefined> {
         let userEndpoint: Endpoint<M, Req, Res> | undefined;
 
         for (const endpoint of this.endpoints) {
@@ -144,7 +144,7 @@ export class Router<
         }
     }
 
-    setFallbackEndpoint(handler: FallbackEndpoint<M, Req, Res> | RequestHandler<M, Req, Res> | undefined) {
+    setFallbackEndpoint(handler: FallbackEndpoint<Context, Req, Res> | RequestHandler<Context, Req, Res> | undefined) {
         if (typeof handler === "function") {
             this.fallbackEndpoint = {
                 do: handler,
