@@ -16,7 +16,7 @@ export interface Examiner {
     readonly test: (result: boolean, message?: string) => void;
 }
 
-export async function makeRequest(handler: Router<unknown>): Promise<void> {
+export async function makeRequest(handler: Router<any>): Promise<void> {
     const server = http.createServer((req, res) => {
         handler.handle(req, res);
         res.end();

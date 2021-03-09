@@ -1,4 +1,4 @@
-import { Middleware, MiddlewareSpec, Quelaag } from "./types";
+import { MiddlewareSpec, Quelaag } from "./types";
 import { IncomingMessage } from "http";
 
 const __req = Symbol("request key");
@@ -8,9 +8,8 @@ export function quelaag<
     Context,
     Req = IncomingMessage,
     Spec extends MiddlewareSpec<Context, Req> = MiddlewareSpec<Context, Req>,
-    M extends Middleware<Context, Req, Spec> = Middleware<Context, Req, Spec>,
 >
-    (middlewareSpec: Spec): Quelaag<Context, Req, M>
+    (middlewareSpec: Spec): Quelaag<Context, Req>
 {
     const middlewareInventoryProto = {} as any;
 
