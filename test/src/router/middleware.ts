@@ -88,12 +88,12 @@ export const middlewareTests: Test[] = [{
         let externalData = "one";
 
         const handler = new Router(quelaag({
-            getExternalData(req): string {
+            getExternalData(req, context): string {
                 externalData += " change";
                 return externalData;
             },
-            getMiddlewareData(req): string {
-                const data = this.getExternalData(req);
+            getMiddlewareData(req, context): string {
+                const data = this.getExternalData(req, context);
                 return data;
             },
         }));
