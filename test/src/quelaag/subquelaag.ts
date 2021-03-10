@@ -3,7 +3,7 @@ import { Test } from "../framework";
 
 export const subquelaagTests: Test[] = [
 {
-    name: "Manual Sub-Quelaag",
+    name: "Context as Quelaag",
     cases: 3,
     run: ({ test }) => {
         let count = 0;
@@ -14,22 +14,23 @@ export const subquelaagTests: Test[] = [
             }
         });
 
-        const makeMiddleware2 = quelaag<undefined, string>({
-            subquelaag(req, con) {
-                return makeMiddleware1("request", undefined);
-            },
-
+        const makeMiddleware2 = quelaag<ReturnType<typeof makeMiddleware1>, string>({
             inc(req, con) {
-                return this.subquelaag(req, con).inc(req);
+                return con.inc();
             },
         });
 
-        const mid = makeMiddleware2("hello", undefined);
+        const mid1 = makeMiddleware1("", undefined);
+        const mid2 = makeMiddleware2("hello", mid1);
 
         test(count === 0);
-        mid.inc();
+        mid1.inc();
         test(count === 1);
-        mid.inc();
+        mid1.inc();
+        test(count === 1);
+        mid2.inc();
+        test(count === 1);
+        mid2.inc();
         test(count === 1);
     }
 }
