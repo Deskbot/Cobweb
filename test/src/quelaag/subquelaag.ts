@@ -15,12 +15,12 @@ export const subquelaagTests: Test[] = [
         });
 
         const makeMiddleware2 = quelaag<undefined, string>({
-            subquelaag(req) {
+            subquelaag(req, con) {
                 return makeMiddleware1("request", undefined);
             },
 
-            inc(req) {
-                return this.subquelaag(req).inc(req);
+            inc(req, con) {
+                return this.subquelaag(req, con).inc(req);
             },
         });
 

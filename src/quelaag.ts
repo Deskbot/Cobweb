@@ -15,7 +15,7 @@ export function quelaag<
 
     for (const name in middlewareSpec) {
         middlewareInventoryProto[name] = function() {
-            const result = middlewareSpec[name].call(this, this[__req]);
+            const result = middlewareSpec[name].call(this, this[__req], this[__context]);
 
             // overwrite this function for any future uses
             this[name] = () => result;

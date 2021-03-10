@@ -279,13 +279,13 @@ export const middlewareTests: Test[] = [{
     cases: 2,
     run: ({ test }) => {
         const peep = quelaag({
-            async number(req: IncomingMessage): Promise<number> {
+            async number(req): Promise<number> {
                 return 100;
             },
-            async isEven(req: IncomingMessage): Promise<boolean> {
+            async isEven(req): Promise<boolean> {
                 return await this.number(req) % 2 == 0;
             },
-            isOdd: async function (req: IncomingMessage): Promise<boolean> {
+            isOdd: async function (req): Promise<boolean> {
                 return !await this.isEven(req);
             }
         });
