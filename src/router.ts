@@ -1,11 +1,13 @@
 import { IncomingMessage, ServerResponse } from "http";
-import { Endpoint, EndpointCatch, FallbackEndpoint, Middleware, MiddlewareSpec, Quelaag, RequestHandler, Spy, SpyCatch } from "./types";
+import { Endpoint, EndpointCatch, FallbackEndpoint, Quelaag, RequestHandler, Spy, SpyCatch } from "./types";
 
 export class Router<
     Context,
     Req = IncomingMessage,
     Res = ServerResponse,
+    // Q is intended to be inferred from the constructor argument
     Q extends Quelaag<Context, Req> = Quelaag<Context, Req>,
+    // easiest way to derive the middleware used in the Quelaag given to the constructor
     M extends ReturnType<Q> = ReturnType<Q>,
 > {
     private catcher: ((error: unknown) => void) | undefined;
