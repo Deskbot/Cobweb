@@ -1,5 +1,7 @@
 import { IncomingMessage, ServerResponse } from "http";
 
+// handler callbacks
+
 export interface RequestHandler<
     Context,
     Req,
@@ -25,6 +27,10 @@ export interface RequestPredicate<
     (req: Req, middleware: M): boolean | Promise<boolean>;
 }
 
+// handlers
+
+// catching
+
 export interface EndpointCatch<Req = IncomingMessage, Res = ServerResponse> {
     catch?: (error: unknown, req: Req, res: Res) => void;
 }
@@ -32,6 +38,8 @@ export interface EndpointCatch<Req = IncomingMessage, Res = ServerResponse> {
 export interface SpyCatch<Req = IncomingMessage> {
     catch?: (error: unknown, req: Req) => void;
 }
+
+// endpoint
 
 export interface Endpoint<
     Context,
@@ -44,6 +52,9 @@ export interface Endpoint<
     do: RequestHandler<Context, Req, Res, M>;
 }
 
+export type Fallback<Context, Req, Res, M extends Middleware<Context, Req>> =
+    FallbackEndpoint<Context, Req, Res, M> | RequestHandler<Context, Req, Res, M>;
+
 export interface FallbackEndpoint<
     Context,
     Req,
@@ -54,6 +65,8 @@ export interface FallbackEndpoint<
     do: RequestHandler<Context, Req, Res, M>;
 }
 
+// spy
+
 export interface Spy<
     Context,
     Req,
@@ -63,6 +76,8 @@ export interface Spy<
     when: RequestPredicate<Context, Req, M>;
     do: RequestSideEffect<Context, Req, M>;
 }
+
+// middleware
 
 export type MiddlewareSpec<
     Context,

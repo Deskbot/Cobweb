@@ -1,5 +1,5 @@
 import { IncomingMessage, ServerResponse } from "http";
-import { Endpoint, EndpointCatch, FallbackEndpoint, Quelaag, RequestHandler, Spy, SpyCatch } from "./types";
+import { Endpoint, EndpointCatch, Fallback, FallbackEndpoint, Quelaag, RequestHandler, Spy, SpyCatch } from "./types";
 
 export interface RouterI<
     Context,
@@ -13,7 +13,7 @@ export interface RouterI<
     addEndpoint(handler: Endpoint<Context, Req, Res, M>): void;
     addSpy(handler: Spy<Context, Req, M>): void;
     handle(req: Req, res: Res, context: Context): void;
-    setFallbackEndpoint(handler: FallbackEndpoint<Context, Req, Res, M> | RequestHandler<Context, Req, Res, M> | undefined): void;
+    setFallbackEndpoint(handler: Fallback<Context, Req, Res, M> | undefined): void;
 }
 
 export class Router<
@@ -168,7 +168,7 @@ export class Router<
         }
     }
 
-    setFallbackEndpoint(handler: FallbackEndpoint<Context, Req, Res, M> | RequestHandler<Context, Req, Res, M> | undefined) {
+    setFallbackEndpoint(handler: Fallback<Context, Req, Res, M> | undefined) {
         if (typeof handler === "function") {
             this.fallbackEndpoint = {
                 do: handler,
