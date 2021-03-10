@@ -23,7 +23,7 @@ export function quelaag<
         }
     }
 
-    function constructor(this: any, req: Req, context?: Context) {
+    function constructor(this: any, req: Req, context: Context) {
         this[__req] = req;
         this[__context] = context;
     };
