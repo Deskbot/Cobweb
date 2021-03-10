@@ -1,6 +1,5 @@
 import { quelaag, Router } from "../../../src";
 import { makeRequest, Test } from "../framework";
-import { IncomingMessage } from "http";
 
 export const middlewareTests: Test[] = [{
     name: "Middleware should receive the request object when called from a when handler.",
@@ -93,7 +92,8 @@ export const middlewareTests: Test[] = [{
                 return externalData;
             },
             getMiddlewareData(req): string {
-                return this.getExternalData(req);
+                const data = this.getExternalData(req);
+                return data;
             },
         }));
 
@@ -278,14 +278,14 @@ export const middlewareTests: Test[] = [{
     cases: 2,
     run: ({ test }) => {
         const handler = new Router(quelaag({
-            async number(req: IncomingMessage) {
+            async number(req): Promise<number> {
                 return 100;
             },
-            async isEven(req: IncomingMessage) {
-                return await this.number() % 2 == 0;
+            async isEven(req): Promise<boolean> {
+                return await this.number(req) % 2 == 0;
             },
-            isOdd: async function (req: IncomingMessage) {
-                return !await this.isEven();
+            isOdd: async function (req): Promise<boolean> {
+                return !await this.isEven(req);
             }
         }));
 

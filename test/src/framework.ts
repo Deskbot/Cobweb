@@ -11,14 +11,14 @@ export interface Test {
 }
 
 export interface Examiner {
-    readonly fail: (reason?: any) => void;
+    readonly fail: (reason?: unknown) => void;
     readonly pass: () => void;
     readonly test: (result: boolean, message?: string) => void;
 }
 
-export async function makeRequest(handler: Router): Promise<void> {
+export async function makeRequest(handler: Router<any, http.IncomingMessage, http.ServerResponse, any>): Promise<void> {
     const server = http.createServer((req, res) => {
-        handler.handle(req, res);
+        handler.handle(req, res, undefined);
         res.end();
     });
 
@@ -62,7 +62,7 @@ class ExaminerImpl implements Examiner {
     private passesRequired: number;
     public readonly promise: Promise<void>;
     private resolve: (value?: void | PromiseLike<void> | undefined) => void;
-    private reject: (reason?: any) => void;
+    private reject: (reason?: unknown) => void;
 
     constructor(passesRequired: number | undefined) {
         this.passes = 0;
@@ -76,7 +76,7 @@ class ExaminerImpl implements Examiner {
         });
     }
 
-    fail(val) {
+    fail(val: unknown) {
         console.trace();
         this.reject(val);
     }
@@ -92,13 +92,13 @@ class ExaminerImpl implements Examiner {
         this.maybeFinish();
     }
 
-    test(result, message) {
+    test(result: boolean, message?: string) {
         if (result) {
             this.pass();
             return;
         }
 
-        return this.fail(message);
+        this.fail(message);
     }
 }
 
