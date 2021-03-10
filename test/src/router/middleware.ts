@@ -279,7 +279,7 @@ export const middlewareTests: Test[] = [{
     cases: 2,
     run: ({ test }) => {
         const poop = quelaag<undefined, IncomingMessage>({
-            async number(req: IncomingMessage, c: undefined) {
+            async number(req: IncomingMessage, c: undefined): Promise<number> {
                 return 100;
             },
             async isEven(req: IncomingMessage, c: undefined) {
