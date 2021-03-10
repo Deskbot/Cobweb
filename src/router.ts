@@ -5,9 +5,8 @@ export class Router<
     Context,
     Req = IncomingMessage,
     Res = ServerResponse,
-    Spec extends MiddlewareSpec<Context, Req> = MiddlewareSpec<Context, Req>,
-    M extends Middleware<Context, Req, Spec> = Middleware<Context, Req, Spec>,
-    Q extends Quelaag<Context, Req, M> = Quelaag<Context, Req, M>,
+    Q extends Quelaag<Context, Req> = Quelaag<Context, Req>,
+    M extends ReturnType<Q> = ReturnType<Q>,
 > {
     private catcher: ((error: unknown) => void) | undefined;
     private endpoints: Endpoint<Context, Req, Res, M>[];
@@ -32,7 +31,7 @@ export class Router<
         this.endpoints.push(handler);
     }
 
-    addSpy(handler: Spy<Context, Req, M>) {
+    addSpy(handler: Spy<Context, Req, M>, func: (q: Q) => void) {
         this.spies.push(handler);
     }
 
@@ -120,7 +119,7 @@ export class Router<
     }
 
     handle(req: Req, res: Res): void {
-        const middlewareInventory = this.quelaag(req);
+        const middlewareInventory = this.quelaag(req) as M;
         this.callSpies(req, middlewareInventory);
         this.callEndpoint(req, res, middlewareInventory);
     }

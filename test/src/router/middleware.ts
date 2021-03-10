@@ -104,9 +104,9 @@ export const middlewareTests: Test[] = [{
 
         const handler = new Router(poop);
 
-        // const pee2 = handler.quelaag("" as any);
-        // pee2.getExternalData();
-        // pee2.getMiddlewareData();
+        const pee2 = handler.quelaag("" as any);
+        pee2.getExternalData();
+        pee2.getMiddlewareData();
 
         handler.addSpy({
             when: (req, middleware) => {
@@ -122,6 +122,10 @@ export const middlewareTests: Test[] = [{
                 middleware.getExternalData();
                 middleware.getMiddlewareData();
             },
+        }, q => {
+            const pee3 = q("" as any);
+            pee3.getExternalData();
+            pee3.getMiddlewareData();
         });
 
         handler.setFallbackEndpoint({
