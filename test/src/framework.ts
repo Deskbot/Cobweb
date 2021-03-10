@@ -18,7 +18,7 @@ export interface Examiner {
 
 export async function makeRequest(handler: Router<any, http.IncomingMessage, http.ServerResponse, any>): Promise<void> {
     const server = http.createServer((req, res) => {
-        handler.handle(req, res);
+        handler.handle(req, res, undefined);
         res.end();
     });
 

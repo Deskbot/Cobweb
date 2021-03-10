@@ -120,8 +120,8 @@ export class Router<
         return userEndpoint ?? this.fallbackEndpoint;
     }
 
-    handle(req: Req, res: Res): void {
-        const middlewareInventory = this.quelaag(req) as M;
+    handle(req: Req, res: Res, context: Context): void {
+        const middlewareInventory = this.quelaag(req, context) as M;
         this.callSpies(req, middlewareInventory);
         this.callEndpoint(req, res, middlewareInventory);
     }

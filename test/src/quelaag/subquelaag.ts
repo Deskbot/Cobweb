@@ -24,7 +24,7 @@ export const subquelaagTests: Test[] = [
             },
         });
 
-        const mid = makeMiddleware2("hello");
+        const mid = makeMiddleware2("hello", undefined);
 
         test(count === 0);
         mid.inc();

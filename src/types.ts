@@ -87,4 +87,4 @@ export type Quelaag<
     // to allow typescript to infer exactly which Middleware this is
     // and not just the most generic one, with "any" as the Spec.
 > =
-    (req: Req, context?: Context) => M;
+    (req: Req, context: Context) => M;
