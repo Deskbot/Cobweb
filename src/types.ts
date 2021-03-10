@@ -2,25 +2,25 @@ import { IncomingMessage, ServerResponse } from "http";
 
 export interface RequestHandler<
     Context,
-    Req = IncomingMessage,
-    Res = ServerResponse,
-    M extends Middleware<Context, Req> = Middleware<Context, Req>,
+    Req,
+    Res,
+    M extends Middleware<Context, Req>,
 > {
     (req: Req, res: Res, middleware: M): void | Promise<void>
 }
 
 export interface RequestSideEffect<
     Context,
-    Req = IncomingMessage,
-    M extends Middleware<Context, Req> = Middleware<Context, Req>,
+    Req,
+    M extends Middleware<Context, Req>,
 > {
     (req: Req, middleware: M): void;
 }
 
 export interface RequestPredicate<
     Context,
-    Req = IncomingMessage,
-    M extends Middleware<Context, Req> = Middleware<Context, Req>,
+    Req,
+    M extends Middleware<Context, Req>,
 > {
     (req: Req, middleware: M): boolean | Promise<boolean>;
 }
@@ -35,9 +35,9 @@ export interface SpyCatch<Req = IncomingMessage> {
 
 export interface Endpoint<
     Context,
-    Req = IncomingMessage,
-    Res = ServerResponse,
-    M extends Middleware<Context, Req> = Middleware<Context, Req>,
+    Req,
+    Res,
+    M extends Middleware<Context, Req>,
 > extends EndpointCatch<Req, Res>
 {
     when: RequestPredicate<Context, Req, M>;
@@ -46,9 +46,9 @@ export interface Endpoint<
 
 export interface FallbackEndpoint<
     Context,
-    Req = IncomingMessage,
-    Res = ServerResponse,
-    M extends Middleware<Context, Req> = Middleware<Context, Req>,
+    Req,
+    Res,
+    M extends Middleware<Context, Req>,
 > extends EndpointCatch<Req, Res>
 {
     do: RequestHandler<Context, Req, Res, M>;
@@ -56,8 +56,8 @@ export interface FallbackEndpoint<
 
 export interface Spy<
     Context,
-    Req = IncomingMessage,
-    M extends Middleware<Context, Req> = Middleware<Context, Req>,
+    Req,
+    M extends Middleware<Context, Req>,
 > extends SpyCatch<Req>
 {
     when: RequestPredicate<Context, Req, M>;
@@ -66,7 +66,7 @@ export interface Spy<
 
 export type MiddlewareSpec<
     Context,
-    Req = IncomingMessage,
+    Req,
     K extends keyof any = keyof any,
 >
     = Record<K, (req: Req, context: Context) => any>;
