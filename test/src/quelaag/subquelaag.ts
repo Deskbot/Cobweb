@@ -20,7 +20,7 @@ export const subquelaagTests: Test[] = [
             },
 
             inc(req) {
-                return this.subquelaag(req, undefined).inc(req);
+                return this.subquelaag(req).inc(req);
             },
         });
 
