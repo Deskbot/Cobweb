@@ -1,24 +1,30 @@
 import { quelaag } from "../../../src";
 import { Test } from "../framework";
 
+function setup(callback: () => void) {
+    const makeMiddleware1 = quelaag<undefined, string>({
+        func(req) {
+            callback();
+        }
+    });
+
+    const makeMiddleware2 = quelaag<ReturnType<typeof makeMiddleware1>, string>({
+        func(req, con) {
+            return con.func();
+        },
+    });
+
+    return { makeMiddleware1, makeMiddleware2 };
+}
+
 export const subquelaagTests: Test[] = [
 {
     name: "Context as Quelaag",
     cases: 12,
     run: ({ test }) => {
-        let count: number;
+        let count = 0;
 
-        const makeMiddleware1 = quelaag<undefined, string>({
-            inc(req) {
-                count += 1;
-            }
-        });
-
-        const makeMiddleware2 = quelaag<ReturnType<typeof makeMiddleware1>, string>({
-            inc(req, con) {
-                return con.inc();
-            },
-        });
+        let { makeMiddleware1, makeMiddleware2 } = setup(() => count += 1);
 
         {
             count = 0;
@@ -27,14 +33,14 @@ export const subquelaagTests: Test[] = [
             const mid2 = makeMiddleware2("", mid1);
 
             // call mid1, then mid2
-            mid1.inc();
+            mid1.func();
             test(count === 1);
-            mid1.inc();
+            mid1.func();
             test(count === 1);
 
-            mid2.inc();
+            mid2.func();
             test(count === 1);
-            mid2.inc();
+            mid2.func();
             test(count === 1);
         }
 
@@ -45,14 +51,14 @@ export const subquelaagTests: Test[] = [
             const mid2 = makeMiddleware2("", mid1);
 
             // call mid2, then mid1
-            mid2.inc();
+            mid2.func();
             test(count === 1);
-            mid2.inc();
+            mid2.func();
             test(count === 1);
 
-            mid1.inc();
+            mid1.func();
             test(count === 1);
-            mid1.inc();
+            mid1.func();
             test(count === 1);
         }
 
@@ -63,16 +69,16 @@ export const subquelaagTests: Test[] = [
             const mid2 = makeMiddleware2("", mid1);
 
             // mix order
-            mid1.inc();
+            mid1.func();
             test(count === 1);
 
-            mid2.inc();
+            mid2.func();
             test(count === 1);
 
-            mid1.inc();
+            mid1.func();
             test(count === 1);
 
-            mid2.inc();
+            mid2.func();
             test(count === 1);
         }
     }
