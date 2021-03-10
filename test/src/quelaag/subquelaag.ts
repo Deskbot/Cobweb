@@ -2,8 +2,8 @@ import { quelaag } from "../../../src";
 import { Test } from "../framework";
 
 function setup(callback: () => void) {
-    const makeMiddleware1 = quelaag<undefined, string>({
-        func(req) {
+    const makeMiddleware1 = quelaag({
+        func(req: string) {
             callback();
         }
     });
