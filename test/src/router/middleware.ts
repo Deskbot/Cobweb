@@ -1,6 +1,5 @@
 import { quelaag, Router } from "../../../src";
 import { makeRequest, Test } from "../framework";
-import { IncomingMessage } from "http";
 
 export const middlewareTests: Test[] = [{
     name: "Middleware should receive the request object when called from a when handler.",

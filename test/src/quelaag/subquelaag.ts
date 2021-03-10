@@ -3,13 +3,20 @@ import { Test } from "../framework";
 
 function setup(callback: () => void) {
     const makeMiddleware1 = quelaag({
-        func(req: string) {
+        func(req: string): void {
             callback();
         }
     });
 
-    const makeMiddleware2 = quelaag<ReturnType<typeof makeMiddleware1>, string>({
-        func(req, con) {
+    const makeMiddleware2 = quelaag({
+        func(req: string, con: ReturnType<typeof makeMiddleware1>) {
+            return con.func();
+        },
+    });
+
+    // compiles as proof that you can go multiple levels deep
+    const makeMiddleware3 = quelaag({
+        func(req: string, con: ReturnType<typeof makeMiddleware2>) {
             return con.func();
         },
     });
