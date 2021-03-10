@@ -13,7 +13,7 @@ export class Router<
     private catcher: ((error: unknown) => void) | undefined;
     private endpoints: Endpoint<Context, Req, Res, M>[];
     private fallbackEndpoint: FallbackEndpoint<Context, Req, Res, M> | undefined;
-    readonly quelaag: Q;
+    private quelaag: Q;
     private spies: Spy<Context, Req, M>[];
 
     /**
@@ -33,7 +33,7 @@ export class Router<
         this.endpoints.push(handler);
     }
 
-    addSpy(handler: Spy<Context, Req, M>, func: (q: Q) => void) {
+    addSpy(handler: Spy<Context, Req, M>) {
         this.spies.push(handler);
     }
 
