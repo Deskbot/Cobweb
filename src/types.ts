@@ -84,7 +84,7 @@ export type MiddlewareSpec<
     Req,
     K extends keyof any = keyof any,
 >
-    = Record<K, (req: Req, context: Context) => any>;
+    = Record<K, (req: Req, context: Context) => unknown>;
 
 export type Middleware<
     Context,
