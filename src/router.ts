@@ -1,18 +1,37 @@
 import { IncomingMessage, ServerResponse } from "http";
-import { Endpoint, EndpointCatch, FallbackEndpoint, Middleware, Quelaag, RequestHandler, Spy, SpyCatch } from "./types";
+import { Endpoint, EndpointCatch, Fallback, FallbackEndpoint, Quelaag, RequestHandler, Spy, SpyCatch } from "./types";
+
+export interface RouterI<
+    Context,
+    Req = IncomingMessage,
+    Res = ServerResponse,
+    // Q is intended to be inferred from the constructor argument
+    Q extends Quelaag<Context, Req> = Quelaag<Context, Req>,
+    // easiest way to derive the middleware used in the Quelaag given to the constructor
+    M extends ReturnType<Q> = ReturnType<Q>,
+> {
+    addEndpoint(handler: Endpoint<Context, Req, Res, M>): void;
+    addSpy(handler: Spy<Context, Req, M>): void;
+    handle(req: Req, res: Res, context: Context): void;
+    setFallbackEndpoint(handler: Fallback<Context, Req, Res, M> | undefined): void;
+}
 
 export class Router<
     Context,
     Req = IncomingMessage,
     Res = ServerResponse,
-    M extends Middleware<Context, Req> = Middleware<Context, Req>,
-    Q extends Quelaag<Context, Req, M> = Quelaag<Context, Req, M>,
-> {
+    // Q is intended to be inferred from the constructor argument
+    Q extends Quelaag<Context, Req> = Quelaag<Context, Req>,
+    // easiest way to derive the middleware used in the Quelaag given to the constructor
+    M extends ReturnType<Q> = ReturnType<Q>,
+>
+    implements RouterI<Context, Req, Res, Q, M>
+{
     private catcher: ((error: unknown) => void) | undefined;
-    private endpoints: Endpoint<Context, Req, Res>[];
-    private fallbackEndpoint: FallbackEndpoint<Context, Req, Res> | undefined;
+    private endpoints: Endpoint<Context, Req, Res, M>[];
+    private fallbackEndpoint: FallbackEndpoint<Context, Req, Res, M> | undefined;
     private quelaag: Q;
-    private spies: Spy<Context, Req>[];
+    private spies: Spy<Context, Req, M>[];
 
     /**
      * Create a Quelaag web server handler.
@@ -27,11 +46,11 @@ export class Router<
         this.spies = [];
     }
 
-    addEndpoint(handler: Endpoint<M, Req, Res>) {
+    addEndpoint(handler: Endpoint<Context, Req, Res, M>) {
         this.endpoints.push(handler);
     }
 
-    addSpy(handler: Spy<M, Req>) {
+    addSpy(handler: Spy<Context, Req, M>) {
         this.spies.push(handler);
     }
 
@@ -79,8 +98,13 @@ export class Router<
     }
 
     private async getEndpointToCall(req: Req, res: Res, middleware: M)
-        : Promise<Endpoint<Context, Req, Res> | FallbackEndpoint<Context, Req, Res> | undefined> {
-        let userEndpoint: Endpoint<M, Req, Res> | undefined;
+        : Promise<
+            Endpoint<Context, Req, Res, M>
+            | FallbackEndpoint<Context, Req, Res, M>
+            | undefined
+        >
+    {
+        let userEndpoint: Endpoint<Context, Req, Res, M> | undefined;
 
         for (const endpoint of this.endpoints) {
             try {
@@ -113,8 +137,8 @@ export class Router<
         return userEndpoint ?? this.fallbackEndpoint;
     }
 
-    handle(req: Req, res: Res): void {
-        const middlewareInventory = this.quelaag(req);
+    handle(req: Req, res: Res, context: Context) {
+        const middlewareInventory = this.quelaag(req, context) as M;
         this.callSpies(req, middlewareInventory);
         this.callEndpoint(req, res, middlewareInventory);
     }
@@ -144,7 +168,7 @@ export class Router<
         }
     }
 
-    setFallbackEndpoint(handler: FallbackEndpoint<Context, Req, Res> | RequestHandler<Context, Req, Res> | undefined) {
+    setFallbackEndpoint(handler: Fallback<Context, Req, Res, M> | undefined) {
         if (typeof handler === "function") {
             this.fallbackEndpoint = {
                 do: handler,

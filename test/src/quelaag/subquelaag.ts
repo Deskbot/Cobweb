@@ -15,16 +15,16 @@ export const subquelaagTests: Test[] = [
         });
 
         const makeMiddleware2 = quelaag<undefined, string>({
-            subquelaag(req) {
+            subquelaag(req, con) {
                 return makeMiddleware1("request", undefined);
             },
 
-            inc(req) {
-                return this.subquelaag(req, undefined).inc(req);
+            inc(req, con) {
+                return this.subquelaag(req, con).inc(req);
             },
         });
 
-        const mid = makeMiddleware2("hello");
+        const mid = makeMiddleware2("hello", undefined);
 
         test(count === 0);
         mid.inc();

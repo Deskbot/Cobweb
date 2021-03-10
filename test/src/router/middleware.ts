@@ -88,12 +88,12 @@ export const middlewareTests: Test[] = [{
         let externalData = "one";
 
         const handler = new Router(quelaag({
-            getExternalData(req, context): string {
+            getExternalData(req): string {
                 externalData += " change";
                 return externalData;
             },
-            getMiddlewareData(req, context): string {
-                const data = this.getExternalData(req, context);
+            getMiddlewareData(req): string {
+                const data = this.getExternalData(req);
                 return data;
             },
         }));
@@ -278,19 +278,17 @@ export const middlewareTests: Test[] = [{
     name: "Middleware can be asynchronous.",
     cases: 2,
     run: ({ test }) => {
-        const poop = quelaag<undefined, IncomingMessage>({
-            async number(req: IncomingMessage, c: undefined) {
+        const handler = new Router(quelaag({
+            async number(req): Promise<number> {
                 return 100;
             },
-            async isEven(req: IncomingMessage, c: undefined) {
-                return await this.number(req, c) % 2 == 0;
+            async isEven(req): Promise<boolean> {
+                return await this.number(req) % 2 == 0;
             },
-            isOdd: async function (req: IncomingMessage, c: undefined) {
-                return !await this.isEven(req, c);
+            isOdd: async function (req): Promise<boolean> {
+                return !await this.isEven(req);
             }
-        });
-
-        const handler = new Router<undefined>(poop);
+        }));
 
         handler.addEndpoint({
             when: () => true,

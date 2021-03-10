@@ -2,6 +2,7 @@
     "compilerOptions": {
         "declaration": true,
         "module": "commonjs",
+        "noImplicitReturns": true,
         "sourceMap": true,
         "sourceRoot": "./src",
         "strict": true,

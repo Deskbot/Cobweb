@@ -30,7 +30,7 @@ export function quelaag<
 
     constructor.prototype = middlewareInventoryProto;
 
-    return (req, context?) => new (constructor as any)(req, context);
+    return (req, context) => new (constructor as any)(req, context);
 }
 
 export default quelaag;

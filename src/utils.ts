@@ -5,9 +5,9 @@ export class UrlPatternEndpoint<
     Context,
     Req extends IncomingMessage,
     Res extends ServerResponse,
-    M extends Middleware<Context, Req, any> = Middleware<Context, Req, any>
+    M extends Middleware<Context, Req> = Middleware<Context, Req>
 >
-    implements Endpoint<M, Req, Res>
+    implements Endpoint<Context, Req, Res, M>
 {
     private patternMatches: RegExpMatchArray | null;
     private pattern: RegExp;
