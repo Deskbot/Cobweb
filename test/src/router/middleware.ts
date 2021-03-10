@@ -278,7 +278,7 @@ export const middlewareTests: Test[] = [{
     name: "Middleware can be asynchronous.",
     cases: 2,
     run: ({ test }) => {
-        const peep = quelaag({
+        const handler = new Router(quelaag({
             async number(req): Promise<number> {
                 return 100;
             },
@@ -288,9 +288,7 @@ export const middlewareTests: Test[] = [{
             isOdd: async function (req): Promise<boolean> {
                 return !await this.isEven(req);
             }
-        });
-
-        const handler = new Router(peep);
+        }));
 
         handler.addEndpoint({
             when: () => true,
