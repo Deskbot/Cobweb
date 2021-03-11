@@ -11,24 +11,33 @@ export function quelaag<
 >
     (middlewareSpec: Spec): Quelaag<Middleware<Context, Req, Spec>>
 {
-    const middlewareInventoryProto = {} as any;
+    const middlewareProto = {} as any;
+
+    // Build a Middleware prototype.
 
     for (const name in middlewareSpec) {
-        middlewareInventoryProto[name] = function() {
+        middlewareProto[name] = function() {
             const result = middlewareSpec[name].call(this, this[__req], this[__context]);
 
-            // overwrite this function for any future uses
+            // This function exists on the object prototype.
+            // Create a new function on the instance.
+            // If the same method is called again,
+            // the instance function takes precedence, returning the memoised result.
+            // The lifetime of the memoised values in memory is tied to the lifetime of the middleware instance.
             this[name] = () => result;
+
             return result;
         }
     }
+
+    // Define the constructor for objects with the middleware prototype.
 
     function constructor(this: any, req: Req, context: Context) {
         this[__req] = req;
         this[__context] = context;
     };
 
-    constructor.prototype = middlewareInventoryProto;
+    constructor.prototype = middlewareProto;
 
     return (req, context) => new (constructor as any)(req, context);
 }
