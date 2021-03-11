@@ -6,7 +6,7 @@ export interface RouterI<
     Req = IncomingMessage,
     Res = ServerResponse,
     // Q is intended to be inferred from the constructor argument
-    Q extends Quelaag<Context, Req> = Quelaag<Context, Req>,
+    Q extends Quelaag = Quelaag,
     // easiest way to derive the middleware used in the Quelaag given to the constructor
     M extends ReturnType<Q> = ReturnType<Q>,
 > {
@@ -21,7 +21,7 @@ export class Router<
     Req = IncomingMessage,
     Res = ServerResponse,
     // Q is intended to be inferred from the constructor argument
-    Q extends Quelaag<Context, Req> = Quelaag<Context, Req>,
+    Q extends Quelaag = Quelaag,
     // easiest way to derive the middleware used in the Quelaag given to the constructor
     M extends ReturnType<Q> = ReturnType<Q>,
 >

@@ -94,12 +94,14 @@ export type Middleware<
     [N in keyof Spec]: () => ReturnType<Spec[N]>
 };
 
+// The request and context types are inferred from the middleware
+// to cut down on repetition of type parameters.
+// The middleware needs to be a type parameter
+// so that the exact subtype of Middleware will be inferred by typescript.
 export type Quelaag<
-    Context,
-    Req,
-    M extends Middleware<Context, Req> = Middleware<Context, Req>,
-    // M is needed as a generic
-    // to allow typescript to infer exactly which Middleware this is
-    // and not just the most generic one, with "any" as the Spec.
+    M extends Middleware<any, any> = Middleware<any, any>,
 > =
-    (req: Req, context: Context) => M;
+    (
+        req: (M extends Middleware<any, infer Req> ? Req : never),
+        context: (M extends Middleware<infer Con, any> ? Con : never)
+    ) => M;

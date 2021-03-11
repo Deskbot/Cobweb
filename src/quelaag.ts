@@ -9,7 +9,7 @@ export function quelaag<
     Req = IncomingMessage,
     Spec extends MiddlewareSpec<Context, Req> = MiddlewareSpec<Context, Req>,
 >
-    (middlewareSpec: Spec): Quelaag<Context, Req, Middleware<Context, Req, Spec>>
+    (middlewareSpec: Spec): Quelaag<Middleware<Context, Req, Spec>>
 {
     const middlewareInventoryProto = {} as any;
 
@@ -36,12 +36,12 @@ export function quelaag<
 export default quelaag;
 
 export function subquelaag<
-    Parent extends Quelaag<any, any>,
-    Req extends Parent extends Quelaag<any, infer R> ? R : never,
+    Parent extends Quelaag,
+    Req = (Parent extends Quelaag<Middleware<any, infer R>> ? R : never),
     ChildContext = ReturnType<Parent>,
     ChildSpec extends MiddlewareSpec<ChildContext, Req> = MiddlewareSpec<ChildContext, Req>,
 >
-    (parent: Parent, childSpec: ChildSpec): Quelaag<ChildContext, Req, Middleware<ChildContext, Req, ChildSpec>>
+    (parent: Parent, childSpec: ChildSpec): Quelaag<Middleware<ChildContext, Req, ChildSpec>>
 {
     return quelaag(childSpec);
 }
