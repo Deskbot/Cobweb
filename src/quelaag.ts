@@ -34,3 +34,14 @@ export function quelaag<
 }
 
 export default quelaag;
+
+export function subquelaag<
+    Req,
+    Parent extends Quelaag<unknown, Req>,
+    ChildContext = ReturnType<Parent>,
+    ChildSpec extends MiddlewareSpec<ChildContext, Req> = MiddlewareSpec<ChildContext, Req>,
+>
+    (parent: Parent, childSpec: ChildSpec): Quelaag<ChildContext, Req, Middleware<ChildContext, Req, ChildSpec>>
+{
+    return quelaag(childSpec);
+}
