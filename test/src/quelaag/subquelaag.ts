@@ -9,17 +9,17 @@ function setup(callback: () => void) {
     });
 
     const makeMiddleware2 = subquelaag(makeMiddleware1, {
-        func(req: string, con: ReturnType<typeof makeMiddleware1>) {
+        func(req: string, con) {
             return con.func();
         },
-        func2(req: string, con: ReturnType<typeof makeMiddleware1>) {
+        func2(req: string, con) {
             return 1;
         },
     });
 
     // compiles as proof that you can go multiple levels deep
     const makeMiddleware3 = subquelaag(makeMiddleware2, {
-        func(req: string, con: ReturnType<typeof makeMiddleware2>) {
+        func(req: string, con) {
             return con.func2();
         },
     });
