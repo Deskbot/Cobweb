@@ -2,7 +2,7 @@ import { quelaag, Router } from "../../../src";
 import { makeRequest, Test } from "../framework";
 
 export const errorTests: Test[] = [{
-    name: "An uncaught exception thrown in `when` in endpoint should be catchable .",
+    name: "An uncaught exception thrown in `when` in endpoint should be catchable.",
     run({ test }) {
         const handler = new Router(quelaag({}), err => test(err === "error"));
         handler.addEndpoint({
@@ -16,7 +16,7 @@ export const errorTests: Test[] = [{
     }
 },
 {
-    name: "An uncaught exception thrown in `when` in spy should be catchable .",
+    name: "An uncaught exception thrown in `when` in spy should be catchable.",
     run({ test }) {
         const handler = new Router(quelaag({}), err => test(err === "error"));
         handler.addSpy({
@@ -30,7 +30,7 @@ export const errorTests: Test[] = [{
     }
 },
 {
-    name: "An uncaught exception thrown in `do` in endpoint should be catchable .",
+    name: "An uncaught exception thrown in `do` in endpoint should be catchable.",
     run({ test }) {
         const handler = new Router(quelaag({}), err => test(err === "error"));
         handler.addEndpoint({
@@ -44,7 +44,7 @@ export const errorTests: Test[] = [{
     }
 },
 {
-    name: "An uncaught exception thrown in `do` in spy should be catchable .",
+    name: "An uncaught exception thrown in `do` in spy should be catchable.",
     run({ test }) {
         const handler = new Router(quelaag({}), err => test(err === "error"));
         handler.addSpy({
@@ -58,7 +58,7 @@ export const errorTests: Test[] = [{
     }
 },
 {
-    name: "An uncaught exception thrown in `middleware` should be catchable .",
+    name: "An uncaught exception thrown in `middleware` should be catchable.",
     run({ test }) {
         const handler = new Router(quelaag({}), err => test(err === "error"));
         handler.addEndpoint({

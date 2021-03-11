@@ -1,4 +1,4 @@
-import { quelaag, subquelaag } from "../../../src";
+import { quelaag } from "../../../src";
 import { Test } from "../framework";
 
 function setup(callback: () => void) {
@@ -8,28 +8,25 @@ function setup(callback: () => void) {
         }
     });
 
-    const makeMiddleware2 = subquelaag(makeMiddleware1, {
+    const makeMiddleware2 = quelaag({
         func(req: string, con: ReturnType<typeof makeMiddleware1>) {
             return con.func();
-        },
-        func2(req: string, con: ReturnType<typeof makeMiddleware1>) {
-            return 1;
         },
     });
 
     // compiles as proof that you can go multiple levels deep
-    const makeMiddleware3 = subquelaag(makeMiddleware2, {
+    const makeMiddleware3 = quelaag({
         func(req: string, con: ReturnType<typeof makeMiddleware2>) {
-            return con.func2();
+            return con.func();
         },
     });
 
     return { makeMiddleware1, makeMiddleware2 };
 }
 
-export const subquelaagTests: Test[] = [
+export const manualSubquelaagTests: Test[] = [
 {
-    name: "Super Quelaag called first",
+    name: "Manual Super Quelaag called first",
     cases: 4,
     run: ({ test }) => {
         let count = 0;
@@ -52,7 +49,7 @@ export const subquelaagTests: Test[] = [
     }
 },
 {
-    name: "Sub Quelaag called first",
+    name: "Manual Sub Quelaag called first",
     cases: 4,
     run: ({ test }) => {
         let count = 0;
@@ -75,7 +72,7 @@ export const subquelaagTests: Test[] = [
     }
 },
 {
-    name: "Super and Sub Quelaag calls jumbled up",
+    name: "Manual Super and Sub Quelaag calls jumbled up",
     cases: 4,
     run: ({ test }) => {
         let count = 0;

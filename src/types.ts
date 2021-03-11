@@ -88,7 +88,7 @@ export type MiddlewareSpec<
 
 export type Middleware<
     Context,
-    Req = IncomingMessage,
+    Req,
     Spec extends MiddlewareSpec<Context, Req> = MiddlewareSpec<Context, Req>
 > = {
     [N in keyof Spec]: () => ReturnType<Spec[N]>
@@ -96,7 +96,7 @@ export type Middleware<
 
 export type Quelaag<
     Context,
-    Req = IncomingMessage,
+    Req,
     M extends Middleware<Context, Req> = Middleware<Context, Req>,
     // M is needed as a generic
     // to allow typescript to infer exactly which Middleware this is
