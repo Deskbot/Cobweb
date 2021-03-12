@@ -11,8 +11,8 @@ export const middlewareTests: Test[] = [{
         }));
 
         handler.addEndpoint({
-            when: (req) => {
-                test(!!req);
+            when: (req, middleware) => {
+                middleware.takeReq();
                 return true;
             },
             do: () => {},
@@ -26,7 +26,7 @@ export const middlewareTests: Test[] = [{
     name: "Middleware should receive the request object when called from a do handler.",
     run: async ({ test }) => {
         const handler = new Router(quelaag({
-            takeReq: req => {
+            takeReq: (req) => {
                 test(!!req);
             }
         }));
@@ -67,7 +67,7 @@ export const middlewareTests: Test[] = [{
     name: "Middleware can be called from a request spy.",
     run: async ({ test }) => {
         const handler = new Router(quelaag({
-            helloWorld: (req) => "hello world",
+            helloWorld: req => "hello world",
         }));
 
         handler.setFallbackEndpoint({
@@ -256,7 +256,7 @@ export const middlewareTests: Test[] = [{
             isNotEven(req): boolean {
                 return !this.isEven(req);
             },
-            isOdd: function (req): boolean {
+            isOdd: function(req): boolean {
                 return !this.isEven(req) && this.isNotEven(req);
             }
         }));
@@ -284,7 +284,7 @@ export const middlewareTests: Test[] = [{
             async isEven(req): Promise<boolean> {
                 return await this.number(req) % 2 == 0;
             },
-            isOdd: async function (req): Promise<boolean> {
+            isOdd: async function(req): Promise<boolean> {
                 return !await this.isEven(req);
             }
         }));
