@@ -47,7 +47,7 @@ export default quelaag;
 export function subquelaag<
     Parent extends Quelaag,
     ChildSpec extends MiddlewareSpec<ChildContext, Req>,
-    Req = (Parent extends Quelaag<Middleware<any, infer R>> ? R : never),
+    Req = (Parent extends Quelaag<Middleware<unknown, infer R>> ? R : never),
     ChildContext = ReturnType<Parent>,
 >
     (parent: Parent, childSpec: ChildSpec): Quelaag<Middleware<ChildContext, Req, ChildSpec>>
@@ -56,9 +56,9 @@ export function subquelaag<
 }
 
 export function multiParentSubquelaag<
-    Parents extends Record<keyof any, Quelaag<Middleware<any, Req>>>,
+    Parents extends Record<keyof any, Quelaag<Middleware<unknown, Req>>>,
     ChildSpec extends MiddlewareSpec<ChildContext, Req>,
-    Req = (Parents extends Record<keyof any, Quelaag<Middleware<any, infer R>>> ? R : never),
+    Req = (Parents extends Record<keyof any, Quelaag<Middleware<unknown, infer R>>> ? R : never),
     ChildContext = {
         [K in keyof Parents]: ReturnType<Parents[K]>
     },

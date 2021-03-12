@@ -97,9 +97,9 @@ export type Middleware<
 // The middleware needs to be a type parameter
 // so that the exact subtype of Middleware will be inferred by typescript.
 export type Quelaag<
-    M extends Middleware<any, any> = Middleware<any, any>,
+    M extends Middleware<unknown, unknown> = Middleware<unknown, unknown>,
 > =
     (
-        req: (M extends Middleware<any, infer Req> ? Req : never),
-        context: (M extends Middleware<infer Con, any> ? Con : never)
+        req: (M extends Middleware<unknown, infer Req> ? Req : never),
+        context: (M extends Middleware<infer Con, unknown> ? Con : never)
     ) => M;

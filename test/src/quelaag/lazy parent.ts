@@ -17,7 +17,7 @@ function setup(cb1: () => void) {
     return { parent, lazyParentQ };
 }
 
-function computeOnce<A extends any[], R, F extends (...args: A) => R>(f: F): F {
+function computeOnce<A extends unknown[], R, F extends (...args: A) => R>(f: F): F {
     let computed = false;
     let result: R;
 

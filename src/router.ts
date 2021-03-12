@@ -1,5 +1,5 @@
 import { IncomingMessage, ServerResponse } from "http";
-import { Endpoint, EndpointCatch, Fallback, FallbackEndpoint, Quelaag, RequestHandler, Spy, SpyCatch } from "./types";
+import { Endpoint, EndpointCatch, Fallback, FallbackEndpoint, Quelaag, Spy, SpyCatch } from "./types";
 
 export interface RouterI<
     Context,
