@@ -1,5 +1,3 @@
-import { IncomingMessage, ServerResponse } from "http";
-
 // handler callbacks
 
 export interface RequestHandler<
@@ -31,11 +29,11 @@ export interface RequestPredicate<
 
 // catching
 
-export interface EndpointCatch<Req = IncomingMessage, Res = ServerResponse> {
+export interface EndpointCatch<Req, Res> {
     catch?: (error: unknown, req: Req, res: Res) => void;
 }
 
-export interface SpyCatch<Req = IncomingMessage> {
+export interface SpyCatch<Req> {
     catch?: (error: unknown, req: Req) => void;
 }
 
