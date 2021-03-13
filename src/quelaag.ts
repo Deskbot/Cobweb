@@ -51,7 +51,7 @@ export default quelaag;
  * none of the arguments are inferred.
  * This function won't be necessary if this fact about TypeScript changes.
  */
-export function quelaagWithTypes<Context, Req = IncomingMessage>() {
+export function quelaagPartialTypes<Context, Req = IncomingMessage>() {
     return <
         Spec extends MiddlewareSpec<Context, Req>
     >(spec: Spec) => {

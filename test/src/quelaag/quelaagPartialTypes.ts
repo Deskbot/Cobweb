@@ -1,14 +1,14 @@
-import { quelaagWithTypes } from "../../../src";
+import { quelaagPartialTypes } from "../../../src";
 import { Test } from "../framework";
 
-export const quelaagWithTypesTests: Test[] = [
+export const quelaagPartialTypesTests: Test[] = [
     {
         name: "Quelaag with partially applied types",
         cases: 2,
         run: ({ test }) => {
             let count = 0;
 
-            const q = quelaagWithTypes<string, number>()({
+            const q = quelaagPartialTypes<string, number>()({
                 func(req, context) {
                     count += 1;
                 }
