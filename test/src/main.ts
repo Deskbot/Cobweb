@@ -9,6 +9,7 @@ import { subquelaagTests } from "./quelaag/subquelaag";
 import { manualSubquelaagTests } from "./quelaag/manual subquelaag";
 import { multiParentSubquelaagTests } from "./quelaag/multiParentSubquelaag";
 import { lazyParentTests } from "./quelaag/lazy parent";
+import { quelaagWithTypesTests } from "./quelaag/quelaagWithTypes";
 
 main();
 
@@ -23,6 +24,7 @@ async function main() {
         ...subquelaagTests,
         ...multiParentSubquelaagTests,
         ...lazyParentTests,
+        ...quelaagWithTypesTests,
     ]);
 
     if (anyFailed) {
