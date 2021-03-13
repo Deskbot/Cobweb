@@ -1,5 +1,6 @@
 import { quelaag, subquelaag } from "../../../src";
 import { Test } from "../framework";
+import { objectNotAny } from "../util";
 
 function setup(callback: () => void) {
     const makeMiddleware1 = quelaag({
@@ -10,9 +11,11 @@ function setup(callback: () => void) {
 
     const makeMiddleware2 = subquelaag(makeMiddleware1, {
         func(req: string, con) {
+            objectNotAny(con);
             return con.func();
         },
         func2(req: string, con) {
+            objectNotAny(con);
             return 1;
         },
     });
@@ -20,6 +23,7 @@ function setup(callback: () => void) {
     // compiles as proof that you can go multiple levels deep
     const makeMiddleware3 = subquelaag(makeMiddleware2, {
         func(req: string, con) {
+            objectNotAny(con);
             return con.func2();
         },
     });

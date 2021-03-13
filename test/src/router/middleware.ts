@@ -1,5 +1,6 @@
 import { quelaag, Router } from "../../../src";
 import { makeRequest, Test } from "../framework";
+import { incomingMessageNotAny, noOp, numberNotAny, objectNotAny, stringNotAny } from "../util";
 
 export const middlewareTests: Test[] = [{
     name: "Middleware should receive the request object when called from a when handler.",
@@ -12,6 +13,8 @@ export const middlewareTests: Test[] = [{
 
         handler.addEndpoint({
             when: (req, middleware) => {
+                objectNotAny(req);
+                objectNotAny(middleware);
                 middleware.takeReq();
                 return true;
             },
@@ -72,7 +75,9 @@ export const middlewareTests: Test[] = [{
 
         handler.setFallbackEndpoint({
             do: (req, res, middleware) => {
-                test(middleware.helloWorld() === "hello world");
+                const str = middleware.helloWorld();
+                stringNotAny(str);
+                test(str === "hello world");
             }
         });
 
@@ -92,17 +97,26 @@ export const middlewareTests: Test[] = [{
                 return externalData;
             },
             getMiddlewareData(req): string {
-                const data = this.getExternalData(req);
-                return data;
+                return this.getExternalData(req);
             },
+            typeCheck(req): void {
+                incomingMessageNotAny(req);
+                stringNotAny(this.getExternalData(req));
+                stringNotAny(this.getMiddlewareData(req));
+                noOp();
+            }
         }));
 
         handler.addSpy({
             when: (req, middleware) => {
                 middleware.getExternalData();
                 middleware.getMiddlewareData();
-                middleware.getExternalData();
-                middleware.getMiddlewareData();
+                const str1 = middleware.getExternalData();
+                const str2 = middleware.getMiddlewareData();
+
+                stringNotAny(str1);
+                stringNotAny(str2);
+
                 return true;
             },
             do: (req, middleware) => {
@@ -110,13 +124,26 @@ export const middlewareTests: Test[] = [{
                 middleware.getMiddlewareData();
                 middleware.getExternalData();
                 middleware.getMiddlewareData();
+
+                const str1 = middleware.getExternalData();
+                const str2 = middleware.getMiddlewareData();
+
+                stringNotAny(str1);
+                stringNotAny(str2);
             },
         });
 
         handler.setFallbackEndpoint({
             do: (req, res, middleware) => {
-                test(middleware.getExternalData() === "one change", middleware.getExternalData());
-                test(middleware.getMiddlewareData() === "one change", middleware.getMiddlewareData());
+                const externalStr = middleware.getExternalData();
+                stringNotAny(externalStr);
+                test(externalStr === "one change", externalStr);
+
+                const middlewareStr = middleware.getExternalData();
+                stringNotAny(middlewareStr);
+                test(middlewareStr === "one change", middlewareStr);
+
+                // same again
                 test(middleware.getExternalData() === "one change", middleware.getExternalData());
                 test(middleware.getMiddlewareData() === "one change", middleware.getMiddlewareData());
             }
@@ -258,6 +285,11 @@ export const middlewareTests: Test[] = [{
             },
             isOdd: function(req): boolean {
                 return !this.isEven(req) && this.isNotEven(req);
+            },
+            typeCheck(req): void {
+                incomingMessageNotAny(req);
+                numberNotAny(this.number(req));
+                noOp();
             }
         }));
 

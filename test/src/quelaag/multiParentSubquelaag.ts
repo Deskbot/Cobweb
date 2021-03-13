@@ -1,5 +1,6 @@
 import { multiParentSubquelaag, quelaag, subquelaag } from "../../../src";
 import { Test } from "../framework";
+import { objectNotAny } from "../util";
 
 function setup(cb1: () => void, cb2: () => void) {
     const makeMiddleware1 = quelaag({
@@ -18,10 +19,12 @@ function setup(cb1: () => void, cb2: () => void) {
         one: makeMiddleware1,
         two: makeMiddleware2,
     }, {
-        func1(req, con) {
+        func1(req, con) { // req is the union of the request types in the parent middlewares, which I'm not sure is good
+            objectNotAny(con);
             return con.one.func();
         },
         func2(req, con) {
+            objectNotAny(con);
             return con.two.func();
         },
     });
@@ -29,6 +32,7 @@ function setup(cb1: () => void, cb2: () => void) {
     // compiles as proof that you can go multiple levels deep
     const makeMiddleware3 = subquelaag(makeMultiParentMiddleware, {
         func(req, con) {
+            objectNotAny(con);
             return con.func2();
         },
     });

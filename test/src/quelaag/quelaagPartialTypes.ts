@@ -1,5 +1,6 @@
 import { quelaagPartialTypes } from "../../../src";
 import { Test } from "../framework";
+import { noOp, numberNotAny, stringNotAny } from "../util";
 
 export const quelaagPartialTypesTests: Test[] = [
     {
@@ -11,6 +12,10 @@ export const quelaagPartialTypesTests: Test[] = [
             const q = quelaagPartialTypes<string, number>()({
                 func(req, context) {
                     count += 1;
+
+                    numberNotAny(req);
+                    stringNotAny(context);
+                    noOp();
                 }
             });
 
