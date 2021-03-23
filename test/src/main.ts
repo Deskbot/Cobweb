@@ -10,7 +10,7 @@ import { manualSubquelaagTests } from "./quelaag/manual subquelaag";
 import { multiParentSubquelaagTests } from "./quelaag/multiParentSubquelaag";
 import { lazyParentTests } from "./quelaag/lazy parent";
 import { quelaagPartialTypesTests } from "./quelaag/quelaagPartialTypes";
-import { subrouterTests } from "./router/subrouter";
+import { subrouterTests } from "./router/manual subrouter";
 
 main();
 
