@@ -4,29 +4,15 @@ import { makeRequest, Test } from "../framework";
 
 export const subrouterTests: Test[] = [
     {
-        name: "Manual SubRouter proof of concept",
+        name: "Manual SubRouter endpoints",
         run: async ({ pass }) => {
             // super
 
-            const superR = new Router(quelaag({
-                soup(req: IncomingMessage): void {
-
-                }
-            }));
+            const superR = new Router(quelaag({}));
 
             // sub
 
-            type SubContext = typeof superR extends Router<any, any, any, infer Q, any> ?Q : never;
-
-            const superQuelaag: SubContext = (superR as any).quelaag;
-
-            const subR = new Router(
-                subquelaag(superQuelaag as SubContext, {
-                    sandwich(req, con): void {
-                        con.soup();
-                    },
-                })
-            );
+            const subR = new Router(quelaag({}));
 
             // sub continues
 
@@ -43,8 +29,51 @@ export const subrouterTests: Test[] = [
                 when: () => true,
                 do: (req, res, middleware) => {
                     subR.handle(req, res, (superR as any).quelaag);
+                }
+            });
 
-                    // should compile
+            await makeRequest(superR);
+        }
+    },
+
+    {
+        name: "Manual SubRouter middleware",
+        run: async ({ pass }) => {
+            // super
+
+            const superR = new Router(quelaag({
+                soup(req: IncomingMessage): void {
+                    pass();
+                }
+            }));
+
+            // sub
+
+            type SubContext = typeof superR extends Router<any, any, any, infer Q, any> ? Q : never;
+
+            const superQuelaag: SubContext = (superR as any).quelaag;
+
+            const subR = new Router(
+                subquelaag(superQuelaag as SubContext, {
+                    sandwich(req, con): void {
+                        con.soup();
+                    },
+                })
+            );
+
+            // sub continues
+
+            subR.addEndpoint({
+                when: () => true,
+                do: () => {}
+            });
+
+            // super continues
+
+            superR.addEndpoint({
+                when: () => true,
+                do: (req, res, middleware) => {
+                    subR.handle(req, res, (superR as any).quelaag);
                     middleware.soup();
                 }
             });
