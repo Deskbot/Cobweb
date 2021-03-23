@@ -14,6 +14,7 @@ export interface RouterI<
     addSpy(handler: Spy<Context, Req, M>): void;
     handle(req: Req, res: Res, context: Context): void;
     setFallbackEndpoint(handler: Fallback<Context, Req, Res, M> | undefined): void;
+    quelaag: Q;
 }
 
 export class Router<
@@ -30,7 +31,7 @@ export class Router<
     private catcher: ((error: unknown) => void) | undefined;
     private endpoints: Endpoint<Context, Req, Res, M>[];
     private fallbackEndpoint: FallbackEndpoint<Context, Req, Res, M> | undefined;
-    private quelaag: Q;
+    readonly quelaag: Q;
     private spies: Spy<Context, Req, M>[];
 
     /**
