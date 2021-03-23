@@ -1,11 +1,35 @@
-import { quelaag, Router } from "../../../src";
+import { IncomingMessage } from "http";
+import { quelaag, Router, subquelaag } from "../../../src";
 import { makeRequest, Test } from "../framework";
 
 export const subrouterTests: Test[] = [
     {
         name: "Manual SubRouter proof of concept",
         run: async ({ pass }) => {
-            const subR = new Router(quelaag({}));
+            // super
+
+            const superR = new Router(quelaag({
+                soup(req: IncomingMessage): void {
+
+                }
+            }));
+
+            // sub
+
+            type SubContext = typeof superR extends Router<any, any, any, infer Q, any> ?Q : never;
+
+            const superQuelaag: SubContext = (superR as any).quelaag;
+
+            const subR = new Router(
+                subquelaag(superQuelaag as SubContext, {
+                    sandwich(req, con): void {
+                        con.soup();
+                    },
+                })
+            );
+
+            // sub continues
+
             subR.addEndpoint({
                 when: () => true,
                 do: () => {
@@ -13,11 +37,15 @@ export const subrouterTests: Test[] = [
                 }
             });
 
-            const superR = new Router(quelaag({}));
+            // super continues
+
             superR.addEndpoint({
                 when: () => true,
-                do: (req, res) => {
-                    subR.handle(req, res, superR.quelaag);
+                do: (req, res, middleware) => {
+                    subR.handle(req, res, (superR as any).quelaag);
+
+                    // should compile
+                    middleware.soup();
                 }
             });
 
