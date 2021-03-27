@@ -1,5 +1,27 @@
 // handler callbacks
 
+import { IncomingMessage, ServerResponse } from "http";
+
+// Router
+
+export interface RouterI<
+    Context,
+    Req = IncomingMessage,
+    Res = ServerResponse,
+    // Q is intended to be inferred from the constructor argument
+    Q extends Quelaag = Quelaag,
+    // easiest way to derive the middleware used in the Quelaag given to the constructor
+    M extends ReturnType<Q> = ReturnType<Q>,
+> {
+    addEndpoint(handler: Endpoint<Context, Req, Res, M>): void;
+    addSpy(handler: Spy<Context, Req, M>): void;
+    handle(req: Req, res: Res, context: Context): void;
+    setFallbackEndpoint(handler: Fallback<Context, Req, Res, M> | undefined): void;
+    quelaag: Q;
+}
+
+// callbacks
+
 export interface RequestHandler<
     Context,
     Req,
@@ -24,8 +46,6 @@ export interface RequestPredicate<
 > {
     (req: Req, middleware: M): boolean | Promise<boolean>;
 }
-
-// handlers
 
 // catching
 
@@ -73,6 +93,18 @@ export interface Spy<
 {
     when: RequestPredicate<Context, Req, M>;
     do: RequestSideEffect<Context, Req, M>;
+}
+
+// subrouter
+
+export interface SubRouterEndpoint<
+    Context,
+    Req,
+    Res,
+    M extends Middleware<Context, Req>,
+> {
+    when: RequestPredicate<Context, Req, M>;
+    router: RouterI<M, Req, Res>
 }
 
 // middleware

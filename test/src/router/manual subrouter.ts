@@ -49,12 +49,10 @@ export const subrouterTests: Test[] = [
 
             // sub
 
-            type SubContext = typeof superR extends Router<any, any, any, infer Q, any> ? Q : never;
-
-            const superQuelaag: SubContext = (superR as any).quelaag;
+            // type SubContext = typeof superR extends Router<any, any, any, infer Q, any> ? Q : never;
 
             const subR = new Router(
-                subquelaag(superQuelaag as SubContext, {
+                subquelaag(superR.quelaag, {
                     sandwich(req, con): void {
                         con.soup();
                     },
@@ -73,7 +71,7 @@ export const subrouterTests: Test[] = [
             superR.addEndpoint({
                 when: () => true,
                 do: (req, res, middleware) => {
-                    subR.handle(req, res, (superR as any).quelaag);
+                    subR.handle(req, res, superR.quelaag);
                     middleware.soup();
                 }
             });

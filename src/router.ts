@@ -1,21 +1,5 @@
 import { IncomingMessage, ServerResponse } from "http";
-import { Endpoint, EndpointCatch, Fallback, FallbackEndpoint, Quelaag, Spy, SpyCatch } from "./types";
-
-export interface RouterI<
-    Context,
-    Req = IncomingMessage,
-    Res = ServerResponse,
-    // Q is intended to be inferred from the constructor argument
-    Q extends Quelaag = Quelaag,
-    // easiest way to derive the middleware used in the Quelaag given to the constructor
-    M extends ReturnType<Q> = ReturnType<Q>,
-> {
-    addEndpoint(handler: Endpoint<Context, Req, Res, M>): void;
-    addSpy(handler: Spy<Context, Req, M>): void;
-    handle(req: Req, res: Res, context: Context): void;
-    setFallbackEndpoint(handler: Fallback<Context, Req, Res, M> | undefined): void;
-    quelaag: Q;
-}
+import { Endpoint, EndpointCatch, Fallback, FallbackEndpoint, Quelaag, RouterI, Spy, SpyCatch, SubRouterEndpoint } from "./types";
 
 export class Router<
     Context,
@@ -53,6 +37,15 @@ export class Router<
 
     addSpy(handler: Spy<Context, Req, M>) {
         this.spies.push(handler);
+    }
+
+    addSubRouter(handler: SubRouterEndpoint<Context, Req, Res, M>) {
+        this.endpoints.push({
+            when: handler.when,
+            do: (req, res, m) => {
+                handler.router.handle(req, res, m);
+            }
+        });
     }
 
     private async callEndpoint(req: Req, res: Res, middleware: M) {
