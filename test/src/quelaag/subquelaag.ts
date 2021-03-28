@@ -1,4 +1,4 @@
-import { quelaag, subquelaag } from "../../../src";
+import { quelaag, subquelaag, subquelaag2 } from "../../../src";
 import { Test } from "../framework";
 import { objectNotAny } from "../util";
 
@@ -103,4 +103,44 @@ export const subquelaagTests: Test[] = [
         test(count === 1);
     }
 },
+{
+    name: "SubQuelaag2",
+    cases: 2,
+    run: ({ test }) => {
+        let count = 0;
+
+        const makeMiddleware1 = quelaag({
+            func(req: string): void {
+                count += 1;
+            }
+        });
+
+        const makeMiddleware2 = subquelaag2<typeof makeMiddleware1>()({
+            func(req: string, con) {
+                objectNotAny(con);
+                return con.func();
+            },
+            func2(req: string, con) {
+                objectNotAny(con);
+                return 1;
+            },
+        });
+
+        const mid1 = makeMiddleware1("", undefined);
+        const mid2 = makeMiddleware2("", mid1);
+
+        // mix order
+        mid1.func();
+        test(count === 1);
+
+        mid2.func();
+        test(count === 1);
+
+        mid1.func();
+        test(count === 1);
+
+        mid2.func();
+        test(count === 1);
+    }
+}
 ];

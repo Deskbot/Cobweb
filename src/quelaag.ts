@@ -70,6 +70,19 @@ export function subquelaag<
     return quelaag(childSpec);
 }
 
+export function subquelaag2<
+    Parent extends Quelaag,
+>() {
+    return <
+        ChildSpec extends MiddlewareSpec<ChildContext, Req>,
+        Req = (Parent extends Quelaag<Middleware<unknown, infer R>> ? R : never),
+        ChildContext = ReturnType<Parent>,
+    >
+    (childSpec: ChildSpec): Quelaag<Middleware<ChildContext, Req, ChildSpec>> => {
+        return quelaag(childSpec);
+    }
+}
+
 export function multiParentSubquelaag<
     Parents extends Record<keyof any, Quelaag<Middleware<unknown, Req>>>,
     ChildSpec extends MiddlewareSpec<ChildContext, Req>,
