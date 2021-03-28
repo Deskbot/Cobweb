@@ -28,7 +28,7 @@ export const subrouterTests: Test[] = [
             superR.addEndpoint({
                 when: () => true,
                 do: (req, res, middleware) => {
-                    subR.handle(req, res, (superR as any).quelaag);
+                    subR.handle(req, res, superR.quelaag);
                 }
             });
 
