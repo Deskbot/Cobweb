@@ -4,6 +4,10 @@ import { makeRequest, Test } from "../framework";
 
 let count = 0;
 
+export const subrouterTests: Test[] = [];
+
+// test 1
+
 module Super1 {
     export const superR = router(quelaag({
         soup(req: IncomingMessage): void {
@@ -38,6 +42,18 @@ module Sub1 {
     });
 }
 
+subrouterTests.push({
+    name: "SubRouter",
+    cases: 1,
+    run: async ({ test }) => {
+        count = 0;
+        await makeRequest(Super1.superR);
+        test(count === 1, `count was actually ${count}`);
+    }
+});
+
+// test 2
+
 module Super2 {
     export const superR = router(quelaag({
         soup(req: IncomingMessage): void {
@@ -68,24 +84,12 @@ module Sub2 {
     });
 }
 
-export const subrouterTests: Test[] = [
-    {
-        name: "SubRouter",
-        cases: 1,
-        run: async ({ test }) => {
-            count = 0;
-            await makeRequest(Super1.superR);
-            test(count === 1, `count was actually ${count}`);
-        }
-    },
-
-    {
-        name: "SubRouter with middleware",
-        cases: 1,
-        run: async ({ test }) => {
-            count = 0;
-            await makeRequest(Super2.superR);
-            test(count === 1, `count was actually ${count}`);
-        }
+subrouterTests.push({
+    name: "SubRouter with middleware",
+    cases: 1,
+    run: async ({ test }) => {
+        count = 0;
+        await makeRequest(Super2.superR);
+        test(count === 1, `count was actually ${count}`);
     }
-];
+});
