@@ -16,12 +16,8 @@ module Super1 {
     }));
 
     superR.addSubRouter({
-        when: () => {
-            return true
-        },
-        router: () => {
-            return Sub1.subR
-        },
+        when: () => true,
+        router: () => Sub1.subR,
     });
 }
 

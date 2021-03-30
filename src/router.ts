@@ -1,6 +1,6 @@
 import { IncomingMessage, ServerResponse } from "http";
 import { subquelaag } from "./quelaag";
-import { Endpoint, EndpointCatch, Fallback, FallbackEndpoint, Middleware, MiddlewareSpec, Quelaag, Router, Spy, SpyCatch, SubRouterEndpoint } from "./types";
+import { Endpoint, EndpointCatch, Fallback, FallbackEndpoint, Middleware, MiddlewareSpec, Quelaag, RootRouter, Router, Spy, SpyCatch, SubRouter, SubRouterEndpoint } from "./types";
 
 class RouterImpl<
     Context,
@@ -180,12 +180,15 @@ class RouterImpl<
  * This might be unnecessary one day: https://github.com/Microsoft/TypeScript/issues/12400
  * This is worth doing for the sake of having an API that is easier to understand.
  */
-class RouterContextUndefined<
+class RootRouterImpl<
     Req = IncomingMessage,
     Res = ServerResponse,
     Q extends Quelaag = Quelaag,
     M extends ReturnType<Q> = ReturnType<Q>,
-> extends RouterImpl<undefined,Req,Res,Q,M> {
+>
+    extends RouterImpl<undefined, Req, Res, Q, M>
+    implements RootRouter<Req, Res, Q, M>
+{
     // override
     handle(req: Req, res: Res) {
         super.handle(req, res, undefined);
@@ -197,8 +200,8 @@ export function router<
     Res = ServerResponse,
     Q extends Quelaag = Quelaag,
     M extends ReturnType<Q> = ReturnType<Q>,
-> (quelaag: Q, catcher?: (error: unknown) => void): RouterImpl<undefined, Req, Res, Q, M> {
-    return new RouterContextUndefined(quelaag, catcher);
+> (quelaag: Q, catcher?: (error: unknown) => void): RootRouter<Req, Res, Q, M> {
+    return new RootRouterImpl(quelaag, catcher);
 }
 
 export function subRouter<
@@ -216,7 +219,10 @@ export function subRouter<
         = Quelaag<Middleware<ParentM, Req, ChildSpec>>,
 
     M extends ReturnType<SubQ> = ReturnType<SubQ>,
-
->(parentRouter: RouterImpl<ParentContext, Req, Res, ParentQ, ParentM>, spec: ChildSpec): RouterImpl<ParentM, Req, Res, SubQ, M> {
+>(
+    parentRouter: Router<ParentContext, Req, Res, ParentQ, ParentM>,
+    spec: ChildSpec
+): SubRouter<ParentM, Req, Res, SubQ, M>
+{
     return new RouterImpl(subquelaag(parentRouter.quelaag, spec) as SubQ);
 }

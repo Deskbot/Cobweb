@@ -1,6 +1,6 @@
 import * as http from "http";
 import * as util from "util";
-import { Router } from "../../src";
+import { RootRouter, Router } from "../../src";
 
 import { TEST_PORT } from "./config";
 
@@ -39,11 +39,11 @@ export class Defer<T> {
     }
 }
 
-export async function makeRequest(handler: Router<unknown, http.IncomingMessage, http.ServerResponse, any>): Promise<void> {
+export async function makeRequest(handler: RootRouter<http.IncomingMessage, http.ServerResponse, any>): Promise<void> {
     const defer = new Defer<void>();
 
     const server = http.createServer((req, res) => {
-        handler.handle(req, res, undefined);
+        handler.handle(req, res);
         res.end();
         defer.resolve(undefined);
     });
