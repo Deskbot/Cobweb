@@ -2,7 +2,7 @@ import { IncomingMessage } from "http";
 import { quelaag, Router, subquelaag } from "../../../src";
 import { makeRequest, Test } from "../framework";
 
-export const subrouterTests: Test[] = [
+export const manualSubrouterTests: Test[] = [
     {
         name: "Manual SubRouter endpoints",
         run: async ({ pass }) => {

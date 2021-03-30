@@ -43,7 +43,7 @@ export class Router<
         this.endpoints.push({
             when: handler.when,
             do: (req, res, m) => {
-                handler.router.handle(req, res, m);
+                handler.router().handle(req, res, m);
             }
         });
     }

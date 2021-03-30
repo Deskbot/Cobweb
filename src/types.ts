@@ -104,7 +104,7 @@ export interface SubRouterEndpoint<
     M extends Middleware<Context, Req>,
 > {
     when: RequestPredicate<Context, Req, M>;
-    router: RouterI<M, Req, Res>
+    router: () => RouterI<M, Req, Res>; // this is a function to allow a super and sub router to reference each other
 }
 
 // middleware

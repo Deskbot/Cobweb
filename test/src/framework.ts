@@ -16,10 +16,36 @@ export interface Examiner {
     readonly test: (result: boolean, message?: string) => void;
 }
 
+export class Defer<T> {
+    readonly promise: Promise<T>;
+    private _resolve: (value: T | PromiseLike<T>) => void;
+    private _reject: (reason?: unknown) => void;
+
+    constructor() {
+        this._resolve = () => { };
+        this._reject = () => { };
+        this.promise = new Promise<T>((resolve, reject) => {
+            this._resolve = resolve;
+            this._reject = reject;
+        });
+    }
+
+    resolve(value: T | PromiseLike<T>) {
+        return this._resolve(value);
+    }
+
+    reject(reason?: unknown) {
+        return this._reject(reason);
+    }
+}
+
 export async function makeRequest(handler: Router<unknown, http.IncomingMessage, http.ServerResponse, any>): Promise<void> {
+    const defer = new Defer<void>();
+
     const server = http.createServer((req, res) => {
         handler.handle(req, res, undefined);
         res.end();
+        defer.resolve(undefined);
     });
 
     await util.promisify(cb => server.listen(TEST_PORT, cb))();
@@ -29,21 +55,20 @@ export async function makeRequest(handler: Router<unknown, http.IncomingMessage,
         port: TEST_PORT,
     });
 
-    return new Promise<void>((resolve, reject) => {
-        reqToServer.once("error", (err) => {
-            reject(err);
-        });
+    reqToServer.once("error", (err) => {
+        defer.reject(err);
+    });
 
-        reqToServer.on("timeout", () => {
-            // adding this handler prevents a timeout error from being thrown
-            // we are not testing that the requests get closed, only that they are handled
-        });
+    reqToServer.on("timeout", () => {
+        // adding this handler prevents a timeout error from being thrown
+        // we are not testing that the requests get closed, only that they are handled
+    });
 
-        reqToServer.end(() => {
-            resolve();
-        });
+    reqToServer.end(() => {
 
-    }).finally(() => {
+    });
+
+    return defer.promise.finally(() => {
         // ensure that only one server is alive at a time because they always use the same port
         server.close();
     });
@@ -95,10 +120,9 @@ class ExaminerImpl implements Examiner {
     test(result: boolean, message?: string) {
         if (result) {
             this.pass();
-            return;
+        } else {
+            this.fail(message);
         }
-
-        this.fail(message);
     }
 }
 
