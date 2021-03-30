@@ -71,9 +71,9 @@ app.listen(8081);
 
 Middleware are functions that are given the request object and return some type. Yes, that includes Promises. Middleware are always called explicitly. Middleware calls are memoised meaning that for a single request, each middleware function will compute its return value no more than once.
 
-A middleware specification, containing an object of functions, is given to the `quelaag` function. These methods should take the request object, but the memoised methods do not take the request object.
-
 ### Memoisation
+
+Example of what `quelaag` does by using it in isolation.
 
 ```ts
 import { quelaag } from "quelaag";
@@ -104,6 +104,8 @@ request2.ip();   //              returns "127.0.0.1"
 
 request1Again.ip(); // prints "ip", returns "127.0.0.1"
 ```
+
+Notice that a method in the middleware specification given to `quelaag` takes the request object, but the memoised version called later does not.
 
 In order for middleware to call each other, the function can't be defined with arrow syntax, so that `this` inside the function refers to the middleware object. The `noImplicitThis` option in your tsconfig needs to be enabled for the type checking on `this` to be correct.
 
