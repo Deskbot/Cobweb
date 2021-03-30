@@ -1,7 +1,7 @@
 import * as http from "http";
 import * as util from "util";
-
 import { Router } from "../../src";
+
 import { TEST_PORT } from "./config";
 
 export interface Test {

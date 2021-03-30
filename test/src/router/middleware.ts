@@ -1,11 +1,11 @@
-import { quelaag, Router } from "../../../src";
+import { quelaag, router } from "../../../src";
 import { makeRequest, Test } from "../framework";
 import { incomingMessageNotAny, noOp, numberNotAny, objectNotAny, stringNotAny } from "../util";
 
 export const middlewareTests: Test[] = [{
     name: "Middleware should receive the request object when called from a when handler.",
     run: async ({ test }) => {
-        const handler = new Router(quelaag({
+        const handler = router(quelaag({
             takeReq: req => {
                 test(!!req);
             }
@@ -28,7 +28,7 @@ export const middlewareTests: Test[] = [{
 {
     name: "Middleware should receive the request object when called from a do handler.",
     run: async ({ test }) => {
-        const handler = new Router(quelaag({
+        const handler = router(quelaag({
             takeReq: (req) => {
                 test(!!req);
             }
@@ -47,7 +47,7 @@ export const middlewareTests: Test[] = [{
 {
     name: "Middleware should receive the request object when called from middleware.",
     run: async ({ test }) => {
-        const handler = new Router(quelaag({
+        const handler = router(quelaag({
             callTakeReq(req) {
                 this.takeReq(req);
             },
@@ -69,7 +69,7 @@ export const middlewareTests: Test[] = [{
 {
     name: "Middleware can be called from a request spy.",
     run: async ({ test }) => {
-        const handler = new Router(quelaag({
+        const handler = router(quelaag({
             helloWorld: req => "hello world",
         }));
 
@@ -91,7 +91,7 @@ export const middlewareTests: Test[] = [{
     run: async ({ test }) => {
         let externalData = "one";
 
-        const handler = new Router(quelaag({
+        const handler = router(quelaag({
             getExternalData(req): string {
                 externalData += " change";
                 return externalData;
@@ -159,7 +159,7 @@ export const middlewareTests: Test[] = [{
     run: async ({ test }) => {
         let externalData = "one";
 
-        const handler = new Router(quelaag({
+        const handler = router(quelaag({
             getExternalData: (req) => {
                 externalData += " change"
                 return externalData;
@@ -192,7 +192,7 @@ export const middlewareTests: Test[] = [{
     run: async ({ test }) => {
         let externalData = "one";
 
-        const handler = new Router(quelaag({
+        const handler = router(quelaag({
             getExternalData: (req) => {
                 externalData += " change"
                 return externalData;
@@ -234,7 +234,7 @@ export const middlewareTests: Test[] = [{
         let expected = 0;
         let actual = 0;
 
-        const handler = new Router(quelaag({
+        const handler = router(quelaag({
             increment: () => {
                 actual += 1;
                 return actual;
@@ -273,7 +273,7 @@ export const middlewareTests: Test[] = [{
     name: "Middleware can call each other.",
     cases: 2,
     run: ({ test }) => {
-        const handler = new Router(quelaag({
+        const handler = router(quelaag({
             number(req): number {
                 return 100;
             },
@@ -309,7 +309,7 @@ export const middlewareTests: Test[] = [{
     name: "Middleware can be asynchronous.",
     cases: 2,
     run: ({ test }) => {
-        const handler = new Router(quelaag({
+        const handler = router(quelaag({
             async number(req): Promise<number> {
                 return 100;
             },

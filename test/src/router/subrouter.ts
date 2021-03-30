@@ -1,11 +1,11 @@
 import { IncomingMessage } from "http";
-import { quelaag, Router, subRouter } from "../../../src";
+import { quelaag, router, subRouter } from "../../../src";
 import { makeRequest, Test } from "../framework";
 
 let count = 0;
 
-module Super {
-    export const superR = new Router(quelaag({
+module Super1 {
+    export const superR = router(quelaag({
         soup(req: IncomingMessage): void {
             count += 1;
         }
@@ -16,14 +16,44 @@ module Super {
             return true
         },
         router: () => {
-            return Sub.subR
+            return Sub1.subR
         },
     });
 }
 
-module Sub {
+module Sub1 {
     export const subR = subRouter(
-        Super.superR, {
+        Super1.superR, {
+            sandwich(req, con): void {
+                con.soup();
+            },
+        }
+    );
+
+    subR.addEndpoint({
+        when: () => true,
+        do: (req, res, middleware) => {
+            middleware.sandwich();
+        }
+    });
+}
+
+module Super2 {
+    export const superR = router(quelaag({
+        soup(req: IncomingMessage): void {
+            count += 1;
+        }
+    }));
+
+    superR.addSubRouter({
+        when: () => true,
+        router: () => Sub2.subR,
+    });
+}
+
+module Sub2 {
+    export const subR = subRouter(
+        Super2.superR, {
             sandwich(req, con): void {
                 con.soup();
             },
@@ -44,8 +74,18 @@ export const subrouterTests: Test[] = [
         cases: 1,
         run: async ({ test }) => {
             count = 0;
-            await makeRequest(Super.superR);
+            await makeRequest(Super1.superR);
             test(count === 1, `count was actually ${count}`);
         }
     },
+
+    {
+        name: "SubRouter with middleware",
+        cases: 1,
+        run: async ({ test }) => {
+            count = 0;
+            await makeRequest(Super2.superR);
+            test(count === 1, `count was actually ${count}`);
+        }
+    }
 ];

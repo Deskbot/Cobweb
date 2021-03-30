@@ -1,7 +1,8 @@
 import { IncomingMessage, ServerResponse } from "http";
-import { Endpoint, EndpointCatch, Fallback, FallbackEndpoint, Quelaag, RouterI, Spy, SpyCatch, SubRouterEndpoint } from "./types";
+import { subquelaag } from "./quelaag";
+import { Endpoint, EndpointCatch, Fallback, FallbackEndpoint, Middleware, MiddlewareSpec, Quelaag, Router, Spy, SpyCatch, SubRouterEndpoint } from "./types";
 
-export class Router<
+class RouterImpl<
     Context,
     Req = IncomingMessage,
     Res = ServerResponse,
@@ -10,7 +11,7 @@ export class Router<
     // easiest way to derive the middleware used in the Quelaag given to the constructor
     M extends ReturnType<Q> = ReturnType<Q>,
 >
-    implements RouterI<Context, Req, Res, Q, M>
+    implements Router<Context, Req, Res, Q, M>
 {
     private catcher: ((error: unknown) => void) | undefined;
     private endpoints: Endpoint<Context, Req, Res, M>[];
@@ -173,4 +174,49 @@ export class Router<
     }
 }
 
-export default Router;
+/**
+ * This is just RealRouter, but with a `Context` of `undefined`.
+ * It overrides `handle` so that you can call it without passing in `undefined` superfluously.
+ * This might be unnecessary one day: https://github.com/Microsoft/TypeScript/issues/12400
+ * This is worth doing for the sake of having an API that is easier to understand.
+ */
+class RouterContextUndefined<
+    Req = IncomingMessage,
+    Res = ServerResponse,
+    Q extends Quelaag = Quelaag,
+    M extends ReturnType<Q> = ReturnType<Q>,
+> extends RouterImpl<undefined,Req,Res,Q,M> {
+    // override
+    handle(req: Req, res: Res) {
+        super.handle(req, res, undefined);
+    }
+}
+
+export function router<
+    Req = IncomingMessage,
+    Res = ServerResponse,
+    Q extends Quelaag = Quelaag,
+    M extends ReturnType<Q> = ReturnType<Q>,
+> (quelaag: Q, catcher?: (error: unknown) => void): RouterImpl<undefined, Req, Res, Q, M> {
+    return new RouterContextUndefined(quelaag, catcher);
+}
+
+export function subRouter<
+    ParentContext,
+    ParentQ extends Quelaag = Quelaag,
+
+    Req = (ParentQ extends Quelaag<Middleware<unknown, infer R>> ? R : never),
+    Res = ServerResponse,
+
+    ParentM extends ReturnType<ParentQ> = ReturnType<ParentQ>,
+
+    ChildSpec extends MiddlewareSpec<ParentM, Req>
+        = MiddlewareSpec<ParentM, Req>,
+    SubQ extends Quelaag<Middleware<ParentM, Req, ChildSpec>>
+        = Quelaag<Middleware<ParentM, Req, ChildSpec>>,
+
+    M extends ReturnType<SubQ> = ReturnType<SubQ>,
+
+>(parentRouter: RouterImpl<ParentContext, Req, Res, ParentQ, ParentM>, spec: ChildSpec): RouterImpl<ParentM, Req, Res, SubQ, M> {
+    return new RouterImpl(subquelaag(parentRouter.quelaag, spec) as SubQ);
+}
