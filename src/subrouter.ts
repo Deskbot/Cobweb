@@ -3,7 +3,7 @@ import { subquelaag } from "./quelaag";
 import { Router } from "./router";
 import { Endpoint, Fallback, Middleware, MiddlewareSpec, Quelaag, RouterI, Spy } from "./types";
 
-export class SubRouter1<
+export class SubRouter<
     ParentContext,
     ParentQ extends Quelaag = Quelaag,
 
@@ -48,7 +48,7 @@ export class SubRouter1<
     }
 }
 
-export function subRouter2<
+export function subRouter<
     ParentContext,
     ParentQ extends Quelaag = Quelaag,
 

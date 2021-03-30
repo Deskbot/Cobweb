@@ -1,5 +1,5 @@
 import { IncomingMessage } from "http";
-import { quelaag, Router, subquelaag } from "../../../src";
+import { quelaag, Router, subRouter } from "../../../src";
 import { makeRequest, Test } from "../framework";
 
 let count = 0;
@@ -22,12 +22,12 @@ module Super {
 }
 
 module Sub {
-    export const subR = new Router(
-        subquelaag(Super.superR.quelaag, {
+    export const subR = subRouter(
+        Super.superR, {
             sandwich(req, con): void {
                 con.soup();
             },
-        })
+        }
     );
 
     subR.addEndpoint({
