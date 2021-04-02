@@ -16,11 +16,12 @@ export interface Router<
     addEndpoint(handler: Endpoint<Context, Req, Res, M>): void;
     addSpy(handler: Spy<Context, Req, M>): void;
     addSubRouter(handler: SubRouterEndpoint<Context, Req, Res, M>): void;
+    routeWithContext(req: Req, res: Res, context: Context): void;
     setFallbackEndpoint(handler: Fallback<Context, Req, Res, M> | undefined): void;
     quelaag: Q;
 }
 
-export interface RootRouter<
+export interface RouterTop<
     Req = IncomingMessage,
     Res = ServerResponse,
     Q extends Quelaag = Quelaag,
@@ -28,19 +29,7 @@ export interface RootRouter<
 >
     extends Router<undefined, Req, Res, Q, M>
 {
-    handle(req: Req, res: Res): void;
-}
-
-export interface SubRouter<
-    Context,
-    Req = IncomingMessage,
-    Res = ServerResponse,
-    Q extends Quelaag = Quelaag,
-    M extends ReturnType<Q> = ReturnType<Q>,
->
-    extends Router<Context, Req, Res, Q, M>
-{
-    handle(req: Req, res: Res, context: Context): void;
+    route(req: Req, res: Res): void;
 }
 
 // callbacks
@@ -127,7 +116,7 @@ export interface SubRouterEndpoint<
     M extends Middleware<Context, Req>,
 > {
     when: RequestPredicate<Context, Req, M>;
-    router: () => SubRouter<M, Req, Res>; // this is a function to allow a super and sub router to reference each other
+    router: () => Router<M, Req, Res>; // this is a function to allow a super and sub router to reference each other
 }
 
 // middleware

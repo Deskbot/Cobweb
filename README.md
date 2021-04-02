@@ -25,10 +25,10 @@ npm install --save quelaag
 ## "Hello World" Example
 
 ```ts
-import { quelaag, Router } from "quelaag";
+import { quelaag, router } from "quelaag";
 import * as http from "http";
 
-const router = new Router(quelaag({}));
+const router = router(quelaag({}));
 router.addEndpoint({
     when: req => req.url === "/hello",
     do: (req, res) => {
@@ -37,21 +37,21 @@ router.addEndpoint({
     }
 });
 
-const server = http.createServer((req, res) => router.handle(req, res));
+const server = http.createServer((req, res) => router.route(req, res));
 server.listen(8080);
 ```
 
-`quelaag` is a function that creates memoised middleware functions. In this example there are no middleware functions. `Router` is a class that facilitates choosing what to do when handling an incoming request.
+`quelaag` is a function that creates memoised middleware functions. In this example there are no middleware functions. `router` is a class that facilitates choosing what to do when handling an incoming request.
 
-`quelaag` and `Router` are designed to be flexible in how they can be used. You can use them with NodeJS's built-in libraries or a third-party framework. `quelaag` can be used without `Router` entirely.
+`quelaag` and `router` are designed to be flexible in how they can be used. You can use them with NodeJS's built-in libraries or a third-party framework. `quelaag` can be used without `router` entirely.
 
 By default, the type of requests and responses are NodeJS's `IncomingMessage` and `ServerResponse`. However, these can be overridden with type arguments to `quelaag` or `Router`.
 
 ```ts
-import { quelaag, Router } from "quelaag";
+import { quelaag, router } from "quelaag";
 import * as express from "express";
 
-const router = new Router<express.Request, express.Response>(quelaag({}));
+const router = router<express.Request, express.Response>(quelaag({}));
 router.addEndpoint({
     when: req => req.ip.endsWith("127.0.0.1"),
     do: (req, res, middleware) => {
@@ -61,7 +61,7 @@ router.addEndpoint({
 
 const app = express();
 app.use((req, res, next) => {
-    router.handle(req, res);
+    router.route(req, res);
     next();
 });
 app.listen(8081);
@@ -114,11 +114,11 @@ In order for middleware to call each other, the function can't be defined with a
 `Router` creates new middleware instances for you, which are passed as the last parameter to all of `Router`'s callbacks.
 
 ```ts
-import { quelaag, Router } from "quelaag";
+import { quelaag, router } from "quelaag";
 import * as cookie from "cookie"; // a third party cookie header parsing library
 import * as http from "http";
 
-const router = new Router(quelaag({
+const router = router(quelaag({
     cookies(req) {
         return cookie.parse(req.headers.cookie || '');
     },
@@ -143,7 +143,7 @@ router.addEndpoint({
     }
 });
 
-const server = http.createServer((req, res) => router.handle(req, res));
+const server = http.createServer((req, res) => router.route(req, res));
 server.listen(8080);
 ```
 
@@ -201,8 +201,8 @@ An error thrown or a promise rejected in a `when` or `do` can be caught with an 
 A catch handler can also be given to Quelaag, as a fallback for when a local `catch` is not defined.
 
 ```ts
-import { quelaag, Router } from "quelaag";
-const router = new Router(
+import { quelaag, router } from "quelaag";
+const router = router(
     quelaag({}),
     (err) => {
         console.error(err);
