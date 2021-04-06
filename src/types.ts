@@ -16,7 +16,10 @@ export interface Router<
     addEndpoint(handler: Endpoint<Context, Req, Res, M>): void;
     addSpy(handler: Spy<Context, Req, M>): void;
     addSubRouter(handler: SubRouterEndpoint<Context, Req, Res, M>): void;
-    routeWithContext(req: Req, res: Res, context: Context): void;
+    /**
+     * internal use only
+     */
+    _routeWithContext(req: Req, res: Res, context: Context): void;
     setFallbackEndpoint(handler: Fallback<Context, Req, Res, M> | undefined): void;
     quelaag: Q;
 }

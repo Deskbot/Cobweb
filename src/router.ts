@@ -44,7 +44,7 @@ class RouterImpl<
         this.endpoints.push({
             when: handler.when,
             do: (req, res, m) => {
-                handler.router().routeWithContext(req, res, m);
+                handler.router()._routeWithContext(req, res, m);
             }
         });
     }
@@ -132,7 +132,7 @@ class RouterImpl<
         return userEndpoint ?? this.fallbackEndpoint;
     }
 
-    routeWithContext(req: Req, res: Res, context: Context) {
+    _routeWithContext(req: Req, res: Res, context: Context) {
         const middlewareInventory = this.quelaag(req, context) as M;
         this.callSpies(req, middlewareInventory);
         this.callEndpoint(req, res, middlewareInventory);
@@ -191,7 +191,7 @@ class RootRouterImpl<
 {
     // override
     route(req: Req, res: Res) {
-        this.routeWithContext(req, res, undefined);
+        this._routeWithContext(req, res, undefined);
     }
 }
 
