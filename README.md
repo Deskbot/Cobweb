@@ -225,6 +225,67 @@ router.addEndpoint({
 });
 ```
 
+### Splitting a Router Across Multiple Files
+
+```ts
+// ./app.ts
+
+import * as cookie from "cookie";
+import { createServer, IncomingMessage } from "http";
+import { router, quelaag } from "quelaag";
+import { adminRouter } from "./admin";
+
+export const root = router(quelaag({
+    cookies(req) {
+        return cookie.parse(req.headers.cookie || '');
+    },
+    userId(req) {
+        return parseInt(this.cookies(req).userId);
+    },
+    url(req: IncomingMessage): URL {
+        return new URL(req.url!);
+    },
+}));
+
+root.addSubRouter({
+    when: (req, middleware) => middleware.url().pathname.startsWith("/admin"),
+    router: () => adminRouter,
+});
+
+const server = createServer((req, res) => root.route(req, res));
+server.listen(8080);
+
+// ./admin.ts
+
+import { subRouter } from "quelaag";
+import { root } from "./app";
+
+export const adminRouter = subRouter(
+    root,
+    {
+        url(req, superMiddleware) {
+            return superMiddleware.url();
+        },
+        async userIsAdministrator(req, superMiddleware): Promise<boolean> {
+            const user = await getUserFromDatabase(superMiddleware.userId());
+            return user.isAdmin;
+        }
+    }
+);
+
+adminRouter.addEndpoint({
+    when: (req, middleware) => middleware.url().pathname.startsWith("/admin"),
+    do: async (req, res, middleware) => {
+        if (await middleware.userIsAdministrator()) {
+            res.end("Greetings planet.");
+        } else {
+            res.statusCode = 403;
+            res.end("403 Forbidden");
+        }
+    }
+});
+```
+
 ## TypeScript Troubles
 
 TypeScript is a fantastic language with often impressive type inference. [However it isn't always perfect and in situations where there is a lot that can be inferred, TypeScript may be too permissive.](https://github.com/microsoft/TypeScript/issues/34858#issuecomment-577932912)
@@ -238,7 +299,6 @@ quelaag({
     number(req) {
         return 100;
     },
-
     isEven1(req) {
         this.number() % 2 == 0;        // error
         return this.number() % 2 == 0; // compiles
