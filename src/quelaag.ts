@@ -71,7 +71,7 @@ export function subquelaag<
     return quelaag(childSpec);
 }
 
-export function subquelaag2<Parent extends Quelaag>() {
+export function subquelaag2<Parent extends Quelaag = never>() {
     return <
         ChildSpec extends MiddlewareSpec<ChildContext, Req>,
         Req = (Parent extends Quelaag<Middleware<unknown, infer R>> ? R : never),

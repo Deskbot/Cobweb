@@ -81,7 +81,7 @@ import { quelaag } from "quelaag";
 const makeMiddleware = quelaag({
     ip(req): string {
         console.log("ip");
-        return req.connection.remoteAddress;
+        return req.socket.remoteAddress;
     },
     isMe(req): boolean {
         return this.ip(req) === "127.0.0.1";
@@ -90,9 +90,9 @@ const makeMiddleware = quelaag({
 
 let req1, req2; // Imagine you got some request objects from somewhere.
 
-const request1 = makeMiddleware(req1);
-const request2 = makeMiddleware(req2);
-const request1Again = makeMiddleware(req1);
+const request1 = makeMiddleware(req1, undefined);
+const request2 = makeMiddleware(req2, undefined);
+const request1Again = makeMiddleware(req1, undefined);
 
 request1.ip();   // prints "ip", returns "127.0.0.1"
 request1.ip();   //              returns "127.0.0.1"
@@ -189,7 +189,7 @@ A request will be handled by all Spies with a matching condition. These are crea
 router.addSpy({
     when: req => req.url === "/hello",
     do: (req) => {
-        console.log(req.connection.remoteAddress);
+        console.log(req.socket.remoteAddress);
     }
 });
 ```
@@ -225,7 +225,9 @@ router.addEndpoint({
 });
 ```
 
-### Splitting a Router Across Multiple Files
+## Sub-Routing
+
+This feature is designed to allow routing logic and middleware definitions to be split across multiple files.
 
 ```ts
 // ./app.ts
@@ -284,6 +286,50 @@ adminRouter.addEndpoint({
         }
     }
 });
+```
+
+### Sub-Quelaags
+
+A demonstration of how Quelaags definitions can be merged.
+
+```ts
+import { IncomingMessage } from "node:http";
+import { quelaag, subquelaag } from "quelaag";
+
+const parent = quelaag({
+    ip(req: IncomingMessage): string {
+        console.log("ip");
+        return req.socket.remoteAddress;
+    },
+});
+
+const makeMiddleware = subquelaag(
+    parent,
+    {
+        ip(req, parentMiddleware): string {
+            return parentMiddleware.ip();
+        },
+        isMe(req, parentMiddleware): boolean {
+            return parentMiddleware.ip() === "127.0.0.1";
+        }
+    }
+);
+
+let req1: IncomingMessage, req2: IncomingMessage; // Imagine you got some request objects from somewhere.
+
+const request1 = makeMiddleware(req1, parent(req1, undefined));
+const request2 = makeMiddleware(req2, parent(req2, undefined));
+const request1Again = makeMiddleware(req1, parent(req1, undefined));
+
+request1.ip();   // prints "ip", returns "127.0.0.1"
+request1.ip();   //              returns "127.0.0.1"
+request1.isMe(); //              returns true
+
+request2.isMe(); // prints "ip", returns true
+request2.ip();   //              returns "127.0.0.1"
+request2.ip();   //              returns "127.0.0.1"
+
+request1Again.ip(); // prints "ip", returns "127.0.0.1"
 ```
 
 ## TypeScript Troubles
