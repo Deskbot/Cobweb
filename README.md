@@ -90,8 +90,8 @@ const makeMiddleware = quelaag({
 
 let req1, req2; // Imagine you got some request objects from somewhere.
 
-const request1 = makeMiddleware(req1, undefined);
-const request2 = makeMiddleware(req2, undefined);
+const request1 =      makeMiddleware(req1, undefined); // ignore the use of undefined here for now
+const request2 =      makeMiddleware(req2, undefined);
 const request1Again = makeMiddleware(req1, undefined);
 
 request1.ip();   // prints "ip", returns "127.0.0.1"
@@ -202,6 +202,7 @@ A catch handler can also be given to Quelaag, as a fallback for when a local `ca
 
 ```ts
 import { quelaag, router } from "quelaag";
+
 const router = router(
     quelaag({}),
     (err) => {
@@ -288,7 +289,7 @@ adminRouter.addEndpoint({
 });
 ```
 
-### Sub-Quelaags
+## Sub-Quelaags
 
 A demonstration of how Quelaags definitions can be merged.
 
@@ -296,7 +297,7 @@ A demonstration of how Quelaags definitions can be merged.
 import { IncomingMessage } from "node:http";
 import { quelaag, subquelaag } from "quelaag";
 
-const parent = quelaag({
+const makeParent = quelaag({
     ip(req: IncomingMessage): string {
         console.log("ip");
         return req.socket.remoteAddress;
@@ -304,7 +305,7 @@ const parent = quelaag({
 });
 
 const makeMiddleware = subquelaag(
-    parent,
+    makeParent,
     {
         ip(req, parentMiddleware): string {
             return parentMiddleware.ip();
@@ -317,9 +318,9 @@ const makeMiddleware = subquelaag(
 
 let req1: IncomingMessage, req2: IncomingMessage; // Imagine you got some request objects from somewhere.
 
-const request1 = makeMiddleware(req1, parent(req1, undefined));
-const request2 = makeMiddleware(req2, parent(req2, undefined));
-const request1Again = makeMiddleware(req1, parent(req1, undefined));
+const request1 =      makeMiddleware(req1, makeParent(req1, undefined));
+const request2 =      makeMiddleware(req2, makeParent(req2, undefined));
+const request1Again = makeMiddleware(req1, makeParent(req1, undefined));
 
 request1.ip();   // prints "ip", returns "127.0.0.1"
 request1.ip();   //              returns "127.0.0.1"
@@ -331,6 +332,10 @@ request2.ip();   //              returns "127.0.0.1"
 
 request1Again.ip(); // prints "ip", returns "127.0.0.1"
 ```
+
+In addition to the "request", a second parameter called the "context" can be passed to a middleware function. The main purpose of "context" is to allow middleware functions to use `Quelaag`s defined and initialised elsewhere. By default this is undefined and its type will be inferred from the type given in the middleware functions you define. The context can actually be any type allowing you to use multiple parent `Quelaags` if you wish. The methods on the parent(s) are not inherited by the child `Quelaag` any methods you want to inherit have to be defined explicitly. This is the easiest way to manage dependencies between sub-quelaags and sub-routers.
+
+When using `router` and `subrouter`, the context is handled for you.
 
 ## TypeScript Troubles
 

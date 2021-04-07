@@ -5,7 +5,7 @@ const __req = Symbol("request key");
 const __context = Symbol("context key");
 
 export function quelaag<
-    Context,
+    Context = undefined,
     Req = IncomingMessage,
     Spec extends MiddlewareSpec<Context, Req> = MiddlewareSpec<Context, Req>,
 >
