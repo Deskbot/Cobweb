@@ -51,8 +51,8 @@ By default, the type of requests and responses are NodeJS's `IncomingMessage` an
 import { quelaag, router } from "quelaag";
 import * as express from "express";
 
-const router = router<express.Request, express.Response>(quelaag({}));
-router.addEndpoint({
+const root = router<express.Request, express.Response>(quelaag({}));
+root.addEndpoint({
     when: req => req.ip.endsWith("127.0.0.1"),
     do: (req, res, middleware) => {
         res.json({ hello: "world" });
@@ -61,7 +61,7 @@ router.addEndpoint({
 
 const app = express();
 app.use((req, res, next) => {
-    router.route(req, res);
+    root.route(req, res);
     next();
 });
 app.listen(8081);
