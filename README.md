@@ -239,7 +239,7 @@ export const root = router(quelaag({
     cookies(req) {
         return cookie.parse(req.headers.cookie || '');
     },
-    userId(req) {
+    userId(req): number {
         return parseInt(this.cookies(req).userId);
     },
     url(req: IncomingMessage): URL {
