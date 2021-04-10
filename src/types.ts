@@ -35,9 +35,8 @@ export interface RouterTop<
     Req = IncomingMessage,
     Res = ServerResponse,
     Q extends Quelaag = Quelaag,
-    M extends ReturnType <Q> = ReturnType <Q>,
 >
-    extends Router<undefined, Req, Res, Q, M>
+    extends Router<undefined, Req, Res, Q, ReturnType<Q>>
 {
     route(req: Req, res: Res): void;
 }

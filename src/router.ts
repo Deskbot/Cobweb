@@ -4,10 +4,10 @@ import { Endpoint, EndpointCatch, Fallback, FallbackEndpoint, Middleware, Middle
 
 class RouterImpl<
     Context,
-    Req = IncomingMessage,
-    Res = ServerResponse,
+    Req,
+    Res,
     // Q is intended to be inferred from the constructor argument
-    Q extends Quelaag = Quelaag,
+    Q extends Quelaag,
     // easiest way to derive the middleware used in the Quelaag given to the constructor
     M extends ReturnType<Q> = ReturnType<Q>,
 >
@@ -174,14 +174,9 @@ class RouterImpl<
     }
 }
 
-class RootRouterImpl<
-    Req = IncomingMessage,
-    Res = ServerResponse,
-    Q extends Quelaag = Quelaag,
-    M extends ReturnType<Q> = ReturnType<Q>,
->
-    extends RouterImpl<undefined, Req, Res, Q, M>
-    implements RouterTop<Req, Res, Q, M>
+class RootRouterImpl<Req, Res, Q extends Quelaag>
+    extends RouterImpl<undefined, Req, Res, Q>
+    implements RouterTop<Req, Res, Q>
 {
     // override
     route(req: Req, res: Res) {
@@ -193,8 +188,7 @@ export function router<
     Req = IncomingMessage,
     Res = ServerResponse,
     Q extends Quelaag = Quelaag,
-    M extends ReturnType<Q> = ReturnType<Q>,
-> (quelaag: Q, catcher?: (error: unknown) => void): RouterTop<Req, Res, Q, M> {
+>(quelaag: Q, catcher?: (error: unknown) => void): RouterTop<Req, Res, Q> {
     return new RootRouterImpl(quelaag, catcher);
 }
 
@@ -211,12 +205,10 @@ export function subRouter<
         = MiddlewareSpec<ParentM, Req>,
     SubQ extends Quelaag<Middleware<ParentM, Req, ChildSpec>>
         = Quelaag<Middleware<ParentM, Req, ChildSpec>>,
-
-    M extends ReturnType<SubQ> = ReturnType<SubQ>,
 >(
-    parentRouter: Router<ParentContext, Req, Res, ParentQ, ParentM>,
+    parentRouter: Router<ParentContext, Req, Res, ParentQ>,
     spec: ChildSpec
-): Router<ParentM, Req, Res, SubQ, M>
+): Router<ParentM, Req, Res, SubQ>
 {
     return new RouterImpl(subquelaag(parentRouter.quelaag, spec) as SubQ);
 }
