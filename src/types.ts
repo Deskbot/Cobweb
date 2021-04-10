@@ -24,6 +24,12 @@ export interface Router<
     quelaag: Q;
 }
 
+/**
+ * This is just Router, but with a `Context` of `undefined`.
+ * It adds the `route` method so that you can route without passing in an `undefined` context superfluously.
+ * This might be unnecessary one day: https://github.com/Microsoft/TypeScript/issues/12400
+ * This is worth doing for the sake of having an API that is easier to understand.
+ */
 export interface RouterTop<
     Req = IncomingMessage,
     Res = ServerResponse,

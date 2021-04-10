@@ -174,12 +174,6 @@ class RouterImpl<
     }
 }
 
-/**
- * This is just RealRouter, but with a `Context` of `undefined`.
- * It overrides `handle` so that you can call it without passing in `undefined` superfluously.
- * This might be unnecessary one day: https://github.com/Microsoft/TypeScript/issues/12400
- * This is worth doing for the sake of having an API that is easier to understand.
- */
 class RootRouterImpl<
     Req = IncomingMessage,
     Res = ServerResponse,
