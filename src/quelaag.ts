@@ -1,4 +1,4 @@
-import { Middleware, MiddlewareSpec, Quelaag } from "./types";
+import { Middleware, MiddlewareSpec, Quelaag, QuelaagReq } from "./types";
 import { IncomingMessage } from "http";
 
 const __req = Symbol("request key");
@@ -63,7 +63,7 @@ export function quelaagPartialTypes<Context, Req = IncomingMessage>() {
 export function subquelaag<
     Parent extends Quelaag,
     ChildSpec extends MiddlewareSpec<ChildContext, Req>,
-    Req = (Parent extends Quelaag<Middleware<unknown, infer R>> ? R : never),
+    Req = QuelaagReq<Parent>,
     ChildContext = ReturnType<Parent>,
 >
     (parent: Parent, childSpec: ChildSpec): Quelaag<Middleware<ChildContext, Req, ChildSpec>>
@@ -74,7 +74,7 @@ export function subquelaag<
 export function subquelaag2<Parent extends Quelaag = never>() {
     return <
         ChildSpec extends MiddlewareSpec<ChildContext, Req>,
-        Req = (Parent extends Quelaag<Middleware<unknown, infer R>> ? R : never),
+        Req = QuelaagReq<Parent>,
         ChildContext = ReturnType<Parent>,
     >
     (childSpec: ChildSpec): Quelaag<Middleware<ChildContext, Req, ChildSpec>> => {

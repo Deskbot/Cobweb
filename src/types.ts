@@ -156,3 +156,6 @@ export type Quelaag<
         req: (M extends Middleware<unknown, infer Req> ? Req : never),
         context: (M extends Middleware<infer Con, unknown> ? Con : never)
     ) => M;
+
+export type QuelaagReq<Q extends Quelaag> = (Q extends Quelaag<Middleware<unknown, infer R>> ? R : never);
+export type QuelaagContext<Q extends Quelaag> = (Q extends Quelaag<Middleware<infer C, unknown>> ? C : never);
