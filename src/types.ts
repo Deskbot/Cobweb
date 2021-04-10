@@ -1,6 +1,7 @@
-// handler callbacks
-
 import { IncomingMessage, ServerResponse } from "http";
+
+// utils
+export type ValuesOf<R extends Record<keyof any, unknown>> = R[keyof R];
 
 // Router
 

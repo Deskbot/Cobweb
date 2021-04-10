@@ -1,4 +1,4 @@
-import { Middleware, MiddlewareSpec, Quelaag, QuelaagReq } from "./types";
+import { Middleware, MiddlewareSpec, Quelaag, QuelaagReq, ValuesOf } from "./types";
 import { IncomingMessage } from "http";
 
 const __req = Symbol("request key");
@@ -85,7 +85,7 @@ export function subquelaag2<Parent extends Quelaag = never>() {
 export function multiParentSubquelaag<
     Parents extends Record<keyof any, Quelaag<Middleware<unknown, Req>>>,
     ChildSpec extends MiddlewareSpec<ChildContext, Req>,
-    Req = (Parents extends Record<keyof any, Quelaag<Middleware<unknown, infer R>>> ? R : never),
+    Req = QuelaagReq<ValuesOf<Parents>>,
     ChildContext = {
         [K in keyof Parents]: ReturnType<Parents[K]>
     },
