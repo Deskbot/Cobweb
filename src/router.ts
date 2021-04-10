@@ -192,6 +192,12 @@ export function router<
     return new RootRouterImpl(quelaag, catcher);
 }
 
+export function routerPartialTypes<Req = IncomingMessage, Res = ServerResponse>() {
+    return <Q extends Quelaag>(quelaag: Q, catcher?: (error: unknown) => void): RouterTop<Req, Res, Q> => {
+        return router(quelaag, catcher);
+    };
+}
+
 export function subRouter<
     ParentContext,
     ParentQ extends Quelaag = Quelaag,
