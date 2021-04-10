@@ -1,6 +1,6 @@
 import { IncomingMessage, ServerResponse } from "http";
 import { subquelaag } from "./quelaag";
-import { Endpoint, EndpointCatch, Fallback, FallbackEndpoint, Middleware, MiddlewareSpec, Quelaag, RouterTop, Router, Spy, SpyCatch, SubRouterEndpoint } from "./types";
+import { Endpoint, EndpointCatch, Fallback, FallbackEndpoint, Middleware, MiddlewareSpec, Quelaag, RouterTop, Router, Spy, SpyCatch, SubRouterEndpoint, QuelaagReq } from "./types";
 
 class RouterImpl<
     Context,
@@ -202,7 +202,7 @@ export function subRouter<
     ParentContext,
     ParentQ extends Quelaag = Quelaag,
 
-    Req = (ParentQ extends Quelaag<Middleware<unknown, infer R>> ? R : never),
+    Req = QuelaagReq<ParentQ>,
     Res = ServerResponse,
 
     ParentM extends ReturnType<ParentQ> = ReturnType<ParentQ>,
