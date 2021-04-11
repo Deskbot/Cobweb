@@ -7,7 +7,7 @@ class RouterImpl<
     Req,
     Res,
     // Q is intended to be inferred from the constructor argument
-    Q extends Quelaag,
+    Q extends Quelaag<Middleware<Context, Req>>,
     // easiest way to derive the middleware used in the Quelaag given to the constructor
     M extends ReturnType<Q> = ReturnType<Q>,
 >
@@ -174,7 +174,7 @@ class RouterImpl<
     }
 }
 
-class RootRouterImpl<Req, Res, Q extends Quelaag>
+class RootRouterImpl<Req, Res, Q extends Quelaag<Middleware<undefined, Req>>>
     extends RouterImpl<undefined, Req, Res, Q>
     implements RouterTop<Req, Res, Q>
 {
@@ -186,13 +186,15 @@ class RootRouterImpl<Req, Res, Q extends Quelaag>
 export function router<
     Req = IncomingMessage,
     Res = ServerResponse,
-    Q extends Quelaag = Quelaag,
+    Q extends Quelaag<Middleware<undefined, Req>> = Quelaag<Middleware<undefined, Req>>,
 >(quelaag: Q, catcher?: (error: unknown) => void): RouterTop<Req, Res, Q> {
     return new RootRouterImpl(quelaag, catcher);
 }
 
 export function routerPartialTypes<Req = IncomingMessage, Res = ServerResponse>() {
-    return <Q extends Quelaag>(quelaag: Q, catcher?: (error: unknown) => void): RouterTop<Req, Res, Q> => {
+    return <
+        Q extends Quelaag<Middleware<undefined, Req>>
+    >(quelaag: Q, catcher?: (error: unknown) => void): RouterTop<Req, Res, Q> => {
         return router(quelaag, catcher);
     };
 }
