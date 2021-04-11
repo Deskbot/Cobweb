@@ -178,7 +178,6 @@ class RootRouterImpl<Req, Res, Q extends Quelaag>
     extends RouterImpl<undefined, Req, Res, Q>
     implements RouterTop<Req, Res, Q>
 {
-    // override
     route(req: Req, res: Res) {
         this._routeWithContext(req, res, undefined);
     }
