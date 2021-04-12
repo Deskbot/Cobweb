@@ -9,7 +9,7 @@ export function quelaag<
     Req = IncomingMessage,
     Spec extends MiddlewareSpec<Context, Req> = MiddlewareSpec<Context, Req>,
 >
-    (middlewareSpec: Spec): Quelaag<Middleware<Context, Req, Spec>>
+    (middlewareSpec: Spec): Quelaag<Context, Req, Spec>
 {
     const middlewareProto = {} as any;
 
@@ -61,36 +61,36 @@ export function quelaagPartialTypes<Context, Req = IncomingMessage>() {
 }
 
 export function subquelaag<
-    Parent extends Quelaag,
+    Req,
+    Parent extends Quelaag<any, Req, any>,
     ChildSpec extends MiddlewareSpec<ChildContext, Req>,
-    Req = QuelaagReq<Parent>,
     ChildContext = ReturnType<Parent>,
 >
-    (parent: Parent, childSpec: ChildSpec): Quelaag<Middleware<ChildContext, Req, ChildSpec>>
+    (parent: Parent, childSpec: ChildSpec): Quelaag<ChildContext, Req, ChildSpec>
 {
     return quelaag(childSpec);
 }
 
 export function subquelaag2<Parent extends Quelaag = never>() {
     return <
-        ChildSpec extends MiddlewareSpec<ChildContext, Req>,
         Req = QuelaagReq<Parent>,
         ChildContext = ReturnType<Parent>,
+        ChildSpec extends MiddlewareSpec<ChildContext, Req> = MiddlewareSpec<ChildContext, Req>,
     >
-    (childSpec: ChildSpec): Quelaag<Middleware<ChildContext, Req, ChildSpec>> => {
+    (childSpec: ChildSpec): Quelaag<ChildContext, Req, ChildSpec> => {
         return quelaag(childSpec);
     }
 }
 
 export function multiParentSubquelaag<
-    Parents extends Record<keyof any, Quelaag<Middleware<unknown, Req>>>,
+    Parents extends Record<keyof any, Quelaag<any, Req>>,
     ChildSpec extends MiddlewareSpec<ChildContext, Req>,
     Req = QuelaagReq<ValuesOf<Parents>>,
     ChildContext = {
         [K in keyof Parents]: ReturnType<Parents[K]>
     },
 >
-    (parent: Parents, childSpec: ChildSpec): Quelaag<Middleware<ChildContext, Req, ChildSpec>>
+    (parent: Parents, childSpec: ChildSpec): Quelaag<ChildContext, Req, ChildSpec>
 {
     return quelaag(childSpec);
 }

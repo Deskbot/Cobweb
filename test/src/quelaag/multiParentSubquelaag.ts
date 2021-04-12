@@ -4,7 +4,7 @@ import { objectNotAny } from "../util";
 
 function setup(cb1: () => void, cb2: () => void) {
     const makeMiddleware1 = quelaag({
-        func(req: number): void {
+        func(req: string): void {
             cb1();
         }
     });
@@ -51,7 +51,7 @@ export const multiParentSubquelaagTests: Test[] = [
         const { makeMiddleware1, makeMiddleware2, makeMultiParentMiddleware } = setup(() => count1 += 1, () => count2 += 1);
 
         const mid = makeMultiParentMiddleware("", {
-            one: makeMiddleware1(1, undefined),
+            one: makeMiddleware1("", undefined),
             two: makeMiddleware2("", undefined),
         });
 

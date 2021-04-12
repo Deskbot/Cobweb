@@ -1,13 +1,13 @@
 import { IncomingMessage, ServerResponse } from "http";
 import { subquelaag } from "./quelaag";
-import { Endpoint, EndpointCatch, Fallback, FallbackEndpoint, Middleware, MiddlewareSpec, Quelaag, RouterTop, Router, Spy, SpyCatch, SubRouterEndpoint, QuelaagReq } from "./types";
+import { Endpoint, EndpointCatch, Fallback, FallbackEndpoint, Middleware, MiddlewareSpec, Quelaag, RouterTop, Router, Spy, SpyCatch, SubRouterEndpoint, QuelaagReq, QuelaagContext } from "./types";
 
 class RouterImpl<
     Context,
     Req,
     Res,
     // Q is intended to be inferred from the constructor argument
-    Q extends Quelaag<Middleware<Context, Req>>,
+    Q extends Quelaag<Context, Req>,
     // easiest way to derive the middleware used in the Quelaag given to the constructor
     M extends ReturnType<Q> = ReturnType<Q>,
 >
@@ -174,7 +174,7 @@ class RouterImpl<
     }
 }
 
-class RootRouterImpl<Req, Res, Q extends Quelaag<Middleware<undefined, Req>>>
+class RootRouterImpl<Req, Res, Q extends Quelaag<undefined, Req>>
     extends RouterImpl<undefined, Req, Res, Q>
     implements RouterTop<Req, Res, Q>
 {
@@ -186,32 +186,34 @@ class RootRouterImpl<Req, Res, Q extends Quelaag<Middleware<undefined, Req>>>
 export function router<
     Req = IncomingMessage,
     Res = ServerResponse,
-    Q extends Quelaag<Middleware<undefined, Req>> = Quelaag<Middleware<undefined, Req>>,
+    Q extends Quelaag<undefined, Req> = Quelaag<undefined, Req>,
 >(quelaag: Q, catcher?: (error: unknown) => void): RouterTop<Req, Res, Q> {
     return new RootRouterImpl(quelaag, catcher);
 }
 
 export function routerPartialTypes<Req = IncomingMessage, Res = ServerResponse>() {
     return <
-        Q extends Quelaag<Middleware<undefined, Req>>
+        Q extends Quelaag<undefined, Req>
     >(quelaag: Q, catcher?: (error: unknown) => void): RouterTop<Req, Res, Q> => {
         return router(quelaag, catcher);
     };
 }
 
 export function subRouter<
-    ParentContext,
-    ParentQ extends Quelaag = Quelaag,
-
-    Req = QuelaagReq<ParentQ>,
+    Req = IncomingMessage,
     Res = ServerResponse,
 
-    ParentM extends ReturnType<ParentQ> = ReturnType<ParentQ>,
+    ParentContext = undefined,
+    ParentQ extends Quelaag<ParentContext, Req>
+                  = Quelaag<ParentContext, Req>,
+    ParentM extends ReturnType<ParentQ>
+                  = ReturnType<ParentQ>,
 
     ChildSpec extends MiddlewareSpec<ParentM, Req>
-        = MiddlewareSpec<ParentM, Req>,
-    SubQ extends Quelaag<Middleware<ParentM, Req, ChildSpec>>
-        = Quelaag<Middleware<ParentM, Req, ChildSpec>>,
+                    = MiddlewareSpec<ParentM, Req>,
+
+    SubQ extends Quelaag<ParentM, Req, ChildSpec>
+               = Quelaag<ParentM, Req, ChildSpec>,
 >(
     parentRouter: Router<ParentContext, Req, Res, ParentQ>,
     spec: ChildSpec
