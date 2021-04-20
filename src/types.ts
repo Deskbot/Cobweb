@@ -10,7 +10,7 @@ export interface Router<
     Req = IncomingMessage,
     Res = ServerResponse,
     // Q is intended to be inferred from the constructor argument
-    Q extends Quelaag<Middleware<Context, Req>> = Quelaag<Middleware<Context, Req>>,
+    Q extends Quelaag<Context, Req> = Quelaag<Context, Req>,
     // easiest way to derive the middleware used in the Quelaag given to the constructor
     M extends ReturnType<Q> = ReturnType<Q>,
 > {
@@ -34,7 +34,7 @@ export interface Router<
 export interface RouterTop<
     Req = IncomingMessage,
     Res = ServerResponse,
-    Q extends Quelaag<Middleware<unknown, Req>> = Quelaag<Middleware<unknown, Req>>,
+    Q extends Quelaag<any, Req> = Quelaag<unknown, Req>,
 >
     extends Router<undefined, Req, Res, Q, ReturnType<Q>>
 {
@@ -150,12 +150,14 @@ export type Middleware<
 // The middleware needs to be a type parameter
 // so that the exact subtype of Middleware will be inferred by typescript.
 export type Quelaag<
-    M extends Middleware<unknown, unknown> = Middleware<unknown, unknown>,
+    Context = undefined,
+    Req = IncomingMessage,
+    Spec extends MiddlewareSpec<Context, Req> = MiddlewareSpec<Context, Req>,
 > =
     (
-        req: (M extends Middleware<unknown, infer Req> ? Req : never),
-        context: (M extends Middleware<infer Con, unknown> ? Con : never)
-    ) => M;
+        req: Req,
+        context: Context,
+    ) => Middleware<Context, Req, Spec>;
 
-export type QuelaagReq<Q extends Quelaag> = (Q extends Quelaag<Middleware<unknown, infer R>> ? R : never);
-export type QuelaagContext<Q extends Quelaag> = (Q extends Quelaag<Middleware<infer C, unknown>> ? C : never);
+export type QuelaagReq<Q extends Quelaag<any, any>> = (Q extends Quelaag<any, infer R, any> ? R : never);
+export type QuelaagContext<Q extends Quelaag<any, any>> = (Q extends Quelaag<infer C, any, any> ? C : never);

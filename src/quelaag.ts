@@ -1,4 +1,4 @@
-import { Middleware, MiddlewareSpec, Quelaag, QuelaagReq, ValuesOf } from "./types";
+import { MiddlewareSpec, Quelaag, QuelaagReq, ValuesOf } from "./types";
 import { IncomingMessage } from "http";
 
 const __req = Symbol("request key");
@@ -9,7 +9,7 @@ export function quelaag<
     Req = IncomingMessage,
     Spec extends MiddlewareSpec<Context, Req> = MiddlewareSpec<Context, Req>,
 >
-    (middlewareSpec: Spec): Quelaag<Middleware<Context, Req, Spec>>
+    (middlewareSpec: Spec): Quelaag<Context, Req, Spec>
 {
     const middlewareProto = {} as any;
 
@@ -42,55 +42,37 @@ export function quelaag<
     return (req, context) => new (constructor as any)(req, context);
 }
 
-export default quelaag;
-
-/**
- * This function exists only to allow you to specify the type of Context and Req,
- * while still getting TypeScript to infer Spec.
- * Currently in TypeScript, if you specify any of the type arguments to a function,
- * none of the arguments are inferred.
- * This function won't be necessary if this fact about TypeScript changes.
- */
-export function quelaagPartialTypes<Context, Req = IncomingMessage>() {
-    return <
-        Spec extends MiddlewareSpec<Context, Req>
-    >
-    (spec: Spec) => {
-        return quelaag<Context, Req, Spec>(spec);
-    };
-}
-
 export function subquelaag<
-    Parent extends Quelaag,
+    Parent extends Quelaag<any, any, any>,
+    Req extends QuelaagReq<Parent>,
     ChildSpec extends MiddlewareSpec<ChildContext, Req>,
-    Req = QuelaagReq<Parent>,
     ChildContext = ReturnType<Parent>,
 >
-    (parent: Parent, childSpec: ChildSpec): Quelaag<Middleware<ChildContext, Req, ChildSpec>>
+    (parent: Parent, childSpec: ChildSpec): Quelaag<ChildContext, Req, ChildSpec>
 {
     return quelaag(childSpec);
 }
 
-export function subquelaag2<Parent extends Quelaag = never>() {
+export function subquelaag2<Parent extends Quelaag<any, any, any> = never>() {
     return <
+        Req extends QuelaagReq<Parent>,
+        ChildContext extends ReturnType<Parent>,
         ChildSpec extends MiddlewareSpec<ChildContext, Req>,
-        Req = QuelaagReq<Parent>,
-        ChildContext = ReturnType<Parent>,
     >
-    (childSpec: ChildSpec): Quelaag<Middleware<ChildContext, Req, ChildSpec>> => {
+    (childSpec: ChildSpec): Quelaag<ChildContext, Req, ChildSpec> => {
         return quelaag(childSpec);
     }
 }
 
 export function multiParentSubquelaag<
-    Parents extends Record<keyof any, Quelaag<Middleware<unknown, Req>>>,
+    Parents extends Record<keyof any, Quelaag<any, any, any>>,
     ChildSpec extends MiddlewareSpec<ChildContext, Req>,
-    Req = QuelaagReq<ValuesOf<Parents>>,
+    Req extends QuelaagReq<ValuesOf<Parents>>,
     ChildContext = {
         [K in keyof Parents]: ReturnType<Parents[K]>
     },
 >
-    (parent: Parents, childSpec: ChildSpec): Quelaag<Middleware<ChildContext, Req, ChildSpec>>
+    (parent: Parents, childSpec: ChildSpec): Quelaag<ChildContext, Req, ChildSpec>
 {
     return quelaag(childSpec);
 }
