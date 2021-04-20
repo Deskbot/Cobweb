@@ -46,7 +46,7 @@ export function subquelaag<
     Parent extends Quelaag<any, any, any>,
     Req extends QuelaagReq<Parent>,
     ChildSpec extends MiddlewareSpec<ChildContext, Req>,
-    ChildContext = ReturnType<Parent>,
+    ChildContext extends ReturnType<Parent>,
 >
     (parent: Parent, childSpec: ChildSpec): Quelaag<ChildContext, Req, ChildSpec>
 {
