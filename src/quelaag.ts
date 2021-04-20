@@ -43,8 +43,8 @@ export function quelaag<
 }
 
 export function subquelaag<
-    Req,
-    Parent extends Quelaag<any, Req, any>,
+    Parent extends Quelaag<any, any, any>,
+    Req extends QuelaagReq<Parent>,
     ChildSpec extends MiddlewareSpec<ChildContext, Req>,
     ChildContext = ReturnType<Parent>,
 >
@@ -53,11 +53,11 @@ export function subquelaag<
     return quelaag(childSpec);
 }
 
-export function subquelaag2<Parent extends Quelaag = never>() {
+export function subquelaag2<Parent extends Quelaag<any, any, any> = never>() {
     return <
-        Req = QuelaagReq<Parent>,
-        ChildContext = ReturnType<Parent>,
-        ChildSpec extends MiddlewareSpec<ChildContext, Req> = MiddlewareSpec<ChildContext, Req>,
+        Req extends QuelaagReq<Parent>,
+        ChildContext extends ReturnType<Parent>,
+        ChildSpec extends MiddlewareSpec<ChildContext, Req>,
     >
     (childSpec: ChildSpec): Quelaag<ChildContext, Req, ChildSpec> => {
         return quelaag(childSpec);
