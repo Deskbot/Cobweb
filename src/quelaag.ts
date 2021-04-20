@@ -1,4 +1,4 @@
-import { Middleware, MiddlewareSpec, Quelaag, QuelaagReq, ValuesOf } from "./types";
+import { MiddlewareSpec, Quelaag, QuelaagReq, ValuesOf } from "./types";
 import { IncomingMessage } from "http";
 
 const __req = Symbol("request key");
@@ -41,8 +41,6 @@ export function quelaag<
 
     return (req, context) => new (constructor as any)(req, context);
 }
-
-export default quelaag;
 
 /**
  * This function exists only to allow you to specify the type of Context and Req,
