@@ -28,34 +28,49 @@ npm install --save quelaag
 import { quelaag, router } from "quelaag";
 import * as http from "http";
 
-const router = router(quelaag({}));
-router.addEndpoint({
-    when: req => req.url === "/hello",
+const root = router(quelaag({
+    cookies(req: express.Request): Record<string, string> {
+        return cookie.parse(req.headers.cookie || "");
+    }
+}));
+root.addEndpoint({
+    when: req => req.url! === "/hello",
     do: (req, res) => {
-        res.write("hello world");
+        if (middleware.cookies().loggedIn) {
+            res.write("hello world");
+        }
         res.end();
     }
 });
 
-const server = http.createServer((req, res) => router.route(req, res));
+const server = http.createServer((req, res) => root.route(req, res));
 server.listen(8080);
 ```
 
-`quelaag` is a function that creates memoised middleware functions. In this example there are no middleware functions. `router` is a class that facilitates choosing what to do when handling an incoming request.
+`quelaag` is a function that creates memoised middleware functions, e.g. `cookies` in the above example. `router` creates an object that facilitates choosing what to do when handling an incoming request.
 
 `quelaag` and `router` are designed to be flexible in how they can be used. You can use them with NodeJS's built-in libraries or a third-party framework. `quelaag` can be used without `router` entirely.
 
-By default, the type of requests and responses are NodeJS's `IncomingMessage` and `ServerResponse`. However, these can be overridden with type arguments to `quelaag` or `Router`.
+By default, the type of requests and responses are NodeJS's `IncomingMessage` and `ServerResponse`. However, these can be overridden with type arguments to `router`.
 
 ```ts
 import { quelaag, router } from "quelaag";
+import * as cookie from "cookie"; // a third party cookie header parsing library
 import * as express from "express";
 
-const root = router<express.Request, express.Response>(quelaag({}));
+const q = quelaag({
+    cookies(req: express.Request): Record<string, string> {
+        return cookie.parse(req.headers.cookie || "");
+    }
+});
+
+const root = router<express.Request, express.Response, typeof q>(q);
 root.addEndpoint({
     when: req => req.ip.endsWith("127.0.0.1"),
     do: (req, res, middleware) => {
-        res.json({ hello: "world" });
+        if (middleware.cookies().loggedIn) {
+            res.json({ hello: "world" });
+        }
     }
 });
 
@@ -65,6 +80,7 @@ app.use((req, res, next) => {
     next();
 });
 app.listen(8081);
+
 ```
 
 ## Middleware
@@ -119,13 +135,13 @@ import * as cookie from "cookie"; // a third party cookie header parsing library
 import * as http from "http";
 
 const router = router(quelaag({
-    cookies(req) {
-        return cookie.parse(req.headers.cookie || '');
+    cookies(req): Record<string, string> {
+        return cookie.parse(req.headers.cookie || "");
     },
-    userId(req) {
+    userId(req): number {
         return parseInt(this.cookies(req).userId);
     },
-    async userIsAdministrator(req) {
+    async userIsAdministrator(req): Promise<boolean> {
         const user = await getUserFromDatabase(this.userId(req));
         return user.isAdmin;
     }
@@ -364,3 +380,11 @@ quelaag({
 ### No implicit this
 
 To get the a greater benefit from TypeScript's type inference, you should enable `noImplicitThis` in your tsconfig.json. It causes `this` in your middleware specification to be correctly typed instead of treated as `any`.
+
+### Partial Application of Type Arguments
+
+TypeScript only infers type parameters when none of them are present. If you omit a type argument that has a default, the default will be used, however the default might not the type you want.
+
+It's possible that you will want to specify some types in a call to `quelaag`, `router` or many of the types provided with this package, but the nature of writing a middleware specification is that you'll have some very big object whose type you want to be inferred. The best solution — I think — is to specify all of the type arguments and use `typeof` to get the complicated object type that you are using. I think that is easier than using the work around of currying the type arguments (i.e. defining nested functions each of which takes a single type argument).
+
+[In the future, there may be a way to tell TypeScript which types to infer.](https://github.com/microsoft/TypeScript/issues/26242)
