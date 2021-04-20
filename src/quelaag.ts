@@ -42,22 +42,6 @@ export function quelaag<
     return (req, context) => new (constructor as any)(req, context);
 }
 
-/**
- * This function exists only to allow you to specify the type of Context and Req,
- * while still getting TypeScript to infer Spec.
- * Currently in TypeScript, if you specify any of the type arguments to a function,
- * none of the arguments are inferred.
- * This function won't be necessary if this fact about TypeScript changes.
- */
-export function quelaagPartialTypes<Context, Req = IncomingMessage>() {
-    return <
-        Spec extends MiddlewareSpec<Context, Req>
-    >
-    (spec: Spec) => {
-        return quelaag<Context, Req, Spec>(spec);
-    };
-}
-
 export function subquelaag<
     Req,
     Parent extends Quelaag<any, Req, any>,
