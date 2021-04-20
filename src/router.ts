@@ -219,5 +219,5 @@ export function subRouter<
     spec: ChildSpec
 ): Router<ParentM, Req, Res, SubQ>
 {
-    return new RouterImpl(subquelaag(parentRouter.quelaag, spec) as SubQ);
+    return new RouterImpl(subquelaag(parentRouter.quelaag as ParentQ, spec) as SubQ);
 }
