@@ -31,7 +31,7 @@ export const manualSubquelaagTests: Test[] = [
     run: ({ test }) => {
         let count = 0;
 
-        let { makeMiddleware1, makeMiddleware2 } = setup(() => count += 1);
+        const { makeMiddleware1, makeMiddleware2 } = setup(() => count += 1);
 
         const mid1 = makeMiddleware1("", undefined);
         const mid2 = makeMiddleware2("", mid1);
@@ -54,7 +54,7 @@ export const manualSubquelaagTests: Test[] = [
     run: ({ test }) => {
         let count = 0;
 
-        let { makeMiddleware1, makeMiddleware2 } = setup(() => count += 1);
+        const { makeMiddleware1, makeMiddleware2 } = setup(() => count += 1);
 
         const mid1 = makeMiddleware1("", undefined);
         const mid2 = makeMiddleware2("", mid1);
@@ -77,7 +77,7 @@ export const manualSubquelaagTests: Test[] = [
     run: ({ test }) => {
         let count = 0;
 
-        let { makeMiddleware1, makeMiddleware2 } = setup(() => count += 1);
+        const { makeMiddleware1, makeMiddleware2 } = setup(() => count += 1);
 
         const mid1 = makeMiddleware1("", undefined);
         const mid2 = makeMiddleware2("", mid1);
