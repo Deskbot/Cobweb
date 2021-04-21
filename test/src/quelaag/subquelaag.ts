@@ -1,4 +1,4 @@
-import { quelaag, subquelaag, subquelaag2 } from "../../../src";
+import { MiddlewareSpec, Quelaag, quelaag, QuelaagReq, subquelaag } from "../../../src";
 import { Test } from "../framework";
 import { objectNotAny, stringNotAny } from "../util";
 
@@ -110,6 +110,17 @@ export const subquelaagTests: Test[] = [
     name: "SubQuelaag2",
     cases: 2,
     run: ({ test }) => {
+        function subquelaag2<Parent extends Quelaag<any, any, any> = never>() {
+            return <
+                Req extends QuelaagReq<Parent>,
+                ChildContext extends ReturnType<Parent>,
+                ChildSpec extends MiddlewareSpec<ChildContext, Req>,
+                >
+                (childSpec: ChildSpec): Quelaag<ChildContext, Req, ChildSpec> => {
+                return quelaag(childSpec);
+            }
+        }
+
         let count = 0;
 
         const makeMiddleware1 = quelaag({
