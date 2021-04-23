@@ -1,5 +1,7 @@
 # Quelaag
 
+Named after the spider boss from Dark Souls. Typically Pronounced: (/ˈkweɪlæɡ/) (like a combination of "quail" and "lag")
+
 Quelaag is a web request handling library for NodeJS designed to:
 
 * play well with TypeScript,
