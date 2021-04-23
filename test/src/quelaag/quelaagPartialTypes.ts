@@ -19,7 +19,7 @@ export const quelaagPartialTypesTests: Test[] = [
                 }
             };
 
-            const q = quelaag<string, number, typeof spec>(spec);
+            const q = quelaag<number, string, typeof spec>(spec);
 
             const mid = q(1, "");
 

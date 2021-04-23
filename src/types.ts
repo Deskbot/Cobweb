@@ -6,22 +6,22 @@ export type ValuesOf<R extends Record<keyof any, unknown>> = R[keyof R];
 // Router
 
 export interface Router<
-    Context,
     Req = IncomingMessage,
     Res = ServerResponse,
+    Context = undefined,
     // Q is intended to be inferred from the constructor argument
-    Q extends Quelaag<Context, Req> = Quelaag<Context, Req>,
+    Q extends Quelaag<Req, Context> = Quelaag<Req, Context>,
     // easiest way to derive the middleware used in the Quelaag given to the constructor
     M extends ReturnType<Q> = ReturnType<Q>,
 > {
-    addEndpoint(handler: Endpoint<Context, Req, Res, M>): void;
-    addSpy(handler: Spy<Context, Req, M>): void;
-    addSubRouter(handler: SubRouterEndpoint<Context, Req, Res, M>): void;
+    addEndpoint(handler: Endpoint<Req, Res, Context, M>): void;
+    addSpy(handler: Spy<Req, Context, M>): void;
+    addSubRouter(handler: SubRouterEndpoint<Req, Res, Context, M>): void;
     /**
      * internal use only
      */
     _routeWithContext(req: Req, res: Res, context: Context): void;
-    setFallbackEndpoint(handler: Fallback<Context, Req, Res, M> | undefined): void;
+    setFallbackEndpoint(handler: Fallback<Req, Res, Context, M> | undefined): void;
     quelaag: Q;
 }
 
@@ -34,9 +34,9 @@ export interface Router<
 export interface RouterTop<
     Req = IncomingMessage,
     Res = ServerResponse,
-    Q extends Quelaag<any, Req> = Quelaag<unknown, Req>,
+    Q extends Quelaag<Req, any> = Quelaag<Req, unknown>,
 >
-    extends Router<undefined, Req, Res, Q, ReturnType<Q>>
+    extends Router<Req, Res, undefined, Q, ReturnType<Q>>
 {
     route(req: Req, res: Res): void;
 }
@@ -44,26 +44,26 @@ export interface RouterTop<
 // callbacks
 
 export interface RequestHandler<
-    Context,
     Req,
     Res,
-    M extends Middleware<Context, Req>,
+    Context,
+    M extends Middleware<Req, Context>,
 > {
     (req: Req, res: Res, middleware: M): void | Promise<void>
 }
 
 export interface RequestSideEffect<
-    Context,
     Req,
-    M extends Middleware<Context, Req>,
+    Context,
+    M extends Middleware<Req, Context>,
 > {
     (req: Req, middleware: M): void;
 }
 
 export interface RequestPredicate<
-    Context,
     Req,
-    M extends Middleware<Context, Req>,
+    Context,
+    M extends Middleware<Req, Context>,
 > {
     (req: Req, middleware: M): boolean | Promise<boolean>;
 }
@@ -81,66 +81,66 @@ export interface SpyCatch<Req> {
 // endpoint
 
 export interface Endpoint<
-    Context,
     Req,
     Res,
-    M extends Middleware<Context, Req>,
+    Context,
+    M extends Middleware<Req, Context>,
 > extends EndpointCatch<Req, Res>
 {
-    when: RequestPredicate<Context, Req, M>;
-    do: RequestHandler<Context, Req, Res, M>;
+    when: RequestPredicate<Req, Context, M>;
+    do: RequestHandler<Req, Res, Context, M>;
 }
 
-export type Fallback<Context, Req, Res, M extends Middleware<Context, Req>> =
-    FallbackEndpoint<Context, Req, Res, M> | RequestHandler<Context, Req, Res, M>;
+export type Fallback<Req, Res, Context, M extends Middleware<Req, Context>> =
+    FallbackEndpoint<Req, Res, Context, M> | RequestHandler<Req, Res, Context, M>;
 
 export interface FallbackEndpoint<
-    Context,
     Req,
     Res,
-    M extends Middleware<Context, Req>,
+    Context,
+    M extends Middleware<Req, Context>,
 > extends EndpointCatch<Req, Res>
 {
-    do: RequestHandler<Context, Req, Res, M>;
+    do: RequestHandler<Req, Res, Context, M>;
 }
 
 // spy
 
 export interface Spy<
-    Context,
     Req,
-    M extends Middleware<Context, Req>,
+    Context,
+    M extends Middleware<Req, Context>,
 > extends SpyCatch<Req>
 {
-    when: RequestPredicate<Context, Req, M>;
-    do: RequestSideEffect<Context, Req, M>;
+    when: RequestPredicate<Req, Context, M>;
+    do: RequestSideEffect<Req, Context, M>;
 }
 
 // subrouter
 
 export interface SubRouterEndpoint<
-    Context,
     Req,
     Res,
-    M extends Middleware<Context, Req>,
+    Context,
+    M extends Middleware<Req, Context>,
 > {
-    when: RequestPredicate<Context, Req, M>;
-    router: () => Router<M, Req, Res>; // this is a function to allow a super and sub router to reference each other
+    when: RequestPredicate<Req, Context, M>;
+    router: () => Router<Req, Res, M>; // this is a function to allow a super and sub router to reference each other
 }
 
 // middleware
 
 export type MiddlewareSpec<
-    Context,
     Req,
+    Context,
     K extends keyof any = keyof any,
 >
     = Record<K, (req: Req, context: Context) => unknown>;
 
 export type Middleware<
-    Context,
     Req,
-    Spec extends MiddlewareSpec<Context, Req> = MiddlewareSpec<Context, Req>
+    Context,
+    Spec extends MiddlewareSpec<Req, Context> = MiddlewareSpec<Req, Context>
 > = {
     [N in keyof Spec]: () => ReturnType<Spec[N]>
 };
@@ -150,14 +150,14 @@ export type Middleware<
 // The middleware needs to be a type parameter
 // so that the exact subtype of Middleware will be inferred by typescript.
 export type Quelaag<
-    Context = undefined,
     Req = IncomingMessage,
-    Spec extends MiddlewareSpec<Context, Req> = MiddlewareSpec<Context, Req>,
+    Context = undefined,
+    Spec extends MiddlewareSpec<Req, Context> = MiddlewareSpec<Req, Context>,
 > =
     (
         req: Req,
         context: Context,
-    ) => Middleware<Context, Req, Spec>;
+    ) => Middleware<Req, Context, Spec>;
 
-export type QuelaagReq<Q extends Quelaag<any, any>> = (Q extends Quelaag<any, infer R, any> ? R : never);
-export type QuelaagContext<Q extends Quelaag<any, any>> = (Q extends Quelaag<infer C, any, any> ? C : never);
+export type QuelaagReq<Q extends Quelaag<any, any>> = (Q extends Quelaag<infer R, any, any> ? R : never);
+export type QuelaagContext<Q extends Quelaag<any, any>> = (Q extends Quelaag<any, infer C, any> ? C : never);

@@ -114,9 +114,9 @@ export const subquelaagTests: Test[] = [
             return <
                 Req extends QuelaagReq<Parent>,
                 ChildContext extends ReturnType<Parent>,
-                ChildSpec extends MiddlewareSpec<ChildContext, Req>,
+                ChildSpec extends MiddlewareSpec<Req, ChildContext>,
                 >
-                (childSpec: ChildSpec): Quelaag<ChildContext, Req, ChildSpec> => {
+                (childSpec: ChildSpec): Quelaag<Req, ChildContext, ChildSpec> => {
                 return quelaag(childSpec);
             }
         }

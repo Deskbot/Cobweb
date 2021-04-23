@@ -1,23 +1,23 @@
 import { IncomingMessage, ServerResponse } from "http";
 import { subquelaag } from "./quelaag";
-import { Endpoint, EndpointCatch, Fallback, FallbackEndpoint, Middleware, MiddlewareSpec, Quelaag, RouterTop, Router, Spy, SpyCatch, SubRouterEndpoint, QuelaagReq, QuelaagContext } from "./types";
+import { Endpoint, EndpointCatch, Fallback, FallbackEndpoint, MiddlewareSpec, Quelaag, Router, RouterTop, Spy, SpyCatch, SubRouterEndpoint } from "./types";
 
 class RouterImpl<
-    Context,
     Req,
     Res,
+    Context,
     // Q is intended to be inferred from the constructor argument
-    Q extends Quelaag<Context, Req>,
+    Q extends Quelaag<Req, Context>,
     // easiest way to derive the middleware used in the Quelaag given to the constructor
     M extends ReturnType<Q> = ReturnType<Q>,
 >
-    implements Router<Context, Req, Res, Q, M>
+    implements Router<Req, Res, Context, Q, M>
 {
     private catcher: ((error: unknown) => void) | undefined;
-    private endpoints: Endpoint<Context, Req, Res, M>[];
-    private fallbackEndpoint: FallbackEndpoint<Context, Req, Res, M> | undefined;
+    private endpoints: Endpoint<Req, Res, Context, M>[];
+    private fallbackEndpoint: FallbackEndpoint<Req, Res, Context, M> | undefined;
     readonly quelaag: Q;
-    private spies: Spy<Context, Req, M>[];
+    private spies: Spy<Req, Context, M>[];
 
     /**
      * Create a Quelaag web server handler.
@@ -32,15 +32,15 @@ class RouterImpl<
         this.spies = [];
     }
 
-    addEndpoint(handler: Endpoint<Context, Req, Res, M>) {
+    addEndpoint(handler: Endpoint<Req, Res, Context, M>) {
         this.endpoints.push(handler);
     }
 
-    addSpy(handler: Spy<Context, Req, M>) {
+    addSpy(handler: Spy<Req, Context, M>) {
         this.spies.push(handler);
     }
 
-    addSubRouter(handler: SubRouterEndpoint<Context, Req, Res, M>) {
+    addSubRouter(handler: SubRouterEndpoint<Req, Res, Context, M>) {
         this.endpoints.push({
             when: handler.when,
             do: (req, res, m) => {
@@ -94,12 +94,12 @@ class RouterImpl<
 
     private async getEndpointToCall(req: Req, res: Res, middleware: M)
         : Promise<
-            Endpoint<Context, Req, Res, M>
-            | FallbackEndpoint<Context, Req, Res, M>
+            Endpoint<Req, Res, Context, M>
+            | FallbackEndpoint<Req, Res, Context, M>
             | undefined
         >
     {
-        let userEndpoint: Endpoint<Context, Req, Res, M> | undefined;
+        let userEndpoint: Endpoint<Req, Res, Context, M> | undefined;
 
         for (const endpoint of this.endpoints) {
             try {
@@ -163,7 +163,7 @@ class RouterImpl<
         }
     }
 
-    setFallbackEndpoint(handler: Fallback<Context, Req, Res, M> | undefined) {
+    setFallbackEndpoint(handler: Fallback<Req, Res, Context, M> | undefined) {
         if (typeof handler === "function") {
             this.fallbackEndpoint = {
                 do: handler,
@@ -174,8 +174,8 @@ class RouterImpl<
     }
 }
 
-class RootRouterImpl<Req, Res, Q extends Quelaag<undefined, Req>>
-    extends RouterImpl<undefined, Req, Res, Q>
+class RootRouterImpl<Req, Res, Q extends Quelaag<Req, undefined>>
+    extends RouterImpl<Req, Res, undefined, Q>
     implements RouterTop<Req, Res, Q>
 {
     route(req: Req, res: Res) {
@@ -186,14 +186,14 @@ class RootRouterImpl<Req, Res, Q extends Quelaag<undefined, Req>>
 export function router<
     Req = IncomingMessage,
     Res = ServerResponse,
-    Q extends Quelaag<undefined, Req> = Quelaag<undefined, Req>,
+    Q extends Quelaag<Req, undefined> = Quelaag<Req, undefined>,
 >(quelaag: Q, catcher?: (error: unknown) => void): RouterTop<Req, Res, Q> {
     return new RootRouterImpl(quelaag, catcher);
 }
 
 export function routerPartialTypes<Req = IncomingMessage, Res = ServerResponse>() {
     return <
-        Q extends Quelaag<undefined, Req>
+        Q extends Quelaag<Req, undefined>
     >(quelaag: Q, catcher?: (error: unknown) => void): RouterTop<Req, Res, Q> => {
         return router(quelaag, catcher);
     };
@@ -204,20 +204,20 @@ export function subRouter<
     Res = ServerResponse,
 
     ParentContext = undefined,
-    ParentQ extends Quelaag<ParentContext, Req>
-                  = Quelaag<ParentContext, Req>,
+    ParentQ extends Quelaag<Req, ParentContext>
+                  = Quelaag<Req, ParentContext>,
     ParentM extends ReturnType<ParentQ>
                   = ReturnType<ParentQ>,
 
-    ChildSpec extends MiddlewareSpec<ParentM, Req>
-                    = MiddlewareSpec<ParentM, Req>,
+    ChildSpec extends MiddlewareSpec<Req, ParentM>
+                    = MiddlewareSpec<Req, ParentM>,
 
-    SubQ extends Quelaag<ParentM, Req, ChildSpec>
-               = Quelaag<ParentM, Req, ChildSpec>,
+    SubQ extends Quelaag<Req, ParentM, ChildSpec>
+               = Quelaag<Req, ParentM, ChildSpec>,
 >(
-    parentRouter: Router<ParentContext, Req, Res, ParentQ>,
+    parentRouter: Router<Req, Res, ParentContext, ParentQ>,
     spec: ChildSpec
-): Router<ParentM, Req, Res, SubQ>
+): Router<Req, Res, ParentM, SubQ>
 {
-    return new RouterImpl(subquelaag(parentRouter.quelaag as ParentQ, spec) as SubQ);
+    return new RouterImpl(subquelaag(parentRouter.quelaag, spec) as SubQ);
 }
