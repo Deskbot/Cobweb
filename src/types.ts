@@ -1,10 +1,22 @@
 import { IncomingMessage, ServerResponse } from "http";
 
 // utils
+/**
+ * A utility type that represents the union of the types that are values in the given record.
+ * e.g. ValuesOf<{ a: string, b: number }> ≡ string | number
+ */
 export type ValuesOf<R extends Record<keyof any, unknown>> = R[keyof R];
 
 // Router
 
+/**
+ * A Router.
+ * The Req, Res, & Context type parameters can be set by you.
+ * There's no need to set the Q or M type parameters
+ * because the defaults are based on the other type parameters and will be correct.
+ * The Context is expected to be the Quelaag of a parent Router.
+ * A top-level Router won't have a parent, so the default Context is undefined.
+ */
 export interface Router<
     Req = IncomingMessage,
     Res = ServerResponse,
@@ -64,7 +76,10 @@ export interface RouterTop<
 
 // callbacks
 
-export interface RequestHandler<
+/**
+ * A function to handle a response object.
+ */
+export interface Responder<
     Req,
     Res,
     Context,
@@ -73,6 +88,9 @@ export interface RequestHandler<
     (req: Req, res: Res, middleware: M): void | Promise<void>
 }
 
+/**
+ * A function to do something with a request.
+ */
 export interface RequestSideEffect<
     Req,
     Context,
@@ -81,6 +99,9 @@ export interface RequestSideEffect<
     (req: Req, middleware: M): void;
 }
 
+/**
+ * A predicate based on a request.
+ */
 export interface RequestPredicate<
     Req,
     Context,
@@ -91,10 +112,16 @@ export interface RequestPredicate<
 
 // catching
 
+/**
+ * The catcher portion of an Endpoint or Fallback.
+ */
 export interface EndpointCatch<Req, Res> {
     catch?: (error: unknown, req: Req, res: Res) => void;
 }
 
+/**
+ * The catcher portion of a Spy.
+ */
 export interface SpyCatch<Req> {
     catch?: (error: unknown, req: Req) => void;
 }
@@ -109,11 +136,17 @@ export interface Endpoint<
 > extends EndpointCatch<Req, Res>
 {
     when: RequestPredicate<Req, Context, M>;
-    do: RequestHandler<Req, Res, Context, M>;
+    do: Responder<Req, Res, Context, M>;
 }
 
+/**
+ * A valid argument to the fallback endpoint function.
+ * Essentially either an Endpoint with only the "do" function,
+ * or simply a valid "do" function i.e. a RequestHandler.
+ */
 export type Fallback<Req, Res, Context, M extends Middleware<Req, Context>> =
-    FallbackEndpoint<Req, Res, Context, M> | RequestHandler<Req, Res, Context, M>;
+    FallbackEndpoint<Req, Res, Context, M>
+    | Responder<Req, Res, Context, M>;
 
 export interface FallbackEndpoint<
     Req,
@@ -122,7 +155,7 @@ export interface FallbackEndpoint<
     M extends Middleware<Req, Context>,
 > extends EndpointCatch<Req, Res>
 {
-    do: RequestHandler<Req, Res, Context, M>;
+    do: Responder<Req, Res, Context, M>;
 }
 
 // spy
@@ -151,6 +184,9 @@ export interface SubRouterEndpoint<
 
 // middleware
 
+/**
+ * An object containing function definitions to be turned into a Quelaag.
+ */
 export type MiddlewareSpec<
     Req,
     Context,
@@ -158,6 +194,9 @@ export type MiddlewareSpec<
 >
     = Record<K, (req: Req, context: Context) => unknown>;
 
+/**
+ * An object of memoised functions that have a request object (and context) baked into them.
+ */
 export type Middleware<
     Req,
     Context,
