@@ -183,6 +183,15 @@ class RootRouterImpl<Req, Res, Q extends Quelaag<Req, undefined>>
     }
 }
 
+/**
+ * Create a new router.
+ * You can choose a request and response type by giving type arguments to this function,
+ * but if you do, you also need to provide a type argument that matches the Quelaag argument.
+ * You can do this by assigning the Quelaag to a variable and using `typeof [that variable]` as the type argument.
+ *
+ * @param quelaag An instance of Quelaag
+ * @param catcher A function to do something with uncaught errors.
+ */
 export function router<
     Req = IncomingMessage,
     Res = ServerResponse,
@@ -191,14 +200,13 @@ export function router<
     return new RootRouterImpl(quelaag, catcher);
 }
 
-export function routerPartialTypes<Req = IncomingMessage, Res = ServerResponse>() {
-    return <
-        Q extends Quelaag<Req, undefined>
-    >(quelaag: Q, catcher?: (error: unknown) => void): RouterTop<Req, Res, Q> => {
-        return router(quelaag, catcher);
-    };
-}
-
+/**
+ * Create a new Router and a new Quelaag for it, where the Quelaag's context is the Quelaag of the parent Router.
+ * This allows you to use middleware defined in the parent Router in the created sub-Router.
+ *
+ * @param parentRouter An instance of Router.
+ * @param spec An object of middleware functions used to define a new Quelaag.
+ */
 export function subRouter<
     Req = IncomingMessage,
     Res = ServerResponse,

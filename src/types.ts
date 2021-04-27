@@ -14,14 +14,35 @@ export interface Router<
     // easiest way to derive the middleware used in the Quelaag given to the constructor
     M extends ReturnType<Q> = ReturnType<Q>,
 > {
-    addEndpoint(handler: Endpoint<Req, Res, Context, M>): void;
-    addSpy(handler: Spy<Req, Context, M>): void;
-    addSubRouter(handler: SubRouterEndpoint<Req, Res, Context, M>): void;
     /**
-     * internal use only
+     * Add a new endpoint responsible for handling the response to a request.
+     */
+    addEndpoint(handler: Endpoint<Req, Res, Context, M>): void;
+
+    /**
+     * Add a new spy to observe incoming requests.
+     */
+    addSpy(handler: Spy<Req, Context, M>): void;
+
+    /**
+     * Delegate routing entirely to another Router.
+     */
+    addSubRouter(handler: SubRouterEndpoint<Req, Res, Context, M>): void;
+
+    /**
+     * Not intended for public use.
      */
     _routeWithContext(req: Req, res: Res, context: Context): void;
+
+    /**
+     * Define the endpoint that will handle responding to a request,
+     * when the request matches no other endpoint.
+     */
     setFallbackEndpoint(handler: Fallback<Req, Res, Context, M> | undefined): void;
+
+    /**
+     * The underlying Quelaag that this router uses to create middleware function objects.
+     */
     quelaag: Q;
 }
 
