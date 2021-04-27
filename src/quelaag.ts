@@ -42,6 +42,13 @@ export function quelaag<
     return (req, context) => new (constructor as any)(req, context);
 }
 
+/**
+ * A function that makes a new Quelaag.
+ * It is identical to quelaag(...) except it takes a parent instance of Quelaag as the first parameter
+ * to become the Context type of the new quelaag.
+ * The actual value of the parent is unused.
+ * The purpose of passing a value instead of a type argument is to make use of TypeScript's inference.
+ */
 export function subquelaag<
     Parent extends Quelaag<any, any, any>,
     ChildSpec extends MiddlewareSpec<Req, ChildContext>,
@@ -53,6 +60,11 @@ export function subquelaag<
     return quelaag(childSpec);
 }
 
+/**
+ * A function that makes a new Quelaag.
+ * Identical to subquelaag(...) except instead of taking a single parent it takes a record of parent Quelaags.
+ * The Context type for the new Quelaag is the Record type given to the first parameter.
+ */
 export function multiParentSubquelaag<
     Parents extends Record<keyof any, Quelaag<any, any, any>>,
     ChildSpec extends MiddlewareSpec<Req, ChildContext>,
@@ -61,7 +73,7 @@ export function multiParentSubquelaag<
         [K in keyof Parents]: ReturnType<Parents[K]>
     },
 >
-    (parent: Parents, childSpec: ChildSpec): Quelaag<Req, ChildContext, ChildSpec>
+    (parents: Parents, childSpec: ChildSpec): Quelaag<Req, ChildContext, ChildSpec>
 {
     return quelaag(childSpec);
 }
