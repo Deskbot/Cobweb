@@ -63,7 +63,7 @@ class RouterImpl<
             return;
         }
 
-        if (result instanceof Promise && endpoint.catch) {
+        if (result instanceof Promise) {
             this.handleReject(endpoint, result, req, res);
         }
     }
