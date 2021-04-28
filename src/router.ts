@@ -88,10 +88,14 @@ class RouterImpl<
                     if (await when) {
                         spy.do(req, middleware);
                     }
+
                 } catch (err) {
                     this.callSpyCatch(spy, err, req);
-                    return;
                 }
+
+                // whether this spy was called or not called or errored,
+                // continue looking for spies to call
+                continue;
             }
 
             // when returned boolean
@@ -109,6 +113,10 @@ class RouterImpl<
                 if (result instanceof Promise) {
                     result.catch(err => this.callSpyCatch(spy, err, req));
                 }
+
+                // whether this spy was called or not called or errored,
+                // continue looking for spies to call
+                continue;
             }
         }
     }
@@ -139,6 +147,9 @@ class RouterImpl<
                 try {
                     if (await isWhen) {
                         userEndpoint = endpoint;
+                        break;
+                    } else {
+                        continue;
                     }
                 } catch (err) {
                     this.callEndpointCatch(endpoint, err, req, res);
@@ -150,6 +161,8 @@ class RouterImpl<
             else if (isWhen) {
                 userEndpoint = endpoint;
                 break;
+            } else {
+                continue;
             }
         }
 
