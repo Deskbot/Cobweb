@@ -148,7 +148,7 @@ export const catchTests: Test[] = [{
     }
 },
 {
-    name: "A spy that throws should be caught with an error message and request.",
+    name: "An exception thrown in the `do' of a spy that should be caught with an error message and request.",
     run({ test }) {
         const handler = router(quelaag({}));
         handler.addSpy({
@@ -166,7 +166,7 @@ export const catchTests: Test[] = [{
     }
 },
 {
-    name: "A spy that rejects should be caught with an error message and request.",
+    name: "A rejected promise in the `do' of a spy should be caught with an error message and request.",
     run({ test }) {
         const handler = router(quelaag({}));
         handler.addSpy({
@@ -174,6 +174,42 @@ export const catchTests: Test[] = [{
             do: () => {
                 return Promise.reject("error");
             },
+            catch: (err, req) => {
+                test(err === "error");
+                test(req instanceof IncomingMessage);
+            }
+        });
+
+        makeRequest(handler);
+    }
+},
+{
+    name: "An exception thrown in the `when` of a spy that should be caught with an error message and request.",
+    run({ test }) {
+        const handler = router(quelaag({}));
+        handler.addSpy({
+            when: () => {
+                throw "error";
+            },
+            do: () => {},
+            catch: (err, req) => {
+                test(err === "error");
+                test(req instanceof IncomingMessage);
+            }
+        });
+
+        makeRequest(handler);
+    }
+},
+{
+    name: "A rejected promise in the `when` of a spy should be caught with an error message and request.",
+    run({ test }) {
+        const handler = router(quelaag({}));
+        handler.addSpy({
+            when: () => {
+                return Promise.reject("error");
+            },
+            do: () => {},
             catch: (err, req) => {
                 test(err === "error");
                 test(req instanceof IncomingMessage);

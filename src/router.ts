@@ -78,6 +78,8 @@ class RouterImpl<
             }
 
             if (when instanceof Promise) {
+                this.handleSpyReject(spy, when, req);
+
                 if (await when) {
                     spy.do(req, middleware);
                 }
