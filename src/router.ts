@@ -56,23 +56,24 @@ class RouterImpl<
             return;
         }
 
-        // be sure to catch errors that occur during the `do` function
         try {
             var result = endpoint.do(req, res, middleware);
         } catch (err) {
+            // catch errors that occur during the `do` function
             this.callEndpointCatch(endpoint, err, req, res);
             return;
         }
 
-        // be sure to catch errors that occur while the returned promise is resolving
         if (result instanceof Promise) {
+            // avoid blocking by not awaiting
+            // catch errors that occur while the returned promise is resolving
             result.catch(err => this.callEndpointCatch(endpoint, err, req, res));
         }
     }
 
     private async callSpies(req: Req, middleware: M) {
         for (const spy of this.spies) {
-
+            // call when
             try {
                 var when = spy.when(req, middleware);
             } catch (err) {
@@ -81,6 +82,7 @@ class RouterImpl<
                 continue;
             }
 
+            // get a boolean for whether to call do
             try {
                 var callDo = when instanceof Promise
                     ? await when
@@ -102,8 +104,9 @@ class RouterImpl<
                     continue;
                 }
 
-                // catch errors that occur while the returned promise is resolving
                 if (result instanceof Promise) {
+                    // avoid blocking by not awaiting
+                    // catch errors that occur while the returned promise is resolving
                     result.catch(err => this.callSpyCatch(spy, err, req));
                 }
             }
@@ -125,6 +128,7 @@ class RouterImpl<
 
         for (const endpoint of this.endpoints) {
 
+            // call when
             try {
                 var when = endpoint.when(req, middleware);
             } catch (err) {
@@ -133,6 +137,7 @@ class RouterImpl<
                 return undefined;
             }
 
+            // get a boolean for whether to return the endpoint
             try {
                 var endpointMatches = when instanceof Promise
                     ? await when
