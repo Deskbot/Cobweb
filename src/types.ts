@@ -166,7 +166,16 @@ export interface Spy<
     M extends Middleware<Req, Context>,
 > extends SpyCatch<Req>
 {
+    /**
+     * The condition for whether to call the "do" method.
+     * If a promise is returned, it won't block anything but a rejection will be handled by the given catch.
+     */
     when: RequestPredicate<Req, Context, M>;
+
+    /**
+     * Something to do with the request spied upon.
+     * If a promise is returned, it won't block anything but a rejection will be handled by the given catch.
+     */
     do: RequestSideEffect<Req, Context, M>;
 }
 
