@@ -190,6 +190,8 @@ class RouterImpl<
             maybeCatcher.catch(err, req, res);
         } else if (this.catcher) {
             this.catcher(err);
+        } else {
+            throw err;
         }
     }
 
@@ -217,6 +219,8 @@ class RouterImpl<
             maybeCatcher.catch(err, req);
         } else if (this.catcher) {
             this.catcher(err);
+        } else {
+            throw err;
         }
     }
 
