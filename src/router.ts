@@ -59,12 +59,12 @@ class RouterImpl<
         try {
             var result = endpoint.do(req, res, middleware);
         } catch (err) {
-            this.handleEndpointThrow(endpoint, err, req, res);
+            this.callEndpointCatch(endpoint, err, req, res);
             return;
         }
 
         if (result instanceof Promise) {
-            this.handleEndpointReject(endpoint, result, req, res);
+            this.addEndpointRejectHandler(endpoint, result, req, res);
         }
     }
 
@@ -73,26 +73,30 @@ class RouterImpl<
             try {
                 var when = spy.when(req, middleware);
             } catch (err) {
-                this.handleSpyThrow(spy, err, req);
+                this.callSpyCatch(spy, err, req);
                 continue;
             }
 
+            // when returned promise
             if (when instanceof Promise) {
-                this.handleSpyReject(spy, when, req);
+                this.addSpyRejectHandler(spy, when, req);
 
                 if (await when) {
                     spy.do(req, middleware);
                 }
-            } else if (when) {
+            }
+
+            // when returned boolean
+            else if (when) {
                 try {
                     var result = spy.do(req, middleware);
                 } catch (err) {
-                    this.handleSpyThrow(spy, err, req);
+                    this.callSpyCatch(spy, err, req);
                     continue;
                 }
 
                 if (result instanceof Promise) {
-                    this.handleSpyReject(spy, result, req);
+                    this.addSpyRejectHandler(spy, result, req);
                 }
             }
         }
@@ -111,22 +115,26 @@ class RouterImpl<
             try {
                 var isWhen = endpoint.when(req, middleware);
             } catch (err) {
-                this.handleEndpointThrow(endpoint, err, req, res);
+                this.callEndpointCatch(endpoint, err, req, res);
                 return;
             }
 
+            // when returned promise
             if (isWhen instanceof Promise) {
-                this.handleEndpointReject(endpoint, isWhen, req, res);
+                this.addEndpointRejectHandler(endpoint, isWhen, req, res);
 
                 try {
                     if (await isWhen) {
                         userEndpoint = endpoint;
                     }
                 } catch (err) {
-                    this.handleEndpointThrow(endpoint, err, req, res);
+                    this.callEndpointCatch(endpoint, err, req, res);
                     return;
                 }
-            } else if (isWhen) {
+            }
+
+            // when returned boolean
+            else if (isWhen) {
                 userEndpoint = endpoint;
                 break;
             }
@@ -141,7 +149,12 @@ class RouterImpl<
         this.callEndpoint(req, res, middlewareInventory);
     }
 
-    private handleEndpointReject(maybeCatcher: EndpointCatch<Req, Res>, promise: Promise<unknown>, req: Req, res: Res) {
+    private addEndpointRejectHandler(
+        maybeCatcher: EndpointCatch<Req, Res>,
+        promise: Promise<unknown>,
+        req: Req,
+        res: Res,
+    ) {
         // this.catcher will never reference members of this
         // if the user wants to use a function with a binded `this`
         // they should wrap it in a lambda as is normal
@@ -154,7 +167,12 @@ class RouterImpl<
         }
     }
 
-    private handleEndpointThrow(maybeCatcher: EndpointCatch<Req, Res>, err: unknown, req: Req, res: Res) {
+    private callEndpointCatch(
+        maybeCatcher: EndpointCatch<Req, Res>,
+        err: unknown,
+        req: Req,
+        res: Res,
+    ) {
         if (maybeCatcher.catch) {
             maybeCatcher.catch(err, req, res);
         } else if (this.catcher) {
@@ -162,7 +180,11 @@ class RouterImpl<
         }
     }
 
-    private handleSpyReject(maybeCatcher: SpyCatch<Req>, promise: Promise<unknown>, req: Req) {
+    private addSpyRejectHandler(
+        maybeCatcher: SpyCatch<Req>,
+        promise: Promise<unknown>,
+        req: Req,
+    ) {
         if (maybeCatcher.catch) {
             const c = maybeCatcher.catch;
             promise.catch(err => c(err, req));
@@ -171,7 +193,11 @@ class RouterImpl<
         }
     }
 
-    private handleSpyThrow(maybeCatcher: SpyCatch<Req>, err: unknown, req: Req) {
+    private callSpyCatch(
+        maybeCatcher: SpyCatch<Req>,
+        err: unknown,
+        req: Req
+    ) {
         if (maybeCatcher.catch) {
             maybeCatcher.catch(err, req);
         } else if (this.catcher) {
