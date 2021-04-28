@@ -110,6 +110,10 @@ class RouterImpl<
         }
     }
 
+    /**
+     * @returns undefined when there is no endpoint configured to be called including no fallback endpoint
+     *          or when an error occurs in a `when` because the corresponding `catch` will be called instead.
+     */
     private async getEndpointToCall(req: Req, res: Res, middleware: M)
         : Promise<
             Endpoint<Req, Res, Context, M>
@@ -121,37 +125,28 @@ class RouterImpl<
 
         for (const endpoint of this.endpoints) {
 
-            // be sure to catch errors that occur during the `when` function
             try {
-                var isWhen = endpoint.when(req, middleware);
+                var when = endpoint.when(req, middleware);
             } catch (err) {
+                // catch errors that occur during the `when` function
                 this.callEndpointCatch(endpoint, err, req, res);
-                return;
+                return undefined;
             }
 
-            // when returned promise
-            if (isWhen instanceof Promise) {
+            try {
+                var endpointMatches = when instanceof Promise
+                    ? await when
+                    : when;
 
-                // be sure to catch errors that occur while the returned promise is resolving
-                try {
-                    if (await isWhen) {
-                        userEndpoint = endpoint;
-                        break;
-                    } else {
-                        continue;
-                    }
-                } catch (err) {
-                    this.callEndpointCatch(endpoint, err, req, res);
-                    return;
-                }
+            } catch (err) {
+                // catch errors that occur while the returned promise is resolving
+                this.callEndpointCatch(endpoint, err, req, res);
+                return undefined;
             }
 
-            // when returned boolean
-            else if (isWhen) {
+            if (endpointMatches) {
                 userEndpoint = endpoint;
                 break;
-            } else {
-                continue;
             }
         }
 
