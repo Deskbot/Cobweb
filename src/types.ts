@@ -134,6 +134,9 @@ export interface SpyCatch<Req> {
 
 // endpoint
 
+/**
+ * An object that defines a kind of request to respond to and how to respond to it.
+ */
 export interface Endpoint<
     Req,
     Res,
@@ -152,24 +155,31 @@ export interface Endpoint<
 }
 
 /**
- * A valid argument to the fallback endpoint function.
- * Essentially either an Endpoint with only the "do" function,
- * or simply a valid "do" function i.e. a RequestHandler.
+ * A valid argument to `Router`'s set fallback endpoint function.
+ * Either an `Endpoint` without the `when` function,
+ * or a valid `do` function i.e. a `RequestHandler`.
  */
 export type Fallback<Req, Res, Context, M extends Middleware<Req, Context>> =
     FallbackEndpoint<Req, Res, Context, M>
     | Responder<Req, Res, Context, M>;
 
+/**
+ * The same as `Endpoint` but without a `when` method,
+ * because the `FallbackEndpoint` is always called when no other `Endpoint`s match.
+ */
 export type FallbackEndpoint<
     Req,
     Res,
     Context,
     M extends Middleware<Req, Context>,
 >
-    = Pick<Endpoint<Req, Res, Context, M>, "do" | "catch">;
+    = Omit<Endpoint<Req, Res, Context, M>, "when">;
 
 // spy
 
+/**
+ * An object that defines something to do with a request and when.
+ */
 export interface Spy<
     Req,
     Context,
