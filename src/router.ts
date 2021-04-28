@@ -73,50 +73,39 @@ class RouterImpl<
     private async callSpies(req: Req, middleware: M) {
         for (const spy of this.spies) {
 
-            // be sure to catch errors that occur during the `when` function
             try {
                 var when = spy.when(req, middleware);
             } catch (err) {
+                // catch errors that occur during the `when` function
                 this.callSpyCatch(spy, err, req);
                 continue;
             }
 
-            // when returned promise
-            // be sure to catch errors that occur while the returned promise is resolving
-            if (when instanceof Promise) {
-                try {
-                    if (await when) {
-                        spy.do(req, middleware);
-                    }
+            try {
+                var callDo = when instanceof Promise
+                    ? await when
+                    : when;
 
-                } catch (err) {
-                    this.callSpyCatch(spy, err, req);
-                }
-
-                // whether this spy was called or not called or errored,
-                // continue looking for spies to call
+            } catch (err) {
+                // catch errors that occur while the `when` promise is resolving
+                this.callSpyCatch(spy, err, req);
                 continue;
             }
 
-            // when returned boolean
-            else if (when) {
-
-                // be sure to catch errors that occur during the `do` function
+            // call `do` if wanted
+            if (callDo) {
                 try {
                     var result = spy.do(req, middleware);
                 } catch (err) {
+                    // catch errors that occur during the `do` function
                     this.callSpyCatch(spy, err, req);
                     continue;
                 }
 
-                // be sure to catch errors that occur while the returned promise is resolving
+                // catch errors that occur while the returned promise is resolving
                 if (result instanceof Promise) {
                     result.catch(err => this.callSpyCatch(spy, err, req));
                 }
-
-                // whether this spy was called or not called or errored,
-                // continue looking for spies to call
-                continue;
             }
         }
     }
