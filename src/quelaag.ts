@@ -4,6 +4,14 @@ import { IncomingMessage } from "http";
 const __req = Symbol("request key");
 const __context = Symbol("context key");
 
+/**
+ * @param middlewareSpec An object of middleware function definitions.
+ *                       These functions take a request and optionally a context
+ *                       and return anything you like.
+ * @returns A function that takes a request parameter and a context parameter;
+ *          it returns memoised versions of the given functions
+ *          with that request and context already applied.
+ */
 export function quelaag<
     Req = IncomingMessage,
     Context = undefined,
