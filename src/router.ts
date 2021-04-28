@@ -56,6 +56,7 @@ class RouterImpl<
             return;
         }
 
+        // be sure to catch errors that occur during the `do` function
         try {
             var result = endpoint.do(req, res, middleware);
         } catch (err) {
@@ -63,6 +64,7 @@ class RouterImpl<
             return;
         }
 
+        // be sure to catch errors that occur while the returned promise is resolving
         if (result instanceof Promise) {
             this.addEndpointRejectHandler(endpoint, result, req, res);
         }
@@ -70,6 +72,8 @@ class RouterImpl<
 
     private async callSpies(req: Req, middleware: M) {
         for (const spy of this.spies) {
+
+            // be sure to catch errors that occur during the `when` function
             try {
                 var when = spy.when(req, middleware);
             } catch (err) {
@@ -78,9 +82,8 @@ class RouterImpl<
             }
 
             // when returned promise
+            // be sure to catch errors that occur while the returned promise is resolving
             if (when instanceof Promise) {
-                this.addSpyRejectHandler(spy, when, req);
-
                 try {
                     if (await when) {
                         spy.do(req, middleware);
@@ -93,6 +96,8 @@ class RouterImpl<
 
             // when returned boolean
             else if (when) {
+
+                // be sure to catch errors that occur during the `do` function
                 try {
                     var result = spy.do(req, middleware);
                 } catch (err) {
@@ -100,6 +105,7 @@ class RouterImpl<
                     continue;
                 }
 
+                // be sure to catch errors that occur while the returned promise is resolving
                 if (result instanceof Promise) {
                     this.addSpyRejectHandler(spy, result, req);
                 }
@@ -117,6 +123,8 @@ class RouterImpl<
         let userEndpoint: Endpoint<Req, Res, Context, M> | undefined;
 
         for (const endpoint of this.endpoints) {
+
+            // be sure to catch errors that occur during the `when` function
             try {
                 var isWhen = endpoint.when(req, middleware);
             } catch (err) {
@@ -126,8 +134,8 @@ class RouterImpl<
 
             // when returned promise
             if (isWhen instanceof Promise) {
-                this.addEndpointRejectHandler(endpoint, isWhen, req, res);
 
+                // be sure to catch errors that occur while the returned promise is resolving
                 try {
                     if (await isWhen) {
                         userEndpoint = endpoint;
