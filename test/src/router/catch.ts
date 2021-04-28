@@ -207,11 +207,12 @@ export const catchTests: Test[] = [{
         const handler = router(quelaag({}));
         handler.addSpy({
             when: () => {
-                return Promise.reject("error");
+                return Promise.reject(new Error("error"));
             },
             do: () => {},
             catch: (err, req) => {
-                test(err === "error");
+                let e = err as Error;
+                test(e.message === "error");
                 test(req instanceof IncomingMessage);
             }
         });

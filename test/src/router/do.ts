@@ -2,7 +2,7 @@ import { quelaag, router } from "../../../src";
 import { makeRequest, Test } from "../framework";
 
 export const doTests: Test[] = [{
-    name: "A server should be able to listen to things.",
+    name: "A server should be able to spy on things.",
     run({ pass }) {
         const handler = router(quelaag({}));
         handler.addSpy({

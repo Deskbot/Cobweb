@@ -29,7 +29,7 @@
     "build-test-watch": "./node_modules/.bin/tsc -w --incremental -p ./test",
     "clean": "rm -rf build/*",
     "prepublishOnly": "npm run clean && npm run build-test && npm run test",
-    "test": "node -r source-map-support/register ./build/test/src/main"
+    "test": "node --trace-warnings --unhandled-rejections=strict -r source-map-support/register ./build/test/src/main"
   },
   "devDependencies": {
     "@types/node": "^10.17.16",

@@ -81,8 +81,13 @@ class RouterImpl<
             if (when instanceof Promise) {
                 this.addSpyRejectHandler(spy, when, req);
 
-                if (await when) {
-                    spy.do(req, middleware);
+                try {
+                    if (await when) {
+                        spy.do(req, middleware);
+                    }
+                } catch (err) {
+                    this.callSpyCatch(spy, err, req);
+                    return;
                 }
             }
 
@@ -187,7 +192,9 @@ class RouterImpl<
     ) {
         if (maybeCatcher.catch) {
             const c = maybeCatcher.catch;
-            promise.catch(err => c(err, req));
+            promise.catch(err => {
+                c(err, req);
+            });
         } else if (this.catcher) {
             promise.catch(this.catcher);
         }
