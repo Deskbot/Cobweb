@@ -116,6 +116,9 @@ export interface RequestPredicate<
  * The catcher portion of an Endpoint or Fallback.
  */
 export interface EndpointCatch<Req, Res> {
+    /**
+     * Handle an error thrown or rejected by any of the other endpoint methods.
+     */
     catch?: (error: unknown, req: Req, res: Res) => void;
 }
 
@@ -123,6 +126,9 @@ export interface EndpointCatch<Req, Res> {
  * The catcher portion of a Spy.
  */
 export interface SpyCatch<Req> {
+    /**
+     * Handle an error thrown or rejected by any of the other spy methods.
+     */
     catch?: (error: unknown, req: Req) => void;
 }
 
@@ -135,7 +141,13 @@ export interface Endpoint<
     M extends Middleware<Req, Context>,
 > extends EndpointCatch<Req, Res>
 {
+    /**
+     * The condition for whether to call the `do` method.
+     */
     when: RequestPredicate<Req, Context, M>;
+    /**
+     * What to do as the sole handler of the response.
+     */
     do: Responder<Req, Res, Context, M>;
 }
 
@@ -148,15 +160,13 @@ export type Fallback<Req, Res, Context, M extends Middleware<Req, Context>> =
     FallbackEndpoint<Req, Res, Context, M>
     | Responder<Req, Res, Context, M>;
 
-export interface FallbackEndpoint<
+export type FallbackEndpoint<
     Req,
     Res,
     Context,
     M extends Middleware<Req, Context>,
-> extends EndpointCatch<Req, Res>
-{
-    do: Responder<Req, Res, Context, M>;
-}
+>
+    = Pick<Endpoint<Req, Res, Context, M>, "do" | "catch">;
 
 // spy
 
@@ -167,7 +177,7 @@ export interface Spy<
 > extends SpyCatch<Req>
 {
     /**
-     * The condition for whether to call the "do" method.
+     * The condition for whether to call the `do` method.
      * If a promise is returned, it won't block anything but a rejection will be handled by the given catch.
      */
     when: RequestPredicate<Req, Context, M>;
@@ -181,14 +191,29 @@ export interface Spy<
 
 // subrouter
 
+/**
+ * An endpoint that lets you choose a different router to handle this request.
+ * Useful for splitting up handling responsibilities particularly across multiple files.
+ */
 export interface SubRouterEndpoint<
     Req,
     Res,
     Context,
     M extends Middleware<Req, Context>,
 > {
+    /**
+     * The condition for whether to hand off routing to the given router.
+     */
     when: RequestPredicate<Req, Context, M>;
-    router: () => Router<Req, Res, M>; // this is a function to allow a super and sub router to reference each other
+
+    /**
+     * A function that does nothing but returns the router to delegate to.
+     * The router should not be defined in this function. It should only be referenced.
+     * This is only a function to allow the "super" and "sub" routers to reference each other;
+     * one of them has to be defined before the other,
+     * and this provides the value of the sub-router lazily.
+     */
+    router: () => Router<Req, Res, M>;
 }
 
 // middleware
@@ -214,10 +239,15 @@ export type Middleware<
     [N in keyof Spec]: () => ReturnType<Spec[N]>
 };
 
-// The request and context types are inferred from the middleware
-// to cut down on repetition of type parameters.
-// The middleware needs to be a type parameter
-// so that the exact subtype of Middleware will be inferred by typescript.
+/**
+ * A Quelaag is a function that returns a memoised object of middleware functions
+ * that have a specific request object and context partially applied to them.
+ *
+ * If you provide the Req or Context type parameters,
+ * you will also need to provide the type of the `MiddlewareSpec`,
+ * which is just the object you used to define the middleware functions
+ * (as given to a function that produces a Quelaag).
+ */
 export type Quelaag<
     Req = IncomingMessage,
     Context = undefined,
@@ -228,5 +258,12 @@ export type Quelaag<
         context: Context,
     ) => Middleware<Req, Context, Spec>;
 
+/**
+ * Retrieve the type of request used by the given Quelaag.
+ */
 export type QuelaagReq<Q extends Quelaag<any, any>> = (Q extends Quelaag<infer R, any, any> ? R : never);
+
+/**
+ * Retrieve the type of context used by the given Quelaag.
+ */
 export type QuelaagContext<Q extends Quelaag<any, any>> = (Q extends Quelaag<any, infer C, any> ? C : never);
