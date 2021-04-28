@@ -96,7 +96,7 @@ export interface RequestSideEffect<
     Context,
     M extends Middleware<Req, Context>,
 > {
-    (req: Req, middleware: M): void;
+    (req: Req, middleware: M): void | Promise<void>;
 }
 
 /**

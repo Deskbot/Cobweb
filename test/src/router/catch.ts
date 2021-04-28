@@ -146,14 +146,33 @@ export const catchTests: Test[] = [{
 
         makeRequest(handler);
     }
-}, {
-    name: "A caught spy should have an error message and request.",
+},
+{
+    name: "A spy that throws should be caught with an error message and request.",
     run({ test }) {
         const handler = router(quelaag({}));
         handler.addSpy({
             when: () => true,
             do: () => {
                 throw "error";
+            },
+            catch: (err, req) => {
+                test(err === "error");
+                test(req instanceof IncomingMessage);
+            }
+        });
+
+        makeRequest(handler);
+    }
+},
+{
+    name: "A spy that rejects should be caught with an error message and request.",
+    run({ test }) {
+        const handler = router(quelaag({}));
+        handler.addSpy({
+            when: () => true,
+            do: () => {
+                return Promise.reject("error");
             },
             catch: (err, req) => {
                 test(err === "error");

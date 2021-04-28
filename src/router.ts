@@ -64,7 +64,7 @@ class RouterImpl<
         }
 
         if (result instanceof Promise) {
-            this.handleReject(endpoint, result, req, res);
+            this.handleEndpointReject(endpoint, result, req, res);
         }
     }
 
@@ -83,10 +83,14 @@ class RouterImpl<
                 }
             } else if (when) {
                 try {
-                    spy.do(req, middleware);
+                    var result = spy.do(req, middleware);
                 } catch (err) {
                     this.handleSpyThrow(spy, err, req);
                     continue;
+                }
+
+                if (result instanceof Promise) {
+                    this.handleSpyReject(spy, result, req);
                 }
             }
         }
@@ -110,10 +114,7 @@ class RouterImpl<
             }
 
             if (isWhen instanceof Promise) {
-                // this.catcher will never reference members of this
-                // if the user wants to use a function with a binded `this`
-                // they should wrap it in a lambda as is normal
-                this.handleReject(endpoint, isWhen, req, res);
+                this.handleEndpointReject(endpoint, isWhen, req, res);
 
                 try {
                     if (await isWhen) {
@@ -138,7 +139,11 @@ class RouterImpl<
         this.callEndpoint(req, res, middlewareInventory);
     }
 
-    private handleReject(maybeCatcher: EndpointCatch<Req, Res>, promise: Promise<unknown>, req: Req, res: Res) {
+    private handleEndpointReject(maybeCatcher: EndpointCatch<Req, Res>, promise: Promise<unknown>, req: Req, res: Res) {
+        // this.catcher will never reference members of this
+        // if the user wants to use a function with a binded `this`
+        // they should wrap it in a lambda as is normal
+
         if (maybeCatcher.catch) {
             const c = maybeCatcher.catch;
             promise.catch(err => c(err, req, res));
@@ -152,6 +157,15 @@ class RouterImpl<
             maybeCatcher.catch(err, req, res);
         } else if (this.catcher) {
             this.catcher(err);
+        }
+    }
+
+    private handleSpyReject(maybeCatcher: SpyCatch<Req>, promise: Promise<unknown>, req: Req) {
+        if (maybeCatcher.catch) {
+            const c = maybeCatcher.catch;
+            promise.catch(err => c(err, req));
+        } else if (this.catcher) {
+            promise.catch(this.catcher);
         }
     }
 
