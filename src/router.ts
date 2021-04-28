@@ -124,8 +124,6 @@ class RouterImpl<
             | undefined
         >
     {
-        let userEndpoint: Endpoint<Req, Res, Context, M> | undefined;
-
         for (const endpoint of this.endpoints) {
 
             // call when
@@ -150,12 +148,11 @@ class RouterImpl<
             }
 
             if (endpointMatches) {
-                userEndpoint = endpoint;
-                break;
+                return endpoint;
             }
         }
 
-        return userEndpoint ?? this.fallbackEndpoint;
+        return this.fallbackEndpoint;
     }
 
     _routeWithContext(req: Req, res: Res, context: Context) {
