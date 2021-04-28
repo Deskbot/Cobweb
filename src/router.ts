@@ -66,7 +66,7 @@ class RouterImpl<
 
         // be sure to catch errors that occur while the returned promise is resolving
         if (result instanceof Promise) {
-            this.addEndpointRejectHandler(endpoint, result, req, res);
+            result.catch(err => this.callEndpointCatch(endpoint, err, req, res));
         }
     }
 
@@ -107,7 +107,7 @@ class RouterImpl<
 
                 // be sure to catch errors that occur while the returned promise is resolving
                 if (result instanceof Promise) {
-                    this.addSpyRejectHandler(spy, result, req);
+                    result.catch(err => this.callSpyCatch(spy, err, req));
                 }
             }
         }
@@ -162,24 +162,6 @@ class RouterImpl<
         this.callEndpoint(req, res, middlewareInventory);
     }
 
-    private addEndpointRejectHandler(
-        maybeCatcher: EndpointCatch<Req, Res>,
-        promise: Promise<unknown>,
-        req: Req,
-        res: Res,
-    ) {
-        // this.catcher will never reference members of this
-        // if the user wants to use a function with a binded `this`
-        // they should wrap it in a lambda as is normal
-
-        if (maybeCatcher.catch) {
-            const c = maybeCatcher.catch;
-            promise.catch(err => c(err, req, res));
-        } else if (this.catcher) {
-            promise.catch(this.catcher);
-        }
-    }
-
     private callEndpointCatch(
         maybeCatcher: EndpointCatch<Req, Res>,
         err: unknown,
@@ -192,21 +174,6 @@ class RouterImpl<
             this.catcher(err);
         } else {
             throw err;
-        }
-    }
-
-    private addSpyRejectHandler(
-        maybeCatcher: SpyCatch<Req>,
-        promise: Promise<unknown>,
-        req: Req,
-    ) {
-        if (maybeCatcher.catch) {
-            const c = maybeCatcher.catch;
-            promise.catch(err => {
-                c(err, req);
-            });
-        } else if (this.catcher) {
-            promise.catch(this.catcher);
         }
     }
 
