@@ -65,7 +65,7 @@ class RouterImpl<
         }
 
         if (result instanceof Promise) {
-            // avoid blocking by not awaiting
+            // no need to await
             // catch errors that occur while the returned promise is resolving
             result.catch(err => this.callEndpointCatch(endpoint, err, req, res));
         }
@@ -73,42 +73,46 @@ class RouterImpl<
 
     private async callSpies(req: Req, middleware: M) {
         for (const spy of this.spies) {
-            // call when
+            this.callSpy(spy, req, middleware);
+        }
+    }
+
+    private async callSpy(spy: Spy<Req, Context, M>, req: Req, middleware: M): Promise<void> {
+        // call when
+        try {
+            var when = spy.when(req, middleware);
+        } catch (err) {
+            // catch errors that occur during the `when` function
+            this.callSpyCatch(spy, err, req);
+            return;
+        }
+
+        // get a boolean for whether to call do
+        try {
+            var callDo = when instanceof Promise
+                ? await when
+                : when;
+
+        } catch (err) {
+            // catch errors that occur while the `when` promise is resolving
+            this.callSpyCatch(spy, err, req);
+            return;
+        }
+
+        // call `do` if wanted
+        if (callDo) {
             try {
-                var when = spy.when(req, middleware);
+                var result = spy.do(req, middleware);
             } catch (err) {
-                // catch errors that occur during the `when` function
+                // catch errors that occur during the `do` function
                 this.callSpyCatch(spy, err, req);
-                continue;
+                return;
             }
 
-            // get a boolean for whether to call do
-            try {
-                var callDo = when instanceof Promise
-                    ? await when
-                    : when;
-
-            } catch (err) {
-                // catch errors that occur while the `when` promise is resolving
-                this.callSpyCatch(spy, err, req);
-                continue;
-            }
-
-            // call `do` if wanted
-            if (callDo) {
-                try {
-                    var result = spy.do(req, middleware);
-                } catch (err) {
-                    // catch errors that occur during the `do` function
-                    this.callSpyCatch(spy, err, req);
-                    continue;
-                }
-
-                if (result instanceof Promise) {
-                    // avoid blocking by not awaiting
-                    // catch errors that occur while the returned promise is resolving
-                    result.catch(err => this.callSpyCatch(spy, err, req));
-                }
+            if (result instanceof Promise) {
+                // no need to await
+                // catch errors that occur while the returned promise is resolving
+                result.catch(err => this.callSpyCatch(spy, err, req));
             }
         }
     }
