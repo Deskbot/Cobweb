@@ -110,7 +110,7 @@ export const subquelaagTests: Test[] = [
     name: "SubQuelaag2",
     cases: 2,
     run: ({ test }) => {
-        function subquelaag2<Parent extends Quelaag<any, any, any> = never>() {
+        function subquelaag2<Parent extends Quelaag<any, any> = never>() {
             return <
                 Req extends QuelaagReq<Parent>,
                 ChildContext extends ReturnType<Parent>,

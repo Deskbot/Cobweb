@@ -58,7 +58,7 @@ export function quelaag<
  * The purpose of passing a value instead of a type argument is to make use of TypeScript's inference.
  */
 export function subquelaag<
-    Parent extends Quelaag<any, any, any>,
+    Parent extends Quelaag<any, any>,
     ChildSpec extends MiddlewareSpec<Req, ChildContext>,
     Req extends QuelaagReq<Parent> = QuelaagReq<Parent>,
     ChildContext extends ReturnType<Parent> = ReturnType<Parent>,
@@ -74,7 +74,7 @@ export function subquelaag<
  * The Context type for the new Quelaag is the Record type given to the first parameter.
  */
 export function multiParentSubquelaag<
-    Parents extends Record<keyof any, Quelaag<any, any, any>>,
+    Parents extends Record<keyof any, Quelaag<any, any>>,
     ChildSpec extends MiddlewareSpec<Req, ChildContext>,
     Req extends QuelaagReq<ValuesOf<Parents>>,
     ChildContext = {

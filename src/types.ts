@@ -271,9 +271,9 @@ export type Quelaag<
 /**
  * Retrieve the type of request used by the given Quelaag.
  */
-export type QuelaagReq<Q extends Quelaag<any, any>> = (Q extends Quelaag<infer R, any, any> ? R : never);
+export type QuelaagReq<Q extends Quelaag<any, any>> = (Q extends Quelaag<infer R, any> ? R : never);
 
 /**
  * Retrieve the type of context used by the given Quelaag.
  */
-export type QuelaagContext<Q extends Quelaag<any, any>> = (Q extends Quelaag<any, infer C, any> ? C : never);
+export type QuelaagContext<Q extends Quelaag<any, any>> = (Q extends Quelaag<any, infer C> ? C : never);
