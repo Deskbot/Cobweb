@@ -359,6 +359,10 @@ When using `router` and `subrouter`, the context is handled for you.
 
 TypeScript is a fantastic language with often impressive type inference. [However it isn't always perfect and in situations where there is a lot that can be inferred, TypeScript may be too permissive.](https://github.com/microsoft/TypeScript/issues/34858#issuecomment-577932912)
 
+### No Implicit This
+
+To get the a greater benefit from TypeScript's type inference, you should enable `noImplicitThis` in your tsconfig.json. It causes `this` in your middleware specification to be correctly typed instead of treated as `any`.
+
 ### Circular Type Inference
 
 When defining middleware, the type of `this` is defined by the methods in the object, and the type of those methods can be affected by the type of `this`.
@@ -386,10 +390,6 @@ quelaag({
     },
 });
 ```
-
-### No Implicit This
-
-To get the a greater benefit from TypeScript's type inference, you should enable `noImplicitThis` in your tsconfig.json. It causes `this` in your middleware specification to be correctly typed instead of treated as `any`.
 
 ### Partial Application of Type Arguments
 
