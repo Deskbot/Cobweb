@@ -393,8 +393,16 @@ quelaag({
 
 ### Partial Application of Type Arguments
 
-TypeScript only infers type parameters when none of them are present. If you omit a type argument that has a default, the default will be used, however the default might not the type you want.
+In TypeScript, when a function/type takes type arguments, you can either:
 
-It's possible that you will want to specify some types in a call to `quelaag`, `router` or many of the types provided with this package, but the nature of writing a middleware specification is that you'll have some very big object whose type you want to be inferred. The best solution — I think — is to specify all of the type arguments and use `typeof` to get the complicated object type that you are using. I think that is easier than using the work around of currying the type arguments (i.e. defining nested functions each of which takes a single type argument).
+* specify none of them. The compiler will try to infer the type arguments.
+* specify all of them. The compiler will use what you gave.
+* specify all of them except some ones that have a default (e.g. `A extends Animal = Cat`). The compiler won't infer the missing type arguments; it will use the defaults.
+
+If you want to specify some type arguments in a call to `quelaag` or `router`, but they also require you to give the type of the middleware specification object, which is likely very big and you would rather it be inferred than type it out separately.
+
+To make matters more complicated: These functions have a default type for the middleware specification due to not allowing mandatory types after optional ones, but the default is super general. So the type will be too broad and the compiler will accept it.
+
+The best solution is to assign the complicated object to a variable and use `typeof` to use its type as a type argument to the function call. I think this is easier than currying the type arguments (i.e. defining nested functions each of which takes a single type argument).
 
 [In the future, there may be a way to tell TypeScript which types to infer.](https://github.com/microsoft/TypeScript/issues/26242)
