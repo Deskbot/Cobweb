@@ -359,27 +359,35 @@ When using `router` and `subrouter`, the context is handled for you.
 
 TypeScript is a fantastic language with often impressive type inference. [However it isn't always perfect and in situations where there is a lot that can be inferred, TypeScript may be too permissive.](https://github.com/microsoft/TypeScript/issues/34858#issuecomment-577932912)
 
-### Missing parameter allowed
+### Circular Type Inference
 
-In the examples below, each call to `this.number` should take `req` for Quelaag to function correctly. However the exclusion of a return type in the method signature affects whether TypeScript will allow it.
+When defining middleware, the type of `this` is defined by the methods in the object, and the type of those methods can be affected by the type of `this`.
+
+The circular type inference can cause scenarios where code compiles when it shouldn't or doesn't compile when it should.
+
+This is solved by giving all methods a return type.
 
 ```ts
 quelaag({
     number(req) {
         return 100;
     },
+
+    // no return type
     isEven1(req) {
-        this.number() % 2 == 0;        // error
-        return this.number() % 2 == 0; // compiles
+        this.number(req) % 2 == 0;        // compiles
+        return this.number(req) % 2 == 0; // error
     },
+
+    // return type is given
     isEven2(req): boolean {
-        this.number() % 2 == 0;        // error
-        return this.number() % 2 == 0; // error
+        this.number(req) % 2 == 0;        // compiles
+        return this.number(req) % 2 == 0; // compiles
     },
 });
 ```
 
-### No implicit this
+### No Implicit This
 
 To get the a greater benefit from TypeScript's type inference, you should enable `noImplicitThis` in your tsconfig.json. It causes `this` in your middleware specification to be correctly typed instead of treated as `any`.
 
