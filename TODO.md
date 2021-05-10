@@ -22,5 +22,7 @@ TODO
 
     * Solution C: Each endpoint is just a single function that returns a `boolean | Promise<boolean>`; the boolean represents whether to continue trying to match endpoints.
 
+* Problem: Having a long ancestry of subquelaags could make it so you need long chains of contexts to call a function. The chance of having conflicting names is low, so you might want an easy way to just inherit every name from the parent. This seems easy to do with subquelaag but not subrouter.
+
 * Add test for when a spy when rejects, keep on looking for more spies
 * Add test for when an endpoint when rejects, stop looking for endpoints
