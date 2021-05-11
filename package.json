@@ -12,14 +12,14 @@
   "homepage": "https://github.com/Deskbot/Quelaag",
   "bugs": "https://github.com/Deskbot/Quelaag/issues",
   "repository": "https://github.com/Deskbot/Quelaag",
-  "main": "./build/src/index.js",
-  "types": "./build/src",
+  "main": "./build/index.js",
+  "types": "./build",
   "engines": {
     "node": ">= 10"
   },
   "files": [
-    "build/src/**/*.js",
-    "build/src/**/*.d.ts",
+    "build/**/*.js",
+    "build/**/*.d.ts",
     "README.md"
   ],
   "scripts": {
@@ -29,7 +29,7 @@
     "build-test-watch": "./node_modules/.bin/tsc -w --incremental -p ./test",
     "clean": "rm -rf build/*",
     "prepublishOnly": "npm run clean && npm run build-test && npm run test",
-    "test": "node --trace-warnings --unhandled-rejections=strict -r source-map-support/register ./build/test/src/main"
+    "test": "node --trace-warnings --unhandled-rejections=strict -r source-map-support/register ./build-test/test/src/main"
   },
   "devDependencies": {
     "@types/node": "^10.17.16",

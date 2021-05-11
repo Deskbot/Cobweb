@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
         "allowUnreachableCode": false,
-        "outDir": "../build",
+        "outDir": "../build-test",
     },
 
     "extends": "../base.tsconfig.json",

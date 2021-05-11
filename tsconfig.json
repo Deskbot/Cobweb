@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-        "outDir": "./build/src"
+        "outDir": "./build"
     },
 
     "extends": "./base.tsconfig.json",
