@@ -16,7 +16,7 @@ Design Philosophy:
 * Composability is preferred over configurability.
 * It is better to facilitate built-in libraries than to attempt their re-design.
 
-The API is still subject to change.
+**The API is still subject to change.**
 
 ## Install
 
@@ -49,49 +49,23 @@ const server = http.createServer((req, res) => root.route(req, res));
 server.listen(8080);
 ```
 
-`quelaag` is a function that creates memoised middleware functions, e.g. `cookies` in the above example. `router` creates an object that facilitates choosing what to do when handling an incoming request.
+`quelaag` is a function that creates memoised middleware functions, e.g. `cookies` in the above example. `router` creates an object that chooses what should handle a request.
 
 `quelaag` and `router` are designed to be flexible in how they can be used. You can use them with NodeJS's built-in libraries or a third-party framework. `quelaag` can be used without `router` entirely.
 
-By default, the type of requests and responses are NodeJS's `IncomingMessage` and `ServerResponse`. However, these can be overridden with type arguments to `router`.
-
-```ts
-import { quelaag, router } from "quelaag";
-import * as cookie from "cookie"; // a third party cookie header parsing library
-import * as express from "express";
-
-const q = quelaag({
-    cookies(req: express.Request): Record<string, string> {
-        return cookie.parse(req.headers.cookie || "");
-    }
-});
-
-const root = router<express.Request, express.Response, typeof q>(q);
-root.addEndpoint({
-    when: req => req.ip.endsWith("127.0.0.1"),
-    do: (req, res, middleware) => {
-        if (middleware.cookies().loggedIn) {
-            res.json({ hello: "world" });
-        }
-    }
-});
-
-const app = express();
-app.use((req, res, next) => {
-    root.route(req, res);
-    next();
-});
-app.listen(8081);
-
-```
+By default, the type of requests and responses are NodeJS's `IncomingMessage` and `ServerResponse`. However, these can be overridden with type arguments to `router`. See the [examples] folder for details.
 
 ## Middleware
 
-Middleware are functions that are given the request object and return some type. Yes, that includes Promises. Middleware are always called explicitly. Middleware calls are memoised meaning that for a single request, each middleware function will compute its return value no more than once.
+The definition of middleware is quite broad.
+
+In practice, in-between helper functions in web servers tend to be about getting information from the request or modifying the response. Quelaag is designed to facilitate getting information from the request. In Quelaag, it could be said that "middleware" refers to "request middleware". Quelaag is agnostic about how to do "response middleware", but I recommend calling those functions yourself on an endpoint by endpoint basis.
+
+In Quelaag, middleware are functions that are given the request object and return some type. Yes, that includes Promises. Middleware are always called explicitly. Middleware calls are memoised meaning that for a single request, each middleware function will compute its return value no more than once.
 
 ### Memoisation
 
-Example of what `quelaag` does by using it in isolation.
+Demonstration of what `quelaag` does by using it in isolation.
 
 ```ts
 import { quelaag } from "quelaag";
@@ -103,7 +77,7 @@ const makeMiddleware = quelaag({
     },
     isMe(req): boolean {
         return this.ip(req) === "127.0.0.1";
-    }
+    },
 });
 
 let req1, req2; // Imagine you got some request objects from somewhere.
@@ -126,6 +100,20 @@ request1Again.ip(); // prints "ip", returns "127.0.0.1"
 Notice that a method in the middleware specification given to `quelaag` takes the request object, but the memoised version called later does not.
 
 In order for middleware to call each other, the function can't be defined with arrow syntax, so that `this` inside the function refers to the middleware object. The `noImplicitThis` option in your tsconfig needs to be enabled for the type checking on `this` to be correct.
+
+### Referencing Memoised Functions
+
+```ts
+const q: Quelaag = ...
+
+// correct
+const f = () => q.function()
+
+// incorrect
+const f = q.function
+```
+
+Under the hood, the function will replace itself when it is first called. In the incorrect case, you might be taking a reference to the function that does the initial computation.
 
 ## Proper Example
 
