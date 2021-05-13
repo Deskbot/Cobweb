@@ -63,58 +63,6 @@ In practice, in-between helper functions in web servers tend to be about getting
 
 In Quelaag, middleware are functions that are given the request object and return some type. Yes, that includes Promises. Middleware are always called explicitly. Middleware calls are memoised meaning that for a single request, each middleware function will compute its return value no more than once.
 
-### Memoisation
-
-Demonstration of what `quelaag` does by using it in isolation.
-
-```ts
-import { quelaag } from "quelaag";
-
-const makeMiddleware = quelaag({
-    ip(req): string {
-        console.log("ip");
-        return req.socket.remoteAddress;
-    },
-    isMe(req): boolean {
-        return this.ip(req) === "127.0.0.1";
-    },
-});
-
-let req1, req2; // Imagine you got some request objects from somewhere.
-
-const request1 =      makeMiddleware(req1, undefined); // ignore the use of undefined here for now
-const request2 =      makeMiddleware(req2, undefined);
-const request1Again = makeMiddleware(req1, undefined);
-
-request1.ip();   // prints "ip", returns "127.0.0.1"
-request1.ip();   //              returns "127.0.0.1"
-request1.isMe(); //              returns true
-
-request2.isMe(); // prints "ip", returns true
-request2.ip();   //              returns "127.0.0.1"
-request2.ip();   //              returns "127.0.0.1"
-
-request1Again.ip(); // prints "ip", returns "127.0.0.1"
-```
-
-Notice that a method in the middleware specification given to `quelaag` takes the request object, but the memoised version called later does not.
-
-In order for middleware to call each other, the function can't be defined with arrow syntax, so that `this` inside the function refers to the middleware object. The `noImplicitThis` option in your tsconfig needs to be enabled for the type checking on `this` to be correct.
-
-### Referencing Memoised Functions
-
-```ts
-const q: Quelaag = ...
-
-// correct
-const f = () => q.function()
-
-// incorrect
-const f = q.function
-```
-
-Under the hood, the function will replace itself when it is first called. In the incorrect case, you might be taking a reference to the function that does the initial computation.
-
 ## Proper Example
 
 `Router` creates new middleware instances for you, which are passed as the last parameter to all of `Router`'s callbacks.
@@ -343,9 +291,21 @@ In addition to the "request", a second parameter called the "context" can be pas
 
 When using `router` and `subrouter`, the context is handled for you.
 
-## TypeScript Troubles
+## Gotchas
 
-TypeScript is a fantastic language with often impressive type inference. [However it isn't always perfect and in situations where there is a lot that can be inferred, TypeScript may be too permissive.](https://github.com/microsoft/TypeScript/issues/34858#issuecomment-577932912)
+### Referencing Memoised Functions
+
+```ts
+const q: Quelaag = ...
+
+// correct
+const f = () => q.function()
+
+// incorrect
+const f = q.function
+```
+
+Under the hood, the function will replace itself when it is first called. In the incorrect case, you might be taking a reference to the function that does the initial computation.
 
 ### No Implicit This
 
@@ -353,7 +313,7 @@ To get the a greater benefit from TypeScript's type inference, you should enable
 
 ### Circular Type Inference
 
-When defining middleware, the type of `this` is defined by the methods in the object, and the type of those methods can be affected by the type of `this`.
+When defining middleware, the type of `this` is defined by the methods in the object, and the type of those methods can be affected by the type of `this`. [x](https://github.com/microsoft/TypeScript/issues/34858#issuecomment-577932912)
 
 The circular type inference can cause scenarios where code compiles when it shouldn't or doesn't compile when it should.
 
@@ -394,3 +354,43 @@ To make matters more complicated: These functions have a default type for the mi
 The best solution is to assign the complicated object to a variable and use `typeof` to use its type as a type argument to the function call. I think this is easier than currying the type arguments (i.e. defining nested functions each of which takes a single type argument).
 
 [In the future, there may be a way to tell TypeScript which types to infer.](https://github.com/microsoft/TypeScript/issues/26242)
+
+## Explanations
+
+### Memoisation Demonstration
+
+Demonstration of what `quelaag` does by using it in isolation.
+
+```ts
+import { quelaag } from "quelaag";
+
+const makeMiddleware = quelaag({
+    ip(req): string {
+        console.log("ip");
+        return req.socket.remoteAddress;
+    },
+    isMe(req): boolean {
+        return this.ip(req) === "127.0.0.1";
+    },
+});
+
+let req1, req2; // Imagine you got some request objects from somewhere.
+
+const request1 =      makeMiddleware(req1, undefined); // ignore the use of undefined here for now
+const request2 =      makeMiddleware(req2, undefined);
+const request1Again = makeMiddleware(req1, undefined);
+
+request1.ip();   // prints "ip", returns "127.0.0.1"
+request1.ip();   //              returns "127.0.0.1"
+request1.isMe(); //              returns true
+
+request2.isMe(); // prints "ip", returns true
+request2.ip();   //              returns "127.0.0.1"
+request2.ip();   //              returns "127.0.0.1"
+
+request1Again.ip(); // prints "ip", returns "127.0.0.1"
+```
+
+Notice that a method in the middleware specification given to `quelaag` takes the request object, but the memoised version called later does not.
+
+In order for middleware to call each other, the function can't be defined with arrow syntax, so that `this` inside the function refers to the middleware object. The `noImplicitThis` option in your tsconfig needs to be enabled for the type checking on `this` to be correct.
