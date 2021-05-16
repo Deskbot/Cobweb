@@ -89,6 +89,7 @@ router.addEndpoint({
     when: req => req.url === "/admin",
     do: async (req, res, middleware) => {
         if (await middleware.userIsAdministrator()) {
+            res.statusCode = 200;
             res.end("Greetings planet.");
         } else {
             res.statusCode = 403;
