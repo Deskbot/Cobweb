@@ -23,6 +23,7 @@
     "README.md"
   ],
   "scripts": {
+    "postinstall": "./post-install.js",
     "build": "./node_modules/.bin/tsc --incremental",
     "build-watch": "./node_modules/.bin/tsc -w --incremental",
     "build-test": "./node_modules/.bin/tsc --incremental -p ./test",
