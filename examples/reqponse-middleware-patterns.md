@@ -4,7 +4,7 @@ Most response middleware can be implemented as a simple function call on an endp
 
 # Possible Patterns
 
-The following examples are for a scenario where a user of a messaging platform wanting to delete their message. We have to validate that the user is logged in and that they own the message they're trying to delete.
+The following examples are for a scenario where a user of a messaging platform wants to delete their message. We have to validate that the user is logged in and that they own the message they're trying to delete.
 
 Functions used in these examples:
 
@@ -41,10 +41,10 @@ function mustBeLoggedIn(res, user) {
         res.statusCode = 403;
         res.end();
 
-        return false;
+        return true;
     }
 
-    return true;
+    return false;
 }
 
 function mustOwnMessage(res, user, message) {
@@ -52,21 +52,21 @@ function mustOwnMessage(res, user, message) {
         res.statusCode = 403;
         res.end();
 
-        return false;
+        return true;
     }
 
-    return true;
+    return false;
 }
 
 function deleteMessageEndpoint(req, res) {
     const user = getUser(req);
     const message = getMessage(req);
 
-    if (!mustBeLoggedIn(res, user)) {
+    if (mustBeLoggedIn(res, user)) {
         return;
     }
 
-    if (!mustOwnMessage(res, user, message)) {
+    if (mustOwnMessage(res, user, message)) {
         return;
     }
 
@@ -207,10 +207,10 @@ function mustBeLoggedIn(res, user) {
         res.statusCode = 403;
         res.end();
 
-        return false;
+        return true;
     }
 
-    return true;
+    return false;
 }
 
 function mustOwnMessage(res, user, message) {
@@ -218,10 +218,10 @@ function mustOwnMessage(res, user, message) {
         res.statusCode = 403;
         res.end();
 
-        return false;
+        return true;
     }
 
-    return true;
+    return false;
 }
 
 function callInOrder(arr) {
@@ -230,7 +230,7 @@ function callInOrder(arr) {
     function callNext() {
         i++;
 
-        if (i < arr.length && arr[i]()) {
+        if (i < arr.length && !arr[i]()) {
             callNext();
         }
     }

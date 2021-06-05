@@ -24,7 +24,7 @@ Design Philosophy:
 npm install --save quelaag
 ```
 
-## "Hello World" Example
+## Basic Example
 
 ```ts
 import { quelaag, router } from "quelaag";
@@ -35,6 +35,7 @@ const root = router(quelaag({
         return cookie.parse(req.headers.cookie || "");
     }
 }));
+
 root.addEndpoint({
     when: req => req.url! === "/hello",
     do: (req, res) => {
@@ -49,17 +50,17 @@ const server = http.createServer((req, res) => root.route(req, res));
 server.listen(8080);
 ```
 
-`quelaag` is a function that creates memoised middleware functions, e.g. `cookies` in the above example. `router` creates an object that chooses what should handle a request.
+`quelaag` is a function that creates memoised middleware functions, e.g. `cookies` in the above example. `router` creates an object that chooses how to handle a request.
 
 `quelaag` and `router` are designed to be flexible in how they can be used. You can use them with NodeJS's built-in libraries or a third-party framework. `quelaag` can be used without `router` entirely.
 
 By default, the type of requests and responses are NodeJS's `IncomingMessage` and `ServerResponse`. However, these can be overridden with type arguments to `router`. See the [examples] folder for details.
 
-## Middleware
+## Middleware in Quelaag
 
 The definition of middleware is quite broad.
 
-In practice, in-between helper functions in web servers tend to be about getting information from the request or modifying the response. Quelaag is designed to facilitate getting information from the request. In Quelaag, it could be said that "middleware" refers to "request middleware". Quelaag is agnostic about how to do "response middleware", but I recommend calling those functions yourself on an endpoint by endpoint basis.
+In practice, in-between helper functions in web servers tend to be about getting information from the request or about modifying the response. Quelaag is designed to facilitate getting information from the request. In Quelaag, it could be said that "middleware" refers to "request middleware". Quelaag is agnostic about how to do "response middleware". (I recommend calling those functions as needed at each endpoint and, for calls needed at a many endpoints, in one place at the start of each sub-router.)
 
 In Quelaag, middleware are functions that are given the request object and return some type. Yes, that includes Promises. Middleware are always called explicitly. Middleware calls are memoised meaning that for a single request, each middleware function will compute its return value no more than once.
 
