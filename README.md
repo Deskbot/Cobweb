@@ -24,58 +24,16 @@ Design Philosophy:
 npm install --save quelaag
 ```
 
-## Basic Example
+## Example
 
 ```ts
 import { quelaag, router } from "quelaag";
+import { parse } from "cookie"; // a third party cookie header parsing library
 import * as http from "http";
 
-const root = router(quelaag({
-    cookies(req: express.Request): Record<string, string> {
-        return cookie.parse(req.headers.cookie || "");
-    }
-}));
-
-root.addEndpoint({
-    when: req => req.url! === "/hello",
-    do: (req, res) => {
-        if (middleware.cookies().loggedIn) {
-            res.write("hello world");
-        }
-        res.end();
-    }
-});
-
-const server = http.createServer((req, res) => root.route(req, res));
-server.listen(8080);
-```
-
-`quelaag` is a function that creates memoised middleware functions, e.g. `cookies` in the above example. `router` creates an object that chooses how to handle a request.
-
-`quelaag` and `router` are designed to be flexible in how they can be used. You can use them with NodeJS's built-in libraries or a third-party framework. `quelaag` can be used without `router` entirely.
-
-By default, the type of requests and responses are NodeJS's `IncomingMessage` and `ServerResponse`. However, these can be overridden with type arguments to `router`. See the [examples] folder for details.
-
-## Middleware in Quelaag
-
-The definition of middleware is quite broad.
-
-In practice, in-between helper functions in web servers tend to be about getting information from the request or about modifying the response. Quelaag is designed to facilitate getting information from the request. In Quelaag, it could be said that "middleware" refers to "request middleware". Quelaag is agnostic about how to do "response middleware". (I recommend calling those functions as needed at each endpoint and, for calls needed at a many endpoints, in one place at the start of each sub-router.)
-
-In Quelaag, middleware are functions that are given the request object and return some type. Yes, that includes Promises. Middleware are always called explicitly. Middleware calls are memoised meaning that for a single request, each middleware function will compute its return value no more than once.
-
-## Proper Example
-
-`Router` creates new middleware instances for you, which are passed as the last parameter to all of `Router`'s callbacks.
-
-```ts
-import { quelaag, router } from "quelaag";
-import * as cookie from "cookie"; // a third party cookie header parsing library
-import * as http from "http";
-
-const router = router(quelaag({
+const r = router(quelaag({
     cookies(req): Record<string, string> {
-        return cookie.parse(req.headers.cookie || "");
+        return parse(req.headers.cookie || "");
     },
     userId(req): number {
         return parseInt(this.cookies(req).userId);
@@ -86,12 +44,12 @@ const router = router(quelaag({
     }
 }));
 
-router.addEndpoint({
+r.addEndpoint({
     when: req => req.url === "/admin",
     do: async (req, res, middleware) => {
         if (await middleware.userIsAdministrator()) {
             res.statusCode = 200;
-            res.end("Greetings planet.");
+            res.end("Hello User " + middleware.userId());
         } else {
             res.statusCode = 403;
             res.end("403 Forbidden");
@@ -99,9 +57,25 @@ router.addEndpoint({
     }
 });
 
-const server = http.createServer((req, res) => router.route(req, res));
+const server = http.createServer((req, res) => r.route(req, res));
 server.listen(8080);
 ```
+
+In Quelaag, middleware are functions that are given the request object and return a value (even Promises). Middleware have to be called explicitly. Middleware calls are memoised meaning that for a single request, each middleware function will compute its return value no more than once.
+
+The `quelaag` function returns a function that generates memoised middleware tied to a specific request object.
+
+`router` creates an object that chooses how to handle a request. `router` creates new middleware instances for you, which are passed as the last parameter to all of `router`'s callbacks.
+
+`quelaag` and `router` are designed to be flexible in how they can be used. You can use them with NodeJS's built-in libraries or a third-party framework. `quelaag` can be used without `router` entirely.
+
+By default, the type of requests and responses are NodeJS's `IncomingMessage` and `ServerResponse`. However, these can be overridden with type arguments to `quelaag` and `router`. See the [examples] folder for details.
+
+## Middleware in Quelaag
+
+The definition of middleware tends to be quite broad. In-between helper functions in web servers tend to be about either getting information from the request or about modifying the response.
+
+In Quelaag, 'middleware' could be called 'request middleware'. Quelaag is designed to facilitate deriving data from a request. Quelaag is agnostic about how to do 'response middleware'.
 
 ## Routing
 
@@ -110,13 +84,13 @@ server.listen(8080);
 A request will be handled by the first Endpoint with a matching condition. These are created using `router.addEndpoint(...)`. Endpoints are the only place where the response object can be handled. `Router` and `quelaag` in no way affect the request or response object.
 
 ```ts
-router.addEndpoint({
+r.addEndpoint({
     when: req => req.url === "/hello/world",
     do: (req, res) => {
         res.end("hello world");
     }
 });
-router.addEndpoint({
+r.addEndpoint({
     when: req => req.url.startsWith("/hello"),
     do: (req, res) => {
         res.end("hello");
@@ -131,7 +105,7 @@ In this example, a request to "/hello/world" is matched by the condition of both
 If no endpoint matches, a default can be used, if one has been set with `router.setFallbackEndpoint(...)`;
 
 ```ts
-router.setFallbackEndpoint((req, res) => {
+r.setFallbackEndpoint((req, res) => {
     res.statusCode = 404;
     res.end("404 Not Found");
 });
@@ -142,7 +116,7 @@ router.setFallbackEndpoint((req, res) => {
 A request will be handled by all Spies with a matching condition. These are created using `router.addSpy(...)`. The response object is not accessible here.
 
 ```ts
-router.addSpy({
+r.addSpy({
     when: req => req.url === "/hello",
     do: (req) => {
         console.log(req.socket.remoteAddress);
@@ -159,13 +133,13 @@ A catch handler can also be given to Quelaag, as a fallback for when a local `ca
 ```ts
 import { quelaag, router } from "quelaag";
 
-const router = router(
+const r = router(
     quelaag({}),
     (err) => {
         console.error(err);
     }
 );
-router.addEndpoint({
+r.addEndpoint({
     when: req => req.url === "/local/handle",
     do: (req, res, middleware) => {
         throw "will only be caught by the handler given to this Endpoint";
@@ -174,7 +148,7 @@ router.addEndpoint({
         console.error(err);
     },
 });
-router.addEndpoint({
+r.addEndpoint({
     when: req => req.url === "/quelaag/handle",
     do: (req, res, middleware) => {
         throw "will only be caught by the handler given to Quelaag";
@@ -245,7 +219,46 @@ adminRouter.addEndpoint({
 });
 ```
 
-## Sub-Quelaags
+## Quelaag in Isolation
+
+Demonstration of what `quelaag` does by using it in isolation.
+
+```ts
+import { quelaag } from "quelaag";
+
+const makeMiddleware = quelaag({
+    ip(req): string {
+        console.log("ip");
+        return req.socket.remoteAddress;
+    },
+    isMe(req): boolean {
+        return this.ip(req) === "127.0.0.1";
+    },
+});
+
+let req1, req2; // Imagine you got some request objects from somewhere.
+
+const request1 =      makeMiddleware(req1, undefined); // ignore the use of undefined here for now
+const request2 =      makeMiddleware(req2, undefined);
+const request1Again = makeMiddleware(req1, undefined);
+
+request1.ip();   // prints "ip", returns "127.0.0.1"
+request1.ip();   //              returns "127.0.0.1"
+request1.isMe(); //              returns true
+
+request2.isMe(); // prints "ip", returns true
+request2.ip();   //              returns "127.0.0.1"
+request2.ip();   //              returns "127.0.0.1"
+
+request1Again.ip(); // prints "ip", returns "127.0.0.1"
+```
+
+Notice that a method in the middleware specification given to `quelaag` takes the request object, but the memoised version called later does not.
+
+In order for middleware to call each other, the function can't be defined with arrow syntax, so that `this` inside the function refers to the middleware object. The `noImplicitThis` option in your tsconfig needs to be enabled for the type checking on `this` to be correct.
+
+
+## Sub-Quelaag in Isolation
 
 A demonstration of how Quelaags definitions can be merged.
 
@@ -298,13 +311,13 @@ When using `router` and `subrouter`, the context is handled for you.
 ### Referencing Memoised Functions
 
 ```ts
-const q: Quelaag = ...
+const m: Middleware<...> = ...
 
 // correct
-const f = () => q.function()
+const f = () => m.function()
 
 // incorrect
-const f = q.function
+const f = m.function
 ```
 
 Under the hood, the function will replace itself when it is first called. In the incorrect case, you might be taking a reference to the function that does the initial computation.
@@ -356,43 +369,3 @@ To make matters more complicated: These functions have a default type for the mi
 The best solution is to assign the complicated object to a variable and use `typeof` to use its type as a type argument to the function call. I think this is easier than currying the type arguments (i.e. defining nested functions each of which takes a single type argument).
 
 [In the future, there may be a way to tell TypeScript which types to infer.](https://github.com/microsoft/TypeScript/issues/26242)
-
-## Explanations
-
-### Memoisation Demonstration
-
-Demonstration of what `quelaag` does by using it in isolation.
-
-```ts
-import { quelaag } from "quelaag";
-
-const makeMiddleware = quelaag({
-    ip(req): string {
-        console.log("ip");
-        return req.socket.remoteAddress;
-    },
-    isMe(req): boolean {
-        return this.ip(req) === "127.0.0.1";
-    },
-});
-
-let req1, req2; // Imagine you got some request objects from somewhere.
-
-const request1 =      makeMiddleware(req1, undefined); // ignore the use of undefined here for now
-const request2 =      makeMiddleware(req2, undefined);
-const request1Again = makeMiddleware(req1, undefined);
-
-request1.ip();   // prints "ip", returns "127.0.0.1"
-request1.ip();   //              returns "127.0.0.1"
-request1.isMe(); //              returns true
-
-request2.isMe(); // prints "ip", returns true
-request2.ip();   //              returns "127.0.0.1"
-request2.ip();   //              returns "127.0.0.1"
-
-request1Again.ip(); // prints "ip", returns "127.0.0.1"
-```
-
-Notice that a method in the middleware specification given to `quelaag` takes the request object, but the memoised version called later does not.
-
-In order for middleware to call each other, the function can't be defined with arrow syntax, so that `this` inside the function refers to the middleware object. The `noImplicitThis` option in your tsconfig needs to be enabled for the type checking on `this` to be correct.
