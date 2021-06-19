@@ -69,7 +69,7 @@ The `quelaag` function returns a function that generates memoised middleware tie
 
 `quelaag` and `router` are designed to be flexible in how they can be used. You can use them with NodeJS's built-in libraries or a third-party framework. `quelaag` can be used without `router` entirely.
 
-By default, the type of requests and responses are NodeJS's `IncomingMessage` and `ServerResponse`. However, these can be overridden with type arguments to `quelaag` and `router`. See the [examples] folder for details.
+By default, the type of requests and responses are NodeJS's `IncomingMessage` and `ServerResponse`. However, these can be overridden with type arguments to `quelaag` and `router`. See the [examples](./examples) folder for details.
 
 ## Middleware in Quelaag
 
