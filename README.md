@@ -328,7 +328,7 @@ To get the a greater benefit from TypeScript's type inference, you should enable
 
 ### Circular Type Inference
 
-When defining middleware, the type of `this` is defined by the methods in the object, and the type of those methods can be affected by the type of `this`. [x](https://github.com/microsoft/TypeScript/issues/34858#issuecomment-577932912)
+When defining middleware, the type of `this` is defined by the methods in the object, and the type of those methods can be affected by the type of `this`. [\[x\]](https://github.com/microsoft/TypeScript/issues/34858#issuecomment-577932912)
 
 The circular type inference can cause scenarios where code compiles when it shouldn't or doesn't compile when it should.
 
