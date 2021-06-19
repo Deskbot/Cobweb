@@ -369,3 +369,7 @@ To make matters more complicated: These functions have a default type for the mi
 The best solution is to assign the complicated object to a variable and use `typeof` to use its type as a type argument to the function call. I think this is easier than currying the type arguments (i.e. defining nested functions each of which takes a single type argument).
 
 [In the future, there may be a way to tell TypeScript which types to infer.](https://github.com/microsoft/TypeScript/issues/26242)
+
+## Tip Jar
+
+[ko-fi](https://ko-fi.com/deskbot)
