@@ -1,6 +1,7 @@
 import { IncomingMessage } from "http";
 import { quelaag, router, subRouter } from "../../../src";
 import { makeRequest, Test } from "../framework";
+import { objectNotAny } from "../util";
 
 let count = 0;
 
@@ -25,6 +26,7 @@ module Sub1 {
     export const subR = subRouter<typeof Super1.superR>(
         {
             sandwich(req, con): void {
+                objectNotAny(con)
                 con.soup();
             },
         }
@@ -33,6 +35,7 @@ module Sub1 {
     subR.addEndpoint({
         when: () => true,
         do: (req, res, middleware) => {
+            objectNotAny(middleware)
             middleware.sandwich();
         }
     });
@@ -67,6 +70,7 @@ module Sub2 {
     export const subR = subRouter<typeof Super2.superR>(
         {
             sandwich(req, con): void {
+                objectNotAny(con)
                 con.soup();
             },
         }
@@ -75,6 +79,7 @@ module Sub2 {
     subR.addEndpoint({
         when: () => true,
         do: (req, res, middleware) => {
+            objectNotAny(middleware)
             middleware.sandwich();
         }
     });
