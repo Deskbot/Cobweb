@@ -22,8 +22,8 @@ module Super1 {
 }
 
 module Sub1 {
-    export const subR = subRouter(
-        Super1.superR, {
+    export const subR = subRouter<typeof Super1.superR>(
+        {
             sandwich(req, con): void {
                 con.soup();
             },
@@ -64,8 +64,8 @@ module Super2 {
 }
 
 module Sub2 {
-    export const subR = subRouter(
-        Super2.superR, {
+    export const subR = subRouter<typeof Super2.superR>(
+        {
             sandwich(req, con): void {
                 con.soup();
             },

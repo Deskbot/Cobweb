@@ -74,6 +74,10 @@ export interface RouterTop<
     route(req: Req, res: Res): void;
 }
 
+export type RouterReq<R extends Router<any, any, any>>     = (R extends Router<infer Req> ? Req : never)
+export type RouterRes<R extends Router<any, any, any>>     = (R extends Router<any, infer Res> ? Res : never)
+export type RouterQuelaag<R extends Router<any, any, any>> = (R extends Router<any, any, infer Q> ? Q : never)
+
 // callbacks
 
 /**

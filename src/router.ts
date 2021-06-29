@@ -1,6 +1,6 @@
 import { IncomingMessage, ServerResponse } from "http";
-import { quelaag, subquelaag } from "./quelaag";
-import { Endpoint, EndpointCatch, Fallback, FallbackEndpoint, MiddlewareSpec, Quelaag, Router, RouterTop, Spy, SpyCatch, SubRouterEndpoint } from "./types";
+import { quelaag } from "./quelaag";
+import { Endpoint, EndpointCatch, Fallback, FallbackEndpoint, MiddlewareSpec, Quelaag, Router, RouterQuelaag, RouterReq, RouterRes, RouterTop, Spy, SpyCatch, SubRouterEndpoint } from "./types";
 
 class RouterImpl<
     Req,
@@ -234,31 +234,33 @@ export function router<
 /**
  * Create a new Router and a new Quelaag for it, where the Quelaag's context is the Quelaag of the parent Router.
  * This allows you to use middleware defined in the parent Router in the created sub-Router.
+ * The parent router must be given as the first type argument.
  *
- * @param parentRouter An instance of Router.
  * @param spec An object of middleware functions used to define a new Quelaag.
  */
 export function subRouter<
-    /** should be given as a type argument */
-    ParentContext = undefined,
+    /** required type argument */
+    ParentRouter extends Router<any, any, any>
+                       = Router<unknown, unknown, unknown>,
 
-    /** optional type argument */
-    Req = IncomingMessage,
-    /** optional type argument */
-    Res = ServerResponse,
-
-    /** should be inferred */
-    ParentQ extends Quelaag<Req, ParentContext>
-                  = Quelaag<Req, ParentContext>,
-    /** should be inferred */
-    ParentM extends ReturnType<ParentQ>
-                  = ReturnType<ParentQ>,
-    /** should be inferred */
+    /** inferred */
+    Req extends RouterReq<ParentRouter>
+              = RouterReq<ParentRouter>,
+    /** inferred */
+    Res extends RouterRes<ParentRouter>
+              = RouterRes<ParentRouter>,
+    /** inferred */
+    ParentQuelaag extends RouterQuelaag<ParentRouter>
+                        = RouterQuelaag<ParentRouter>,
+    /** inferred */
+    ParentM extends ReturnType<ParentQuelaag>
+                  = ReturnType<ParentQuelaag>,
+    /** inferred */
     ChildSpec extends MiddlewareSpec<Req, ParentM>
                     = MiddlewareSpec<Req, ParentM>,
 >(
     spec: ChildSpec
 ): Router<Req, Res, ParentM, Quelaag<Req, ParentM, ChildSpec>>
 {
-    return new RouterImpl(quelaag<Req, ParentM, ChildSpec>(spec));
+    return new RouterImpl(quelaag(spec));
 }
