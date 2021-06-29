@@ -243,13 +243,13 @@ export function subRouter<
     ParentRouter extends Router<any, any, any>
                        = Router<unknown, unknown, unknown>,
 
-    /** inferred */
+    /** derived */
     Req extends RouterReq<ParentRouter>
               = RouterReq<ParentRouter>,
-    /** inferred */
+    /** derived */
     Res extends RouterRes<ParentRouter>
               = RouterRes<ParentRouter>,
-    /** inferred */
+    /** derived */
     ParentM extends RouterMiddleware<ParentRouter>
                   = RouterMiddleware<ParentRouter>,
     /** inferred */
