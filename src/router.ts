@@ -1,6 +1,6 @@
 import { IncomingMessage, ServerResponse } from "http";
 import { quelaag } from "./quelaag";
-import { Endpoint, EndpointCatch, Fallback, FallbackEndpoint, MiddlewareSpec, Quelaag, Router, RouterQuelaag, RouterReq, RouterRes, RouterTop, Spy, SpyCatch, SubRouterEndpoint } from "./types";
+import { Endpoint, EndpointCatch, Fallback, FallbackEndpoint, MiddlewareSpec, Quelaag, Router, RouterMiddleware, RouterQuelaag, RouterReq, RouterRes, RouterTop, Spy, SpyCatch, SubRouterEndpoint } from "./types";
 
 class RouterImpl<
     Req,
@@ -250,11 +250,8 @@ export function subRouter<
     Res extends RouterRes<ParentRouter>
               = RouterRes<ParentRouter>,
     /** inferred */
-    ParentQuelaag extends RouterQuelaag<ParentRouter>
-                        = RouterQuelaag<ParentRouter>,
-    /** inferred */
-    ParentM extends ReturnType<ParentQuelaag>
-                  = ReturnType<ParentQuelaag>,
+    ParentM extends RouterMiddleware<ParentRouter>
+                  = RouterMiddleware<ParentRouter>,
     /** inferred */
     ChildSpec extends MiddlewareSpec<Req, ParentM>
                     = MiddlewareSpec<Req, ParentM>,
