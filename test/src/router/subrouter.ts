@@ -11,8 +11,9 @@ export const subrouterTests: Test[] = [];
 
 module Super1 {
     export const superR = router(quelaag({
-        soup(req: IncomingMessage): void {
+        soup(req: IncomingMessage): number {
             count += 1;
+            return count
         }
     }));
 
@@ -27,7 +28,7 @@ module Sub1 {
         {
             sandwich(req, con): void {
                 objectNotAny(con)
-                con.soup();
+                const n: number = con.soup();
             },
         }
     );
@@ -36,7 +37,8 @@ module Sub1 {
         when: () => true,
         do: (req, res, middleware) => {
             objectNotAny(middleware)
-            middleware.sandwich();
+            const v: void = middleware.sandwich();
+            const n: number = middleware.soup();
         }
     });
 }

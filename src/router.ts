@@ -1,6 +1,6 @@
 import { IncomingMessage, ServerResponse } from "http";
 import { quelaag } from "./quelaag";
-import { Endpoint, EndpointCatch, Fallback, FallbackEndpoint, MiddlewareSpec, Quelaag, Router, RouterMiddleware, RouterQuelaag, RouterReq, RouterRes, RouterTop, Spy, SpyCatch, SubRouterEndpoint } from "./types";
+import { Endpoint, EndpointCatch, Fallback, FallbackEndpoint, MiddlewareSpec, Quelaag, Router, RouterMiddleware, RouterReq, RouterRes, RouterTop, Spy, SpyCatch, SubRouterEndpoint } from "./types";
 
 class RouterImpl<
     Req,

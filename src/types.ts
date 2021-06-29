@@ -77,19 +77,18 @@ export interface RouterTop<
 /**
  * Get the type of request expected by a router
  */
-export type RouterReq<R extends Router<any, any, any>>     = (R extends Router<infer Req> ? Req : never)
+export type RouterReq<R extends Router<any, any, any>>
+    = (R extends Router<infer Req> ? Req : never)
 /**
  * Get the type of response expected by a router
  */
-export type RouterRes<R extends Router<any, any, any>>     = (R extends Router<any, infer Res> ? Res : never)
-/**
- * Get the type of quelaag used by a router
- */
-export type RouterQuelaag<R extends Router<any, any, any>> = (R extends Router<any, any, infer Q> ? Q : never)
+export type RouterRes<R extends Router<any, any, any>>
+    = (R extends Router<any, infer Res> ? Res : never)
 /**
  * Get the type of middleware used by a router
  */
-export type RouterMiddleware<R extends Router<any, any, any>> = ReturnType<RouterQuelaag<R>>
+export type RouterMiddleware<R extends Router<any, any, any>>
+    = (R extends Router<any, any, any, any, infer M> ? M : never)
 
 // callbacks
 
