@@ -236,7 +236,9 @@ export function router<
  * This allows you to use middleware defined in the parent Router in the created sub-Router.
  * The parent router must be given as the first type argument.
  *
- * @param spec An object of middleware functions used to define a new Quelaag.
+ * @returns a function that takes a middleware spec which is used to define middleware in the subrouter
+ *
+ * This returns a function because partial application of type arguments is required to make TypeScript infer the middleware spec type.
  */
 export function subRouter<
     /** required type argument */
