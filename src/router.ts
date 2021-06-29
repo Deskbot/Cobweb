@@ -1,5 +1,5 @@
 import { IncomingMessage, ServerResponse } from "http";
-import { subquelaag } from "./quelaag";
+import { quelaag, subquelaag } from "./quelaag";
 import { Endpoint, EndpointCatch, Fallback, FallbackEndpoint, MiddlewareSpec, Quelaag, Router, RouterTop, Spy, SpyCatch, SubRouterEndpoint } from "./types";
 
 class RouterImpl<
@@ -239,24 +239,26 @@ export function router<
  * @param spec An object of middleware functions used to define a new Quelaag.
  */
 export function subRouter<
+    /** should be given as a type argument */
+    ParentContext = undefined,
+
+    /** optional type argument */
     Req = IncomingMessage,
+    /** optional type argument */
     Res = ServerResponse,
 
-    ParentContext = undefined,
+    /** should be inferred */
     ParentQ extends Quelaag<Req, ParentContext>
                   = Quelaag<Req, ParentContext>,
+    /** should be inferred */
     ParentM extends ReturnType<ParentQ>
                   = ReturnType<ParentQ>,
-
+    /** should be inferred */
     ChildSpec extends MiddlewareSpec<Req, ParentM>
                     = MiddlewareSpec<Req, ParentM>,
-
-    SubQ extends Quelaag<Req, ParentM, ChildSpec>
-               = Quelaag<Req, ParentM, ChildSpec>,
 >(
-    parentRouter: Router<Req, Res, ParentContext, ParentQ>,
     spec: ChildSpec
-): Router<Req, Res, ParentM, SubQ>
+): Router<Req, Res, ParentM, Quelaag<Req, ParentM, ChildSpec>>
 {
-    return new RouterImpl(subquelaag(parentRouter.quelaag, spec) as SubQ);
+    return new RouterImpl(quelaag<Req, ParentM, ChildSpec>(spec));
 }

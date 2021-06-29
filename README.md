@@ -193,8 +193,7 @@ server.listen(8080);
 import { subRouter } from "quelaag";
 import { root } from "./app";
 
-export const adminRouter = subRouter(
-    root,
+export const adminRouter = subRouter<typeof root>(
     {
         url(req, superMiddleware) {
             return superMiddleware.url();
