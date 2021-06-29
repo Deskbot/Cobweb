@@ -24,7 +24,7 @@ module Super1 {
 }
 
 module Sub1 {
-    export const subR = subRouter<typeof Super1.superR>(
+    export const subR = subRouter<typeof Super1.superR>()(
         {
             sandwich(req, con): void {
                 objectNotAny(con)
@@ -38,7 +38,6 @@ module Sub1 {
         do: (req, res, middleware) => {
             objectNotAny(middleware)
             const v: void = middleware.sandwich();
-            const n: number = middleware.soup();
         }
     });
 }
@@ -69,11 +68,11 @@ module Super2 {
 }
 
 module Sub2 {
-    export const subR = subRouter<typeof Super2.superR>(
+    export const subR = subRouter<typeof Super2.superR>()(
         {
             sandwich(req, con): void {
                 objectNotAny(con)
-                con.soup();
+                const v: void = con.soup();
             },
         }
     );
@@ -82,7 +81,7 @@ module Sub2 {
         when: () => true,
         do: (req, res, middleware) => {
             objectNotAny(middleware)
-            middleware.sandwich();
+            const v: void = middleware.sandwich();
         }
     });
 }

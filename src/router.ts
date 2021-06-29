@@ -252,12 +252,11 @@ export function subRouter<
     /** derived */
     ParentM extends RouterMiddleware<ParentRouter>
                   = RouterMiddleware<ParentRouter>,
-    /** inferred */
-    ChildSpec extends MiddlewareSpec<Req, ParentM>
-                    = MiddlewareSpec<Req, ParentM>,
->(
-    spec: ChildSpec
-): Router<Req, Res, ParentM, Quelaag<Req, ParentM, ChildSpec>>
-{
-    return new RouterImpl(quelaag(spec));
+>() {
+    return function
+        <ChildSpec extends MiddlewareSpec<Req, ParentM>>
+        (spec: ChildSpec): Router<Req, Res, ParentM, Quelaag<Req, ParentM, ChildSpec>>
+    {
+        return new RouterImpl(quelaag(spec));
+    }
 }
