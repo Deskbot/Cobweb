@@ -52,15 +52,18 @@ export function quelaag<
 
     return (req, context) => {
         const middleware = new (constructor as any)(req, context)
-
-        const destructurableMiddleware = {} as any
-
-        for (const key in middlewareSpec) {
-            destructurableMiddleware[key] = () => (middleware as any)[key]()
-        }
-
-        return destructurableMiddleware;
+        return destructurable(middleware, middlewareSpec)
     }
+}
+
+function destructurable<T>(middleware: T, spec: any): T {
+    const destructurableMiddleware = {} as any
+
+    for (const key in spec) {
+        destructurableMiddleware[key] = () => (middleware as any)[key]()
+    }
+
+    return destructurableMiddleware;
 }
 
 /**
