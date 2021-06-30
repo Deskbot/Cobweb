@@ -50,7 +50,17 @@ export function quelaag<
 
     constructor.prototype = middlewareProto;
 
-    return (req, context) => new (constructor as any)(req, context);
+    return (req, context) => {
+        const middleware = new (constructor as any)(req, context)
+
+        const destructurableMiddleware = {} as any
+
+        for (const key in middlewareSpec) {
+            destructurableMiddleware[key] = () => (middleware as any)[key]()
+        }
+
+        return destructurableMiddleware;
+    }
 }
 
 /**

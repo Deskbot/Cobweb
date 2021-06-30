@@ -12,6 +12,7 @@ import { lazyParentTests } from "./quelaag/lazy parent";
 import { quelaagPartialTypesTests } from "./quelaag/quelaagPartialTypes";
 import { subrouterTests } from "./router/subrouter";
 import { recursiveTests } from "./quelaag/recursive";
+import { destructurableTests } from "./quelaag/destructurable";
 
 main();
 
@@ -29,6 +30,7 @@ async function main() {
         ...quelaagPartialTypesTests,
         ...subrouterTests,
         ...recursiveTests,
+        ...destructurableTests,
     ]);
 
     if (anyFailed) {
