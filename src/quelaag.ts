@@ -55,7 +55,7 @@ export function quelaag<
 
 /**
  * A function that makes a new Quelaag.
- * It is identical to quelaag(...) except it takes a parent instance of Quelaag as a type argument,
+ * It is identical to `quelaag` except it takes a parent instance of Quelaag as a type argument,
  * which become the Context type of the new quelaag.
  *
  * Usage: subquelaag<typeof parentQuelaag>()({ middlewareSpecFuncs(req, parentMiddleware) {} })
@@ -85,7 +85,7 @@ export function subquelaag<
 
 /**
  * A function that makes a new Quelaag.
- * Identical to subquelaag(...) except instead of taking a single parent type,
+ * Identical to `subquelaag` except instead of taking a single parent type,
  * it takes a record of parent Quelaag types.
  * The Context type for the new Quelaag is this Record type.
  *
