@@ -21,6 +21,8 @@ export const destructurableTests: Test[] = [
 
                 test(rec() === 1);
                 test(middleware.rec() === 1);
+
+                calls = 0
             }
 
             {
@@ -29,6 +31,8 @@ export const destructurableTests: Test[] = [
 
                 test(middleware.rec() === 1);
                 test(rec() === 1);
+
+                calls = 0
             }
         }
     }
