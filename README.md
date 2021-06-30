@@ -176,7 +176,7 @@ export const root = router(quelaag({
         return parseInt(this.cookies(req).userId);
     },
     url(req: IncomingMessage): URL {
-        return new URL(req.url!);
+        return new URL(req.url!, "http://localhost:8080");
     },
 }));
 
