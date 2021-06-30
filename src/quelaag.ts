@@ -58,14 +58,22 @@ export function quelaag<
  * The purpose of passing a value instead of a type argument is to make use of TypeScript's inference.
  */
 export function subquelaag<
+    /** required type argument */
     Parent extends Quelaag<any, any>,
-    ChildSpec extends MiddlewareSpec<Req, ChildContext>,
-    Req extends QuelaagReq<Parent> = QuelaagReq<Parent>,
-    ChildContext extends ReturnType<Parent> = ReturnType<Parent>,
->
-    (parent: Parent, childSpec: ChildSpec): Quelaag<Req, ChildContext, ChildSpec>
-{
-    return quelaag(childSpec);
+
+    /** derived */
+    Req extends QuelaagReq<Parent>
+              = QuelaagReq<Parent>,
+    /** derived */
+    ChildContext extends ReturnType<Parent>
+                       = ReturnType<Parent>,
+>() {
+    return function
+        <ChildSpec extends MiddlewareSpec<Req, ChildContext>>
+        (childSpec: ChildSpec): Quelaag<Req, ChildContext, ChildSpec>
+    {
+        return quelaag(childSpec);
+    }
 }
 
 /**
@@ -74,14 +82,20 @@ export function subquelaag<
  * The Context type for the new Quelaag is the Record type given to the first parameter.
  */
 export function multiParentSubquelaag<
+    /** required type argument */
     Parents extends Record<keyof any, Quelaag<any, any>>,
-    ChildSpec extends MiddlewareSpec<Req, ChildContext>,
-    Req extends QuelaagReq<ValuesOf<Parents>>,
-    ChildContext = {
-        [K in keyof Parents]: ReturnType<Parents[K]>
-    },
->
-    (parents: Parents, childSpec: ChildSpec): Quelaag<Req, ChildContext, ChildSpec>
-{
-    return quelaag(childSpec);
+
+    /** derived */
+    Req extends QuelaagReq<ValuesOf<Parents>>
+              = QuelaagReq<ValuesOf<Parents>>,
+    /** derived */
+    ChildContext extends { [K in keyof Parents]: ReturnType<Parents[K]> }
+                       = { [K in keyof Parents]: ReturnType<Parents[K]> },
+>() {
+    return function
+        <ChildSpec extends MiddlewareSpec<Req, ChildContext>>
+        (childSpec: ChildSpec): Quelaag<Req, ChildContext, ChildSpec>
+    {
+        return quelaag(childSpec);
+    }
 }
