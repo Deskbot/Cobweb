@@ -2,11 +2,13 @@
     "typescript.tsdk": "node_modules/typescript/lib",
     "cSpell.words": [
         "Quelaag",
+        "Quelaag's",
         "Quelaags",
         "dont",
         "errored",
         "fallback",
         "subquelaag",
-        "subrouter"
+        "subrouter",
+        "typeof"
     ]
 }

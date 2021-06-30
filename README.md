@@ -272,8 +272,7 @@ const makeParent = quelaag({
     },
 });
 
-const makeMiddleware = subquelaag(
-    makeParent,
+const makeMiddleware = subquelaag<typeof makeParent>()(
     {
         ip(req, parentMiddleware): string {
             return parentMiddleware.ip();

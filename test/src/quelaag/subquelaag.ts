@@ -9,7 +9,7 @@ function setup(callback: () => void) {
         }
     });
 
-    const makeMiddleware2 = subquelaag(makeMiddleware1, {
+    const makeMiddleware2 = subquelaag<typeof makeMiddleware1>()({
         func(req, con) {
             stringNotAny(req);
             objectNotAny(con);
@@ -23,7 +23,7 @@ function setup(callback: () => void) {
     });
 
     // compiles as proof that you can go multiple levels deep
-    const makeMiddleware3 = subquelaag(makeMiddleware2, {
+    const makeMiddleware3 = subquelaag<typeof makeMiddleware2>()({
         func(req, con) {
             stringNotAny(req);
             objectNotAny(con);
