@@ -306,20 +306,6 @@ When using `router` and `subrouter`, the context is handled for you.
 
 ## Gotchas
 
-### Referencing Memoised Functions
-
-```ts
-const m: Middleware<...> = ...
-
-// correct
-const f = () => m.function()
-
-// incorrect
-const f = m.function
-```
-
-Under the hood, the function will replace itself when it is first called. In the incorrect case, you might be taking a reference to the function that does the initial computation.
-
 ### No Implicit This
 
 To get the a greater benefit from TypeScript's type inference, you should enable `noImplicitThis` in your tsconfig.json. It causes `this` in your middleware specification to be correctly typed instead of treated as `any`.
