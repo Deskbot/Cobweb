@@ -1,0 +1,15 @@
+{
+    "typescript.tsdk": "node_modules/typescript/lib",
+    "cSpell.words": [
+        "Quelaag",
+        "Quelaag's",
+        "Quelaags",
+        "destructurable",
+        "dont",
+        "errored",
+        "fallback",
+        "subquelaag",
+        "subrouter",
+        "typeof"
+    ]
+}

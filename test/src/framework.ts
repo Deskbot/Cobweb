@@ -1,7 +1,7 @@
 import * as http from "http";
 import * as util from "util";
+import { RouterTop, Router } from "../../src";
 
-import { Quelaag } from "../../src";
 import { TEST_PORT } from "./config";
 
 export interface Test {
@@ -11,15 +11,41 @@ export interface Test {
 }
 
 export interface Examiner {
-    readonly fail: (reason?: any) => void;
+    readonly fail: (reason?: unknown) => void;
     readonly pass: () => void;
     readonly test: (result: boolean, message?: string) => void;
 }
 
-export async function makeRequest(handler: Quelaag): Promise<void> {
+export class Defer<T> {
+    readonly promise: Promise<T>;
+    private _resolve: (value: T | PromiseLike<T>) => void;
+    private _reject: (reason?: unknown) => void;
+
+    constructor() {
+        this._resolve = () => { };
+        this._reject = () => { };
+        this.promise = new Promise<T>((resolve, reject) => {
+            this._resolve = resolve;
+            this._reject = reject;
+        });
+    }
+
+    resolve(value: T | PromiseLike<T>) {
+        return this._resolve(value);
+    }
+
+    reject(reason?: unknown) {
+        return this._reject(reason);
+    }
+}
+
+export async function makeRequest(handler: RouterTop<http.IncomingMessage, http.ServerResponse, any>): Promise<void> {
+    const defer = new Defer<void>();
+
     const server = http.createServer((req, res) => {
-        handler.handle(req, res);
+        handler.route(req, res);
         res.end();
+        defer.resolve(undefined);
     });
 
     await util.promisify(cb => server.listen(TEST_PORT, cb))();
@@ -29,22 +55,21 @@ export async function makeRequest(handler: Quelaag): Promise<void> {
         port: TEST_PORT,
     });
 
-    return new Promise<void>((resolve, reject) => {
-        reqToServer.once("error", (err) => {
-            reject(err);
-        });
+    reqToServer.once("error", (err) => {
+        defer.reject(err);
+    });
 
-        reqToServer.on("timeout", () => {
-            // adding this handler prevents a timeout error from being thrown
-            // we are not testing that the requests get closed, only that they are handled
-        });
+    reqToServer.on("timeout", () => {
+        // adding this handler prevents a timeout error from being thrown
+        // we are not testing that the requests get closed, only that they are handled
+    });
 
-        reqToServer.end(() => {
-            resolve();
-        });
+    reqToServer.end(() => {
 
-    }).finally(() => {
-        // ensure that only one server is alive at a time beacuse they always use the same port
+    });
+
+    return defer.promise.finally(() => {
+        // ensure that only one server is alive at a time because they always use the same port
         server.close();
     });
 }
@@ -62,7 +87,7 @@ class ExaminerImpl implements Examiner {
     private passesRequired: number;
     public readonly promise: Promise<void>;
     private resolve: (value?: void | PromiseLike<void> | undefined) => void;
-    private reject: (reason?: any) => void;
+    private reject: (reason?: unknown) => void;
 
     constructor(passesRequired: number | undefined) {
         this.passes = 0;
@@ -76,7 +101,7 @@ class ExaminerImpl implements Examiner {
         });
     }
 
-    fail(val) {
+    fail(val: unknown) {
         console.trace();
         this.reject(val);
     }
@@ -92,13 +117,12 @@ class ExaminerImpl implements Examiner {
         this.maybeFinish();
     }
 
-    test(result, message) {
+    test(result: boolean, message?: string) {
         if (result) {
             this.pass();
-            return;
+        } else {
+            this.fail(message);
         }
-
-        return this.fail(message);
     }
 }
 

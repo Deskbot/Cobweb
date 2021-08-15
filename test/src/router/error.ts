@@ -1,10 +1,10 @@
-import { Quelaag } from "../../../src";
+import { quelaag, router } from "../../../src";
 import { makeRequest, Test } from "../framework";
 
 export const errorTests: Test[] = [{
-    name: "An uncaught exception thrown in `when` in endpoint should be catchable .",
+    name: "An uncaught exception thrown in `when` in endpoint should be catchable.",
     run({ test }) {
-        const handler = new Quelaag({}, err => test(err === "error"));
+        const handler = router(quelaag({}), err => test(err === "error"));
         handler.addEndpoint({
             when: () => {
                 throw "error"
@@ -16,9 +16,9 @@ export const errorTests: Test[] = [{
     }
 },
 {
-    name: "An uncaught exception thrown in `when` in spy should be catchable .",
+    name: "An uncaught exception thrown in `when` in spy should be catchable.",
     run({ test }) {
-        const handler = new Quelaag({}, err => test(err === "error"));
+        const handler = router(quelaag({}), err => test(err === "error"));
         handler.addSpy({
             when: () => {
                 throw "error"
@@ -30,9 +30,9 @@ export const errorTests: Test[] = [{
     }
 },
 {
-    name: "An uncaught exception thrown in `do` in endpoint should be catchable .",
+    name: "An uncaught exception thrown in `do` in endpoint should be catchable.",
     run({ test }) {
-        const handler = new Quelaag({}, err => test(err === "error"));
+        const handler = router(quelaag({}), err => test(err === "error"));
         handler.addEndpoint({
             when: () => true,
             do: () => {
@@ -44,9 +44,9 @@ export const errorTests: Test[] = [{
     }
 },
 {
-    name: "An uncaught exception thrown in `do` in spy should be catchable .",
+    name: "An uncaught exception thrown in `do` in spy should be catchable.",
     run({ test }) {
-        const handler = new Quelaag({}, err => test(err === "error"));
+        const handler = router(quelaag({}), err => test(err === "error"));
         handler.addSpy({
             when: () => true,
             do: () => {
@@ -58,9 +58,9 @@ export const errorTests: Test[] = [{
     }
 },
 {
-    name: "An uncaught exception thrown in `middleware` should be catchable .",
+    name: "An uncaught exception thrown in `middleware` should be catchable.",
     run({ test }) {
-        const handler = new Quelaag({}, err => test(err === "error"));
+        const handler = router(quelaag({}), err => test(err === "error"));
         handler.addEndpoint({
             when: () => {
                 throw "error";

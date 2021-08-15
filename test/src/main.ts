@@ -1,10 +1,18 @@
 import { run, rejectAfter, Test } from "./framework";
 import { TEST_FAILS_AFTER } from "./config";
-import { middlewareTests } from "./cases/middleware";
-import { catchTests } from "./cases/catch";
-import { errorTests } from "./cases/error";
-import { doTests } from "./cases/do";
-import { whenTests } from "./cases/when";
+import { middlewareTests } from "./router/middleware";
+import { catchTests } from "./router/catch";
+import { errorTests } from "./router/error";
+import { doTests } from "./router/do";
+import { whenTests } from "./router/when";
+import { subquelaagTests } from "./quelaag/subquelaag";
+import { manualSubquelaagTests } from "./quelaag/manual subquelaag";
+import { multiParentSubquelaagTests } from "./quelaag/multiParentSubquelaag";
+import { lazyParentTests } from "./quelaag/lazy parent";
+import { quelaagPartialTypesTests } from "./quelaag/quelaagPartialTypes";
+import { subrouterTests } from "./router/subrouter";
+import { recursiveTests } from "./quelaag/recursive";
+import { destructurableTests } from "./quelaag/destructurable";
 
 main();
 
@@ -15,6 +23,14 @@ async function main() {
         ...errorTests,
         ...middlewareTests,
         ...whenTests,
+        ...manualSubquelaagTests,
+        ...subquelaagTests,
+        ...multiParentSubquelaagTests,
+        ...lazyParentTests,
+        ...quelaagPartialTypesTests,
+        ...subrouterTests,
+        ...recursiveTests,
+        ...destructurableTests,
     ]);
 
     if (anyFailed) {

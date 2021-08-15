@@ -1,19 +1,16 @@
 {
     "compilerOptions": {
-        "alwaysStrict": true,
         "declaration": true,
         "module": "commonjs",
         "noImplicitReturns": true,
-        "noImplicitThis": true,
         "sourceMap": true,
         "sourceRoot": "./src",
-        "strictFunctionTypes": true,
-        "strictNullChecks": true,
-        "strictPropertyInitialization": true,
+        "strict": true,
         "target": "ES2017"
     },
 
     "exclude": [
-        "node_modules"
+        "node_modules",
+        "examples"
     ]
 }
