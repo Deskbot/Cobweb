@@ -8,7 +8,7 @@ The following examples are for a scenario where a user of a messaging platform w
 
 Functions used in these examples:
 
-(This was written without Quelaag in mind, so presumably `getUser` and `getRequest` are done with Quelaag, and `deleteMessageEndpoint` is referenced in some kind of router.)
+(This was written without Quelaag in mind, so presumably `getUser` and `getRequest` are done with Quelaag middleware, and `deleteMessageEndpoint` is referenced in some kind of router.)
 
 ```ts
 declare getUser(req: IncomingRequest): User
@@ -118,6 +118,7 @@ function mustBeLoggedIn(res, user, next) {
     if (!user.isLoggedIn()) {
         res.statusCode = 403;
         res.end();
+        return;
     }
 
     next();
@@ -127,6 +128,7 @@ function mustOwnMessage(res, user, message, next) {
     if (!user.owns(message)) {
         res.statusCode = 403;
         res.end();
+        return;
     }
 
     next();
@@ -154,6 +156,7 @@ function mustBeLoggedIn(res, user, next) {
     if (!user.isLoggedIn()) {
         res.statusCode = 403;
         res.end();
+        return;
     }
 
     next();
@@ -163,6 +166,7 @@ function mustOwnMessage(res, user, message, next) {
     if (!user.owns(message)) {
         res.statusCode = 403;
         res.end();
+        return;
     }
 
     next();
