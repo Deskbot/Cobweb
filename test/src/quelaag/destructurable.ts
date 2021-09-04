@@ -6,33 +6,36 @@ export const destructurableTests: Test[] = [
         name: "Middleware objects are destructurable",
         cases: 4,
         run: ({ test }) => {
-            let calls = 0
+            let val = 0
 
             const q = quelaag({
-                rec(req: undefined) {
-                    calls += 1
-                    return calls
-                }
+                func(req: number) {
+                    val += this.otherMethod(req)
+                    return val
+                },
+                otherMethod(req: number) {
+                    return req
+                },
             })
 
             {
-                const middleware = q(undefined, undefined)
-                const { rec } = middleware
+                const middleware = q(2, undefined)
+                const { func } = middleware
 
-                test(rec() === 1);
-                test(middleware.rec() === 1);
+                test(func() === 2);
+                test(middleware.func() === 2);
 
-                calls = 0
+                val = 0
             }
 
             {
-                const middleware = q(undefined, undefined)
-                const { rec } = middleware
+                const middleware = q(3, undefined)
+                const { func } = middleware
 
-                test(middleware.rec() === 1);
-                test(rec() === 1);
+                test(middleware.func() === 3);
+                test(func() === 3);
 
-                calls = 0
+                val = 0
             }
         }
     }
