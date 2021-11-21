@@ -1,6 +1,6 @@
 {
   "name": "quelaag",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A web request handling framework that plays nicely with TypeScript",
   "keywords": [
     "web",
@@ -26,11 +26,12 @@
   "scripts": {
     "postinstall": "./bin/post-install.js",
     "build": "./node_modules/.bin/tsc --incremental",
+    "build-prod": "./node_modules/.bin/tsc -p prod.tsconfig.json",
     "build-watch": "./node_modules/.bin/tsc -w --incremental",
     "build-test": "./node_modules/.bin/tsc --incremental -p ./test",
     "build-test-watch": "./node_modules/.bin/tsc -w --incremental -p ./test",
-    "clean": "rm -rf build/*",
-    "prepublishOnly": "npm run clean && npm run build && npm run build-test && npm run test",
+    "clean": "rm -rf build/* build-test/*",
+    "prepublishOnly": "npm run clean && npm run build-prod && npm run build-test && npm run test",
     "test": "node --trace-warnings --unhandled-rejections=strict -r source-map-support/register ./build-test/test/src/main"
   },
   "devDependencies": {
